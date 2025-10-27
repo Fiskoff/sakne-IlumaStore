@@ -19,7 +19,7 @@ class DevicesModel(BaseModel):
     price: Mapped[decimal.Decimal] = mapped_column(DECIMAL(precision=10, scale=0))
     nalichie: Mapped[int] = mapped_column(TINYINT(display_width=1))
     new: Mapped[int] = mapped_column(TINYINT)
-    hit: Mapped[int] = mapped_column(TINYINT, nullable=True)
+    hit: Mapped[int | None] = mapped_column(TINYINT, nullable=True)
     color: Mapped[str] = mapped_column(ENUM(*ENUM_COLORS))
     ref: Mapped[str] = mapped_column(VARCHAR(256))
     type: Mapped[str] = mapped_column(VARCHAR(256))
