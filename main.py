@@ -2,8 +2,10 @@ import logging
 
 from fastapi import FastAPI, APIRouter
 from uvicorn import run
+from sqladmin import Admin
 
 from core.config import settings
+from core.db_helper import db_helper
 
 
 settings.log.setup_logging()
@@ -16,9 +18,11 @@ def create_application() -> FastAPI:
     async def root():
         return {
             "message": "IlumaStore API",
-            "swagger": "/docs"
+            "swagger": "/docs",
+            "admin": "/admin"
         }
     app.include_router(router)
+    admin = Admin(app, db_helper.engine)
     return app
 
 main_app = create_application()
