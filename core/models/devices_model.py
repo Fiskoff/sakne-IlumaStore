@@ -9,7 +9,7 @@ from core.models.emun_for_models import ENUM_COLORS
 
 
 
-class Devices(BaseModel):
+class DevicesModel(BaseModel):
     __tablename__ = "Devices"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)

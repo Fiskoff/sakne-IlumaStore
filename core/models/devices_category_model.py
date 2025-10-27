@@ -10,4 +10,4 @@ class DevicesCategoryModel(BaseModel):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     category_name: Mapped[str] = mapped_column(VARCHAR(256))
 
-    devices: Mapped[list["Devices"]] = relationship(back_populates="category")
+    devices: Mapped[list["DevicesModel"]] = relationship(back_populates="category")
