@@ -28,7 +28,7 @@ class RunConfig(BaseModel):
 
 
 class DataBaseConfig(BaseModel):
-    url: str = f"postgresql+asyncpg://{DatabaseENV.DB_USER}:{DatabaseENV.DB_PASSWORD}@{DatabaseENV.DB_HOST}:{DatabaseENV.DB_PORT}/{DatabaseENV.DB_NAME}"
+    url: str = f"mysql+aiomysql://{DatabaseENV.DB_USER}:{DatabaseENV.DB_PASSWORD}@{DatabaseENV.DB_HOST}:{DatabaseENV.DB_PORT}/{DatabaseENV.DB_NAME}"
     echo: bool = True
     pool_size: int = 10
     max_overflow: int = 15
