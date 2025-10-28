@@ -7,8 +7,6 @@ from sqladmin import Admin
 from app.admin.admin_models import TereaAdmin
 from core.config import settings
 from core.db_helper import db_helper
-from core.models.terea_model import TereaModel # Важно импортировать обе модели
-from core.models.terea_category_model import TereaCategoryModel # Важно импортировать обе модели
 
 
 settings.log.setup_logging()
