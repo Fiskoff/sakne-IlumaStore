@@ -11,7 +11,7 @@ class DevicesCategorySchema(BaseModel):
     model_config = ConfigDict(from_attributes=True, str_strip_whitespace=True)
 
 
-class DevicesOutSchema(BaseModel):
+class DevicesSchema(BaseModel):
     id: int = Field(..., description="Уникальный идентификатор устройства", examples=[38])
     name: str = Field(..., description="Название устройства", examples=["Съемная крышка для ILuma Prime, голубой"], max_length=256)
     description: str = Field(
@@ -46,11 +46,11 @@ class DevicesOutSchema(BaseModel):
 
 
 class GetDevicesResponse(BaseModel):
-    devices: List[DevicesOutSchema] = Field(..., description="Список устройств")
+    devices: List[DevicesSchema] = Field(..., description="Список устройств")
     skip: int
     limit: int
     total: int
 
 
-class GetDeviceByIdResponse(DevicesOutSchema):
-    pass
+class GetDeviceByIdResponse(BaseModel):
+    device: DevicesSchema = Field(..., description="Устройство")

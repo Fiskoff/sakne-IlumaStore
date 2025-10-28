@@ -1,1 +1,5 @@
-from app.api.schemas.devices_schemas import GetDevicesResponse, GetDeviceByIdResponse
+from app.api.schemas.devices_schemas import (
+    DevicesSchema,
+    GetDevicesResponse,
+    GetDeviceByIdResponse
+)
