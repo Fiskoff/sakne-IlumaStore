@@ -1,8 +1,8 @@
-"""first migration
+"""fix iqos model. update fild sale_price
 
-Revision ID: 68fe1e4cc423
+Revision ID: 5298e9d4d330
 Revises: 
-Create Date: 2025-10-27 18:20:22.631663
+Create Date: 2025-10-28 18:31:31.699458
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision: str = '68fe1e4cc423'
+revision: str = '5298e9d4d330'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -66,7 +66,7 @@ def upgrade() -> None:
     sa.Column('nalichie', mysql.TINYINT(display_width=1), nullable=False),
     sa.Column('ref', sa.VARCHAR(length=256), nullable=False),
     sa.Column('type', sa.VARCHAR(length=256), nullable=False),
-    sa.Column('sale_price', sa.DECIMAL(precision=10, scale=0), nullable=False),
+    sa.Column('sale_price', sa.DECIMAL(precision=10, scale=0), nullable=True),
     sa.Column('id_category', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['id_category'], ['Iqos_category.id'], ),
     sa.PrimaryKeyConstraint('id')

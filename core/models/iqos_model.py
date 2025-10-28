@@ -24,7 +24,7 @@ class IqosModel(BaseModel):
     nalichie: Mapped[int] = mapped_column(TINYINT(display_width=1))
     ref: Mapped[str] = mapped_column(VARCHAR(256))
     type: Mapped[str] = mapped_column(VARCHAR(256))
-    sale_price: Mapped[decimal.Decimal] = mapped_column(DECIMAL(precision=10, scale=0))
+    sale_price: Mapped[decimal.Decimal | None] = mapped_column(DECIMAL(precision=10, scale=0), nullable=True)
     id_category: Mapped[int] = mapped_column(Integer, ForeignKey("Iqos_category.id"))
 
     category: Mapped["IqosCategoryModel"] = relationship(back_populates="iqos")
