@@ -4,7 +4,7 @@ from fastapi import FastAPI, APIRouter
 from uvicorn import run
 from sqladmin import Admin
 
-from app.admin.admin_models import TereaAdmin, IqosAdmin, DevicesAdmin
+from app.admin import admin_views
 from app.api.routers.products_routers import router as products_router
 from core.config import settings
 from core.db_helper import db_helper
@@ -29,9 +29,8 @@ def create_application() -> FastAPI:
     app.include_router(products_router)
 
     admin = Admin(app, db_helper.engine)
-    admin.add_view(TereaAdmin)
-    admin.add_view(IqosAdmin)
-    admin.add_view(DevicesAdmin)
+    for view in admin_views:
+        admin.add_view(view)
 
     return app
 
