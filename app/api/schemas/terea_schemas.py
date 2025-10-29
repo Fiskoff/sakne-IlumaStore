@@ -1,10 +1,9 @@
 import decimal
-from typing import Literal, List
+from typing import Literal, List, Union, Set
 
 from pydantic import BaseModel, Field, ConfigDict
 
 
-FlavorEnum = Literal['Табачный вкус', 'Фруктовый вкус', 'Ментол', 'Экзотические']
 StrengthEnum = Literal['Легкие', 'Средние', 'Крепкие']
 
 
@@ -45,7 +44,7 @@ class TereaSchema(BaseModel):
         decimal_places=0
     )
     has_capsule: int = Field(..., description="Флаг наличия капсулы (обычно 0 или 1)", examples=[0], ge=0, le=1)
-    flavor: FlavorEnum = Field(..., description="Вкус продукта Terea", examples=["Табачный вкус"])
+    flavor: Union[Set[str], frozenset[str]] = Field(..., description="Вкус продукта Terea (множество значений из допустимого набора в БД)", examples=[{"Ментол"}])
     country: str = Field(..., description="Страна производитель", examples=["Армения"], max_length=65535)
     brend: str = Field(..., description="Бренд продукта Terea", examples=["Terea"], max_length=256)
     strength: StrengthEnum = Field(..., description="Крепость продукта Terea", examples=["Крепкие"])
