@@ -11,3 +11,6 @@ class DevicesCategoryModel(BaseModel):
     category_name: Mapped[str] = mapped_column(VARCHAR(256))
 
     devices: Mapped[list["DevicesModel"]] = relationship(back_populates="category")
+
+    def __str__(self):
+        return f"Категория {self.category_name}"

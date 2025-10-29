@@ -11,3 +11,6 @@ class TereaCategoryModel(BaseModel):
     category_name: Mapped[str] = mapped_column(String(256))
 
     terea: Mapped["TereaModel"] = relationship(back_populates="category")
+
+    def __str__(self):
+        return f"Категория {self.category_name}"

@@ -28,3 +28,6 @@ class IqosModel(BaseModel):
     id_category: Mapped[int] = mapped_column(Integer, ForeignKey("Iqos_category.id"))
 
     category: Mapped["IqosCategoryModel"] = relationship(back_populates="iqos")
+
+    def __str__(self):
+        return f"Iqos id: {self.id}"

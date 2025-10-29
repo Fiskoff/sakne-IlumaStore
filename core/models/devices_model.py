@@ -26,3 +26,6 @@ class DevicesModel(BaseModel):
     device_id: Mapped[int] = mapped_column(Integer, ForeignKey("Devices_category.id"))
 
     category: Mapped["DevicesCategoryModel"] = relationship(back_populates="devices")
+
+    def __str__(self):
+        return f"Devices id: {self.id}"

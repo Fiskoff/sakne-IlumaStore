@@ -31,3 +31,6 @@ class TereaModel(BaseModel):
     terea_id: Mapped[int] = mapped_column(Integer, ForeignKey("Terea_category.id"))
 
     category: Mapped["TereaCategoryModel"] = relationship(back_populates="terea")
+
+    def __str__(self):
+        return f"Terea id: {self.id}"
