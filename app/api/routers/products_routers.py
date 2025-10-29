@@ -5,7 +5,16 @@ from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
 from app.api.dependencies.pagination_dependecie import get_pagination
-from app.api.schemas import GetDevicesResponse, GetDeviceByIdResponse
+from app.api.schemas import (
+    GetDevicesResponse,
+    GetDeviceByIdResponse,
+
+    GetIqosResponse,
+    GetIqosByIdResponse,
+
+    GetTereaResponse,
+    GetTereaByIdResponse
+)
 from app.services.products_service import DevicesService
 
 
@@ -67,7 +76,7 @@ async def get_devices_by_id(devices_id: int) -> GetDeviceByIdResponse:
 
 
 @router.get("/iqos", summary="Получить все продукты iqos с пагинацией")
-async def get_iqos(pagination: Tuple[int, int] = Depends(get_pagination)):
+async def get_iqos(pagination: Tuple[int, int] = Depends(get_pagination)) -> GetIqosResponse:
     skip, limit = pagination
     logger.info(f"GET /products/iqos запрос: skip={skip}, limit={limit}")
     try:
@@ -90,7 +99,7 @@ async def get_iqos(pagination: Tuple[int, int] = Depends(get_pagination)):
 
 
 @router.get("/iqos/{id}", summary="Получить продукт iqos по id")
-async def get_iqos_by_id(iqos_id: int):
+async def get_iqos_by_id(iqos_id: int) -> GetIqosByIdResponse:
     logger.info(f"GET /products/iqos/{iqos_id} запрос")
     try:
         result = await DevicesService.get_iqos(iqos_id)
@@ -119,11 +128,52 @@ async def get_iqos_by_id(iqos_id: int):
 
 
 @router.get("/terea", summary="Получить все продукты terea с пагинацией")
-async def get_terea(pagination: Tuple[int, int] = Depends(get_pagination)):
+async def get_terea(pagination: Tuple[int, int] = Depends(get_pagination)) -> GetTereaResponse:
     skip, limit = pagination
-    return {"message": "Terea"}
+    logger.info(f"GET /products/terea запрос: skip={skip}, limit={limit}")
+    try:
+        result = await DevicesService.get_terea_list(skip=skip, limit=limit)
+        logger.info(f"GET /products/terea успешно: {len(result.terea)} продуктов terea возвращено")
+        return result
+
+    except ValueError as error:
+        logger.warning(f"GET /products/terea ошибка клиента: {str(error)}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(error)
+        )
+    except Exception as error:
+        logger.error(f"GET /products/terea внутренняя ошибка: {str(error)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Внутренняя ошибка сервера при получении продукта terea"
+        )
 
 
 @router.get("/terea/{id}", summary="Получить продукт terea по id")
-async def get_terea_by_id(terea_id: int):
-    return {"message": "id=1 Terea"}
+async def get_terea_by_id(terea_id: int) -> GetTereaByIdResponse:
+    logger.info(f"GET /products/terea/{terea_id} запрос")
+    try:
+        result = await DevicesService.get_terea(terea_id)
+        logger.info(f"GET /products/terea/{terea_id} успешно")
+        return result
+
+    except ValueError as error:
+        if "не найден" in str(error).lower():
+            logger.warning(f"GET /products/terea/{terea_id} продукт terea не найден")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Продукт terea не найден"
+            )
+
+        logger.warning(f"GET /products/terea/{terea_id} ошибка клиента: {str(error)}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(error)
+        )
+    except Exception as error:
+        logger.error(f"GET /products/terea/{terea_id} внутренняя ошибка: {str(error)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Внутренняя ошибка сервера при получении продукта terea"
+        )
