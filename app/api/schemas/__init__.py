@@ -15,3 +15,5 @@ from app.api.schemas.terea_schemas import (
     GetTereaResponse,
     GetTereaByIdResponse
 )
+
+from app.api.schemas.all_products_schemas import GetAllProductsResponse
