@@ -6,14 +6,10 @@ from starlette import status
 
 from app.api.dependencies.pagination_dependecie import get_pagination
 from app.api.schemas import (
-    GetDevicesResponse,
-    GetDeviceByIdResponse,
-
-    GetIqosResponse,
-    GetIqosByIdResponse,
-
-    GetTereaResponse,
-    GetTereaByIdResponse
+    GetDevicesResponse, GetDeviceByIdResponse,
+    GetIqosResponse, GetIqosByIdResponse,
+    GetTereaResponse, GetTereaByIdResponse,
+    GetAllProductsResponse
 )
 from app.services.products_service import DevicesService
 
@@ -176,4 +172,29 @@ async def get_terea_by_id(terea_id: int) -> GetTereaByIdResponse:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Внутренняя ошибка сервера при получении продукта terea"
+        )
+
+@router.get("", summary="Получить все продукты (devices, iqos, terea)")
+async def get_all_products() -> GetAllProductsResponse:
+    logger.info(f"GET /products запрос")
+    try:
+        devices_result = await DevicesService.get_devices(skip=0, limit=1000)
+        iqos_result = await DevicesService.get_iqos_list(skip=0, limit=1000)
+        terea_result = await DevicesService.get_terea_list(skip=0, limit=1000)
+
+        response_data = GetAllProductsResponse(devices=devices_result.devices, iqos=iqos_result.iqos, terea=terea_result.terea)
+        logger.info(f"GET /products успешно: {len(response_data.devices)} devices, {len(response_data.iqos)} iqos, {len(response_data.terea)} terea возвращено")
+        return response_data
+
+    except ValueError as error:
+        logger.warning(f"GET /products ошибка клиента: {str(error)}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(error)
+        )
+    except Exception as error:
+        logger.error(f"GET /products внутренняя ошибка: {str(error)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Внутренняя ошибка сервера при получении всех продуктов"
         )
