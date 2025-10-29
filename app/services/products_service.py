@@ -1,7 +1,19 @@
 import logging
 
-from app.api.schemas import GetDevicesResponse, DevicesSchema, GetDeviceByIdResponse
-from app.repositories.products_repositorie import DevicesRepository
+from app.api.schemas import(
+    GetDevicesResponse,
+    DevicesSchema,
+    GetDeviceByIdResponse,
+
+    GetIqosResponse,
+    IqosSchema,
+    GetIqosByIdResponse,
+
+    GetTereaResponse,
+    TereaSchema,
+    GetTereaByIdResponse
+)
+from app.repositories.products_repository import DevicesRepository
 
 
 logger = logging.getLogger(__name__)
@@ -80,3 +92,81 @@ class DevicesService:
         except Exception as error:
             logger.error(f"Ошибка при получении девайса {devices_id}: {str(error)}", exc_info=True)
             raise ValueError(f"Ошибка при получении девайса: {str(error)}")
+
+    @staticmethod
+    async def get_iqos_list(skip: int = 0, limit: int = 100) -> GetIqosResponse:
+        logger.info(f"Получение списка iqos: skip={skip}, limit={limit}")
+        try:
+            iqos_models, total = await DevicesRepository.select_iqos(skip=skip, limit=limit)
+
+            iqos_response = [
+                IqosSchema(
+                    id=iqos.id,
+                    name=iqos.name,
+                    model=iqos.model,
+                    description=iqos.description,
+                    image=iqos.image,
+                    price=iqos.price,
+                    color=iqos.color,
+                    new=iqos.new,
+                    hit=iqos.hit,
+                    exclusive=iqos.exclusive,
+                    nalichie=iqos.nalichie,
+                    ref=iqos.ref,
+                    type=iqos.type,
+                    sale_price=iqos.sale_price,
+                    id_category=iqos.id_category,
+                    category=iqos.category
+                ) for iqos in iqos_models
+
+            ]
+            logger.info(f"Успешно возвращено {len(iqos_response)} продуктов iqos")
+            return GetIqosResponse(
+                iqos=iqos_response,
+                skip=skip,
+                limit=limit,
+                total=total
+            )
+
+        except Exception as error:
+            logger.error(f"Ошибка при получении продуктов iqos: {str(error)}", exc_info=True)
+            raise ValueError(f"Ошибка при получении продуктов iqos: {str(error)}")
+
+    @staticmethod
+    async def get_iqos(iqos_id: int) -> GetIqosByIdResponse:
+        logger.info(f"Получение продукта iqos по id: {iqos_id}")
+        try:
+            iqos_model = await DevicesRepository.select_iqos_by_id(iqos_id)
+
+            if not iqos_model:
+                logger.warning(f"Продукт iqos с id {iqos_id} не найден")
+                raise ValueError("Продукт iqos не найден")
+
+            iqos_response = IqosSchema(
+                id=iqos_model.id,
+                name=iqos_model.name,
+                model=iqos_model.model,
+                description=iqos_model.description,
+                image=iqos_model.image,
+                price=iqos_model.price,
+                color=iqos_model.color,
+                new=iqos_model.new,
+                hit=iqos_model.hit,
+                exclusive=iqos_model.exclusive,
+                nalichie=iqos_model.nalichie,
+                ref=iqos_model.ref,
+                type=iqos_model.type,
+                sale_price=iqos_model.sale_price,
+                id_category=iqos_model.id_category,
+                category=iqos_model.category
+            )
+
+            logger.info(f"Продукт iqos с id {iqos_id} успешно получен")
+            return GetIqosByIdResponse(iqos=iqos_response)
+
+        except ValueError as error:
+            logger.warning(f"Продукт iqos с id {iqos_id} не найден")
+            raise ValueError(str(error))
+        except Exception as error:
+            logger.error(f"Ошибка при получении продукта iqos {iqos_id}: {str(error)}", exc_info=True)
+            raise ValueError(f"Ошибка при получении продукта iqos: {str(error)}")
