@@ -4,7 +4,7 @@ from typing import Tuple, List
 from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 
-from core.models import DevicesModel, IqosModel
+from core.models import DevicesModel, IqosModel, TereaModel
 from core.db_helper import db_helper
 
 
@@ -108,4 +108,53 @@ class DevicesRepository:
 
         except Exception as error:
             logger.error(f"Ошибка при получении продукта iqos по id {iqos_id}: {str(error)}", exc_info=True)
+            raise
+
+    @staticmethod
+    async def select_terea(skip: int = 0, limit: int = 100) -> Tuple[List[TereaModel], int]:
+        logger.debug(f"Получение всех продуктов terea с пагинацией: skip={skip}, limit={limit}")
+        try:
+            async with db_helper.session_factory() as session:
+                total_query = select(func.count(TereaModel.id))
+                total_result = await session.execute(total_query)
+                total = total_result.scalar()
+
+                terea_list_query = (
+                    select(TereaModel)
+                    .options(selectinload(TereaModel.category))
+                    .offset(skip)
+                    .limit(limit)
+                    .order_by(TereaModel.id.desc())
+                )
+                terea_result = await session.execute(terea_list_query)
+                terea_list = terea_result.scalars().all()
+
+                logger.info(f"Получено {len(terea_list)} продуктов terea из {total} продуктов terea")
+                return terea_list, total
+
+        except Exception as error:
+            logger.error(f"Ошибка при получении списка iqos: {str(error)}", exc_info=True)
+            raise
+
+    @staticmethod
+    async def select_terea_by_id(terea_id: int) -> TereaModel | None:
+        logger.debug(f"Поиск продукта terea по id: {terea_id}")
+        try:
+            async with db_helper.session_factory() as session:
+                result = await session.execute(
+                    select(TereaModel)
+                    .options(selectinload(TereaModel.category))
+                    .where(TereaModel.id == terea_id)
+                )
+                terea = result.scalar_one_or_none()
+
+                if terea:
+                    logger.debug(f"Продукт terea с id {terea_id} найден")
+                else:
+                    logger.debug(f"Продукт terea с id {terea_id} не найден")
+
+                return terea
+
+        except Exception as error:
+            logger.error(f"Ошибка при получении продукта terea по id {terea_id}: {str(error)}", exc_info=True)
             raise
