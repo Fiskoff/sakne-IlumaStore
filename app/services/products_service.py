@@ -170,3 +170,87 @@ class DevicesService:
         except Exception as error:
             logger.error(f"Ошибка при получении продукта iqos {iqos_id}: {str(error)}", exc_info=True)
             raise ValueError(f"Ошибка при получении продукта iqos: {str(error)}")
+
+    @staticmethod
+    async def get_terea_list(skip: int = 0, limit: int = 100) -> GetTereaResponse:
+        logger.info(f"Получение списка terea: skip={skip}, limit={limit}")
+        try:
+            terea_models, total = await DevicesRepository.select_terea(skip=skip, limit=limit)
+
+            terea_response = [
+                TereaSchema(
+                    id=terea.id,
+                    name=terea.name,
+                    description=terea.description,
+                    image=terea.image,
+                    imagePack=terea.imagePack,
+                    price=terea.price,
+                    pricePack=terea.pricePack,
+                    has_capsule=terea.has_capsule,
+                    flavor=terea.flavor,
+                    country=terea.country,
+                    brend=terea.brend,
+                    strength=terea.strength,
+                    nalichie=terea.nalichie,
+                    new=terea.new,
+                    hit=terea.hit,
+                    ref=terea.ref,
+                    type=terea.type,
+                    terea_id=terea.terea_id,
+                    category=terea.category
+                ) for terea in terea_models
+
+            ]
+            logger.info(f"Успешно возвращено {len(terea_response)} продуктов terea")
+            return GetTereaResponse(
+                terea=terea_response,
+                skip=skip,
+                limit=limit,
+                total=total
+            )
+
+        except Exception as error:
+            logger.error(f"Ошибка при получении продуктов terea: {str(error)}", exc_info=True)
+            raise ValueError(f"Ошибка при получении продуктов terea: {str(error)}")
+
+    @staticmethod
+    async def get_terea(terea_id: int) -> GetTereaByIdResponse:
+        logger.info(f"Получение продукта terea по id: {terea_id}")
+        try:
+            terea_model = await DevicesRepository.select_terea_by_id(terea_id)
+
+            if not terea_model:
+                logger.warning(f"Продукт terea с id {terea_id} не найден")
+                raise ValueError("Продукт terea не найден")
+
+            terea_response = TereaSchema(
+                id=terea_model.id,
+                name=terea_model.name,
+                description=terea_model.description,
+                image=terea_model.image,
+                imagePack=terea_model.imagePack,
+                price=terea_model.price,
+                pricePack=terea_model.pricePack,
+                has_capsule=terea_model.has_capsule,
+                flavor=terea_model.flavor,
+                country=terea_model.country,
+                brend=terea_model.brend,
+                strength=terea_model.strength,
+                nalichie=terea_model.nalichie,
+                new=terea_model.new,
+                hit=terea_model.hit,
+                ref=terea_model.ref,
+                type=terea_model.type,
+                terea_id=terea_model.terea_id,
+                category=terea_model.category
+            )
+
+            logger.info(f"Продукт terea с id {terea_id} успешно получен")
+            return GetTereaByIdResponse(terea=terea_response)
+
+        except ValueError as error:
+            logger.warning(f"Продукт terea с id {terea_id} не найден")
+            raise ValueError(str(error))
+        except Exception as error:
+            logger.error(f"Ошибка при получении продукта terea {terea_id}: {str(error)}", exc_info=True)
+            raise ValueError(f"Ошибка при получении продукта terea: {str(error)}")
