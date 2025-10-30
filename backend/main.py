@@ -5,7 +5,7 @@ from uvicorn import run
 from sqladmin import Admin
 
 from app.admin import admin_views
-from app.api.routers.products_routers import router as products_router
+from app.api import router as products_router
 from core.config import settings
 from core.db_helper import db_helper
 

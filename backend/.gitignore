@@ -1,5 +1,5 @@
 # IDE files
-.idea/
+../.idea/
 
 # Virtual environment
 venv/
@@ -15,7 +15,7 @@ __pycache__/
 .pytest_cache/
 
 # Environment variables
-.env
+backend/.env
 .env.local
 .env.*.local
 
