@@ -1,7 +1,37 @@
 from sqladmin import ModelView
+from wtforms import StringField
 
-from core.models import TereaModel
-from core.models.emun_for_models import SET_FLAVORS
+from backend.core.models import TereaModel
+from backend.core.models.emun_for_models import SET_FLAVORS
+
+
+class MySQLSetField(StringField):
+    """Custom field for MySQL SET type without length validation"""
+    
+    def __init__(self, label=None, validators=None, filters=(), description='', id=None, default=None, widget=None,
+                 render_kw=None, name=None, _form=None, _prefix='', _translations=None, _meta=None):
+        super().__init__(
+            label=label, 
+            validators=validators, 
+            filters=filters, 
+            description=description, 
+            id=id, 
+            default=default, 
+            widget=widget, 
+            render_kw=render_kw, 
+            name=name, 
+            _form=_form, 
+            _prefix=_prefix, 
+            _translations=_translations, 
+            _meta=_meta
+        )
+        
+    def process_formdata(self, valuelist):
+        if valuelist:
+            # Process the data as a comma-separated string
+            self.data = valuelist[0]
+        else:
+            self.data = None
 
 
 class TereaAdmin(ModelView, model=TereaModel):
@@ -149,6 +179,11 @@ class TereaAdmin(ModelView, model=TereaModel):
             "label": "Категория",
             "description": "Выберите категорию товара",
         },
+    }
+
+    # Override form field for flavor to remove length validation
+    form_overrides = {
+        "flavor": MySQLSetField,
     }
 
     can_create = True
