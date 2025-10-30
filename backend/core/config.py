@@ -1,4 +1,5 @@
 from os import getenv
+from urllib.parse import quote_plus
 
 from dotenv import load_dotenv
 from pydantic import BaseModel
@@ -11,7 +12,7 @@ load_dotenv()
 
 class DatabaseENV:
     DB_USER: str = getenv("DB_USER")
-    DB_PASSWORD: str = getenv("DB_PASSWORD")
+    DB_PASSWORD: str = quote_plus(getenv("DB_PASSWORD")) if getenv("DB_PASSWORD") else ""
     DB_HOST: str = getenv("DB_HOST")
     DB_PORT: str = getenv("DB_PORT")
     DB_NAME: str = getenv("DB_NAME")
