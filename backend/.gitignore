@@ -28,3 +28,4 @@ backend/.env
 # Local development files
 *.sqlite
 *.db
+/.env
