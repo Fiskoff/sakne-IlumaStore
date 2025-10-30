@@ -1,15 +1,20 @@
 from sqladmin import ModelView
-from wtforms import StringField
+from wtforms import TextAreaField
 
 from backend.core.models import TereaModel
 from backend.core.models.emun_for_models import SET_FLAVORS
 
 
-class MySQLSetField(StringField):
+class MySQLSetField(TextAreaField):
     """Custom field for MySQL SET type without length validation"""
     
     def __init__(self, label=None, validators=None, filters=(), description='', id=None, default=None, widget=None,
                  render_kw=None, name=None, _form=None, _prefix='', _translations=None, _meta=None):
+        if render_kw is None:
+            render_kw = {}
+        render_kw.setdefault("rows", 3)
+        render_kw.setdefault("cols", 50)
+        
         super().__init__(
             label=label, 
             validators=validators, 
@@ -28,7 +33,6 @@ class MySQLSetField(StringField):
         
     def process_formdata(self, valuelist):
         if valuelist:
-            # Process the data as a comma-separated string
             self.data = valuelist[0]
         else:
             self.data = None
@@ -181,10 +185,25 @@ class TereaAdmin(ModelView, model=TereaModel):
         },
     }
 
-    # Override form field for flavor to remove length validation
     form_overrides = {
         "flavor": MySQLSetField,
     }
+
+    async def on_model_change(self, data, model, is_created, request):
+        if "flavor" in data:
+            flavor_data = data["flavor"]
+
+            if isinstance(flavor_data, str) and flavor_data.startswith("{") and flavor_data.endswith("}"):
+                clean_flavor = flavor_data[1:-1].replace("'", "")
+                flavor_data = clean_flavor.replace(", ", ",")
+
+            if isinstance(flavor_data, str):
+                flavors = [f.strip() for f in flavor_data.split(",") if f.strip()]
+                valid_flavors = [f for f in flavors if f in SET_FLAVORS]
+                data["flavor"] = ",".join(valid_flavors)
+
+        if hasattr(super(), 'on_model_change'):
+            await super().on_model_change(data, model, is_created, request)
 
     can_create = True
     can_edit = True
