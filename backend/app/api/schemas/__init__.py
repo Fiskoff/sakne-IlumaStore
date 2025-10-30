@@ -1,19 +1,19 @@
-from app.api.schemas.devices_schemas import (
+from backend.app.api.schemas.devices_schemas import (
     DevicesSchema,
     GetDevicesResponse,
     GetDeviceByIdResponse
 )
 
-from app.api.schemas.iqos_schemas import (
+from backend.app.api.schemas.iqos_schemas import (
     IqosSchema,
     GetIqosResponse,
     GetIqosByIdResponse
 )
 
-from app.api.schemas.terea_schemas import (
+from backend.app.api.schemas.terea_schemas import (
     TereaSchema,
     GetTereaResponse,
     GetTereaByIdResponse
 )
 
-from app.api.schemas.all_products_schemas import GetAllProductsResponse
+from backend.app.api.schemas.all_products_schemas import GetAllProductsResponse

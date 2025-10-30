@@ -4,8 +4,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.mysql import TEXT, LONGTEXT, ENUM, TINYINT
 from sqlalchemy import VARCHAR, DECIMAL, Integer, ForeignKey
 
-from core.models.base_model import BaseModel
-from core.models.emun_for_models import ENUM_COLORS
+from backend.core.models.base_model import BaseModel
+from backend.core.models.emun_for_models import ENUM_COLORS
 
 
 class IqosModel(BaseModel):

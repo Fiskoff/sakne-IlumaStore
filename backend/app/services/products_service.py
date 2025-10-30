@@ -1,6 +1,6 @@
 import logging
 
-from app.api.schemas import(
+from backend.app.api.schemas import(
     GetDevicesResponse,
     DevicesSchema,
     GetDeviceByIdResponse,
@@ -13,7 +13,7 @@ from app.api.schemas import(
     TereaSchema,
     GetTereaByIdResponse
 )
-from app.repositories.products_repository import DevicesRepository
+from backend.app.repositories.products_repository import DevicesRepository
 
 
 logger = logging.getLogger(__name__)

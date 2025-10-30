@@ -4,8 +4,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.mysql import TEXT, LONGTEXT, TINYINT, SET, ENUM
 from sqlalchemy import VARCHAR, DECIMAL, Integer, ForeignKey
 
-from core.models.base_model import BaseModel
-from core.models.emun_for_models import SET_FLAVORS, ENUM_STRENGTHS
+from backend.core.models.base_model import BaseModel
+from backend.core.models.emun_for_models import SET_FLAVORS, ENUM_STRENGTHS
 
 
 class TereaModel(BaseModel):

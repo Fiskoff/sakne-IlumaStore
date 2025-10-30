@@ -4,8 +4,8 @@ from typing import Tuple, List
 from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 
-from core.models import DevicesModel, IqosModel, TereaModel
-from core.db_helper import db_helper
+from backend.core.models import DevicesModel, IqosModel, TereaModel
+from backend.core.db_helper import db_helper
 
 
 logger = logging.getLogger(__name__)

@@ -4,14 +4,14 @@ from typing import Tuple
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
-from app.api.dependencies.pagination_dependecie import get_pagination
-from app.api.schemas import (
+from backend.app.api.dependencies.pagination_dependecie import get_pagination
+from backend.app.api.schemas import (
     GetDevicesResponse, GetDeviceByIdResponse,
     GetIqosResponse, GetIqosByIdResponse,
     GetTereaResponse, GetTereaByIdResponse,
     GetAllProductsResponse
 )
-from app.services.products_service import DevicesService
+from backend.app.services.products_service import DevicesService
 
 
 logger = logging.getLogger(__name__)

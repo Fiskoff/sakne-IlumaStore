@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String
 
-from core.models.base_model import BaseModel
+from backend.core.models.base_model import BaseModel
 
 
 class TereaCategoryModel(BaseModel):

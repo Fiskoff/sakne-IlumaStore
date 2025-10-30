@@ -4,10 +4,10 @@ from fastapi import FastAPI, APIRouter
 from uvicorn import run
 from sqladmin import Admin
 
-from app.admin import admin_views
-from app.api import router as products_router
-from core.config import settings
-from core.db_helper import db_helper
+from backend.app.admin import admin_views
+from backend.app.api.routers.products_routers import router as products_router
+from backend.core.config import settings
+from backend.core.db_helper import db_helper
 
 
 settings.log.setup_logging()

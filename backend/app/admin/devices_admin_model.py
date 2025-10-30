@@ -1,7 +1,7 @@
 from sqladmin import ModelView
 
-from core.models import DevicesModel
-from core.models.emun_for_models import ENUM_COLORS
+from backend.core.models import DevicesModel
+from backend.core.models.emun_for_models import ENUM_COLORS
 
 
 class DevicesAdmin(ModelView, model=DevicesModel):

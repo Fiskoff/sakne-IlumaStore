@@ -1,6 +1,6 @@
 from sqladmin import ModelView
 
-from core.models import DevicesCategoryModel, IqosCategoryModel, TereaCategoryModel
+from backend.core.models import DevicesCategoryModel, IqosCategoryModel, TereaCategoryModel
 
 
 class DevicesCategoryAdmin(ModelView, model=DevicesCategoryModel):

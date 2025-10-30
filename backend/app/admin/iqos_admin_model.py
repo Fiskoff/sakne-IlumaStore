@@ -1,7 +1,7 @@
 from sqladmin import ModelView
 
-from core.models import IqosModel
-from core.models.emun_for_models import ENUM_COLORS
+from backend.core.models import IqosModel
+from backend.core.models.emun_for_models import ENUM_COLORS
 
 
 class IqosAdmin(ModelView, model=IqosModel):

@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import VARCHAR
 
-from core.models.base_model import BaseModel
+from backend.core.models.base_model import BaseModel
 
 
 class DevicesCategoryModel(BaseModel):

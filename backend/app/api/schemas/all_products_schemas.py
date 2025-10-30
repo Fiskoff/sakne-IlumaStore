@@ -2,7 +2,7 @@ from typing import List
 
 from pydantic import BaseModel, Field, ConfigDict
 
-from app.api.schemas import DevicesSchema, IqosSchema, TereaSchema
+from backend.app.api.schemas import DevicesSchema, IqosSchema, TereaSchema
 
 
 class GetAllProductsResponse(BaseModel):
