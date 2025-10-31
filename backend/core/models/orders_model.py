@@ -1,6 +1,6 @@
 import decimal
 from datetime import datetime
-from typing import List, Optional
+from typing import List
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.mysql import TEXT, TINYINT
@@ -34,7 +34,7 @@ class OrderedProductModel(BaseModel):
     product_name: Mapped[str] = mapped_column(VARCHAR(256))
     quantity: Mapped[int] = mapped_column(Integer)
     price_at_time_of_order: Mapped[decimal.Decimal] = mapped_column(DECIMAL(precision=10, scale=2))
-    order_id: Mapped[int] = mapped_column(Integer, ForeignKey("orders.id", ondelete="CASCADE"))
+    order_id: Mapped[int] = mapped_column(Integer, ForeignKey("Orders.id", ondelete="CASCADE"))
 
     order: Mapped["OrderModel"] = relationship(back_populates="ordered_items")
 

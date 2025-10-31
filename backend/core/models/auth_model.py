@@ -9,8 +9,7 @@ class AdminUserModel(BaseModel):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     username: Mapped[str] = mapped_column(VARCHAR(80), unique=True, nullable=False, index=True)
     password_hash: Mapped[str] = mapped_column(VARCHAR(255), nullable=False)
-    email: Mapped[str | None] = mapped_column(VARCHAR(255), unique=True, nullable=True)
-    full_name: Mapped[str | None] = mapped_column(VARCHAR(255), nullable=True)
+
 
     def set_password(self, password: str):
         self.password_hash = pbkdf2_sha256.hash(password)
