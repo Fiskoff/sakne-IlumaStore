@@ -11,11 +11,20 @@ from backend.core.loger_config import LogerConfig
 load_dotenv()
 
 class DatabaseENV:
-    DB_USER: str = getenv("DB_USER")
-    DB_PASSWORD: str = quote_plus(getenv("DB_PASSWORD")) if getenv("DB_PASSWORD") else ""
-    DB_HOST: str = getenv("DB_HOST")
-    DB_PORT: str = getenv("DB_PORT")
-    DB_NAME: str = getenv("DB_NAME")
+    is_test_db: bool = bool(int(getenv("IS_TEST_DB")))
+
+    if is_test_db:
+        DB_USER: str = getenv("DB_USER_TEST")
+        DB_PASSWORD: str = getenv("DB_PASSWORD_TEST")
+        DB_HOST: str = getenv("DB_HOST_TEST")
+        DB_PORT: str = getenv("DB_PORT_TEST")
+        DB_NAME: str = getenv("DB_NAME_TEST")
+    else:
+        DB_USER: str = getenv("DB_USER")
+        DB_PASSWORD: str = quote_plus(getenv("DB_PASSWORD")) if getenv("DB_PASSWORD") else ""
+        DB_HOST: str = getenv("DB_HOST")
+        DB_PORT: str = getenv("DB_PORT")
+        DB_NAME: str = getenv("DB_NAME")
 
 
 class ServerENV:
