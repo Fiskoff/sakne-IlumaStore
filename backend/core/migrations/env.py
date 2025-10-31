@@ -1,5 +1,18 @@
 import asyncio
+import sys
 from logging.config import fileConfig
+from pathlib import Path
+
+
+current_path = Path(__file__).resolve()
+backend_path = current_path.parent.parent
+root_path = backend_path.parent
+
+paths_to_add = [str(root_path), str(backend_path)]
+for path in paths_to_add:
+    if path not in sys.path:
+        sys.path.insert(0, path)
+
 
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
@@ -8,13 +21,14 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 
 from backend.core.config import settings
-from backend.core.models.base_model import BaseModel
-from backend.core.models.iqos_model import IqosModel
-from backend.core.models.iqos_category_model import IqosCategoryModel
-from backend.core.models.terea_model import TereaModel
-from backend.core.models.terea_category_model import TereaCategoryModel
-from backend.core.models.devices_model import DevicesModel
-from backend.core.models.devices_category_model import DevicesCategoryModel
+from backend.core.models import (
+    BaseModel,
+    DevicesModel, DevicesCategoryModel,
+    IqosModel, IqosCategoryModel,
+    TereaModel, TereaCategoryModel,
+    OrderModel, OrderedProductModel,
+    AdminUserModel
+)
 
 
 config = context.config
@@ -27,17 +41,6 @@ config.set_main_option("sqlalchemy.url", str(settings.db.url))
 
 
 def run_migrations_offline() -> None:
-    """Run migrations in 'offline' mode.
-
-    This configures the context with just a URL
-    and not an Engine, though an Engine is acceptable
-    here as well.  By skipping the Engine creation
-    we don't even need a DBAPI to be available.
-
-    Calls to context.execute() here emit the given string to the
-    script output.
-
-    """
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
@@ -58,11 +61,6 @@ def do_run_migrations(connection: Connection) -> None:
 
 
 async def run_async_migrations() -> None:
-    """In this scenario we need to create an Engine
-    and associate a connection with the context.
-
-    """
-
     connectable = async_engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
@@ -76,8 +74,6 @@ async def run_async_migrations() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode."""
-
     asyncio.run(run_async_migrations())
 
 
