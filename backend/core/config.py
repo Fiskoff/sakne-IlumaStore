@@ -43,11 +43,15 @@ class DataBaseConfig(BaseModel):
     pool_size: int = 10
     max_overflow: int = 15
 
+class AuthConfig(BaseModel):
+    SECRET_KEY: str = getenv("SECRET_KEY")
+
 
 class Settings(BaseSettings):
     run: RunConfig = RunConfig()
     db: DataBaseConfig = DataBaseConfig()
     log: LogerConfig = LogerConfig()
+    auth: AuthConfig = AuthConfig()
 
 
 settings = Settings()
