@@ -6,8 +6,6 @@ from backend.core.models.emun_for_models import SET_FLAVORS
 
 
 class MySQLSetField(TextAreaField):
-    """Custom field for MySQL SET type without length validation"""
-    
     def __init__(self, label=None, validators=None, filters=(), description='', id=None, default=None, widget=None,
                  render_kw=None, name=None, _form=None, _prefix='', _translations=None, _meta=None):
         if render_kw is None:
