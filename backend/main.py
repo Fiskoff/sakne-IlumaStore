@@ -6,6 +6,7 @@ from sqladmin import Admin
 
 from backend.app.admin import admin_views
 from backend.app.api.routers.products_routers import router as products_router
+from backend.app.api.routers.orders_routers import router as orders_router
 from backend.app.auth.admin_auth import authentication_backend
 from backend.core.config import settings
 from backend.core.db_helper import db_helper
@@ -28,6 +29,7 @@ def create_application() -> FastAPI:
 
     app.include_router(router)
     app.include_router(products_router)
+    app.include_router(orders_router)
 
     admin = Admin(app, db_helper.engine, authentication_backend=authentication_backend)
     for view in admin_views:

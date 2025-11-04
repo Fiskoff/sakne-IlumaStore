@@ -24,7 +24,7 @@ class OrderModel(BaseModel):
     ordered_items: Mapped[List["OrderedProductModel"]] = relationship(back_populates="order", cascade="all, delete-orphan")
 
     def __str__(self):
-        return f"Заказ id: {self.id}, Заказчик: {self.customer_name}, Адрес: {self.city}, {self.address}"
+        return f"Заказ id: {self.id}, Заказчик: {self.customer_name}, Адрес: {self.city}, {self.address}, Номер телефона: {self.phone_number}"
 
 
 class OrderedProductModel(BaseModel):
@@ -39,4 +39,4 @@ class OrderedProductModel(BaseModel):
     order: Mapped["OrderModel"] = relationship(back_populates="ordered_items")
 
     def __str__(self):
-        return f"OrderedProduct id: {self.id}, Order id: {self.order_id}, Product: {self.product_name}"
+        return f"ID заказа: {self.order_id}, Товар: {self.product_name}, Количество: {self.quantity}"
