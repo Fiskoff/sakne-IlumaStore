@@ -10,15 +10,47 @@ async function getAllProducts() {
   ];
 
   try {
-    const responses = await Promise.all(
-      endpoints.map((url) => fetch(url.trim()))
-    );
-    const dataArrays = await Promise.all(responses.map((res) => res.json()));
+    const allProducts = [];
 
-    return dataArrays.flatMap((obj) => {
-      const key = Object.keys(obj)[0];
-      return obj[key as keyof typeof obj] ?? [];
-    });
+    for (const endpoint of endpoints) {
+      let skip = 0;
+      const limit = 50;
+      let hasMore = true;
+
+      while (hasMore) {
+        const url = `${endpoint}?skip=${skip}&limit=${limit}`;
+        const res = await fetch(url.trim());
+
+        if (!res.ok) throw new Error(`API error: ${res.status}`);
+        const data = await res.json();
+
+        // Определяем ключ категории с проверкой на undefined
+        const category = Object.keys(data).find(
+          (key) =>
+            Array.isArray(data[key]) &&
+            key !== "skip" &&
+            key !== "limit" &&
+            key !== "total"
+        );
+
+        // Добавляем проверку на существование category
+        if (category && data[category] && Array.isArray(data[category])) {
+          allProducts.push(...data[category]);
+        }
+
+        // Проверяем, есть ли еще данные
+        if (category && data[category] && data[category].length < limit) {
+          hasMore = false;
+        } else {
+          skip += limit;
+        }
+
+        // Добавляем задержку чтобы не перегружать API
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+    }
+
+    return allProducts;
   } catch (err) {
     console.error("Error fetching all products:", err);
     return [];
@@ -28,13 +60,35 @@ async function getAllProducts() {
 async function getProductsByCategory(category: string) {
   if (!validCategories.includes(category as any)) category = "terea";
 
-  const apiUrl = `http://127.0.0.1:8000/products/${category}`;
-
   try {
-    const res = await fetch(apiUrl.trim());
-    if (!res.ok) throw new Error(`API error: ${res.status}`);
-    const data = await res.json();
-    return (data[category] ?? []).map(formatProduct);
+    const allProducts = [];
+    let skip = 0;
+    const limit = 50;
+    let hasMore = true;
+
+    while (hasMore) {
+      const apiUrl = `http://127.0.0.1:8000/products/${category}?skip=${skip}&limit=${limit}`;
+      const res = await fetch(apiUrl.trim());
+
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
+      const data = await res.json();
+
+      // Безопасное получение массива продуктов
+      const products = (data[category] || []) as any[];
+      allProducts.push(...products.map(formatProduct));
+
+      // Проверяем, есть ли еще данные
+      if (products.length < limit) {
+        hasMore = false;
+      } else {
+        skip += limit;
+      }
+
+      // Небольшая задержка
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
+    return allProducts;
   } catch (err) {
     console.error(`Error fetching category ${category}:`, err);
     throw new Error("Не удалось получить данные");
@@ -100,6 +154,7 @@ export async function GET(
 ) {
   const { slug } = await params;
 
+  // Проверяем, является ли slug валидной категорией
   if (validCategories.includes(slug as any)) {
     try {
       const products = await getProductsByCategory(slug);
@@ -117,8 +172,8 @@ export async function GET(
 
     const product =
       allProducts.find(
-        (p) => p.ref && p.ref.toLowerCase() === slug.toLowerCase()
-      ) || allProducts.find((p) => p.id?.toString() === slug);
+        (p: any) => p.ref && p.ref.toLowerCase() === slug.toLowerCase()
+      ) || allProducts.find((p: any) => p.id?.toString() === slug);
 
     if (!product)
       return NextResponse.json({ error: "Товар не найден" }, { status: 404 });

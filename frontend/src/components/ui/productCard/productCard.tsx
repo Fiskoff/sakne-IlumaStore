@@ -17,7 +17,7 @@ export interface ProductVariant {
 }
 
 export interface ProductCardProps {
-  id?: string; // ref продукта
+  id?: string;
   variants: ProductVariant[];
   url?: string;
   className?: string;
@@ -47,12 +47,26 @@ const ProductCard: FC<ProductCardProps> = ({
   } = useFavorites();
   const { addNotification } = useNotification();
 
+  if (!id) {
+    console.error("❌ ProductCard: id is undefined!", { variants, url });
+  }
+
   const itemId = `${id}-${currentVariant.type}`;
   const isItemFavorite = isFavorite(itemId);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!id) {
+      addNotification({
+        type: "error",
+        title: "Ошибка",
+        message: "Не удалось добавить товар в корзину",
+        duration: 3000,
+      });
+      return;
+    }
 
     addItem({
       ref: id,

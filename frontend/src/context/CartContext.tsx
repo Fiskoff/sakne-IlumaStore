@@ -32,6 +32,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
             : item
         );
       } else {
+        // Сохраняем все поля включая ref
         return [...prevItems, { ...itemData, id }];
       }
     });

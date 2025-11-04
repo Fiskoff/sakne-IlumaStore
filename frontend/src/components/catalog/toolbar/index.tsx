@@ -2,6 +2,8 @@ import styles from "./index.module.scss";
 
 interface ToolbarProps {
   onMobileFiltersToggle?: () => void;
+  onClearFilters?: () => void;
+  activeFiltersCount?: number;
 }
 
 export default function Toolbar({ onMobileFiltersToggle }: ToolbarProps) {

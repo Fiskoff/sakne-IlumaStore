@@ -1,7 +1,8 @@
+// types/cart/cart.ts
 export interface CartItem {
   id: string;
+  ref: string; // Добавляем поле ref
   name: string;
-  ref?: string;
   price: number;
   quantity: number;
   imageUrl: string;

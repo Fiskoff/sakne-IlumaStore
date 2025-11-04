@@ -1,3 +1,4 @@
+// В файле filters-config.ts обновите конфигурацию для terea
 export const filterConfigs = {
   iqos: {
     title: "Iqos Iluma",
@@ -49,14 +50,14 @@ export const filterConfigs = {
         type: "checkbox",
         label: "Страна",
         options: [
-          { value: "kaz", label: "Казахстан" },
-          { value: "uzb", label: "Узбекистан" },
-          { value: "arm", label: "Армения" },
-          { value: "ind", label: "Индонезия" },
-          { value: "pol", label: "Польша" },
-          { value: "jap", label: "Япония" },
-          { value: "swiz", label: "Швейцария" },
-          { value: "europe", label: "Европа" },
+          { value: "Казахстан", label: "Казахстан" },
+          { value: "Узбекистан", label: "Узбекистан" },
+          { value: "Армения", label: "Армения" },
+          { value: "Индонезия", label: "Индонезия" },
+          { value: "Польша", label: "Польша" },
+          { value: "Япония", label: "Япония" },
+          { value: "Швейцария", label: "Швейцария" },
+          { value: "Европа", label: "Европа" },
         ],
       },
       {
@@ -110,5 +111,3 @@ export const filterConfigs = {
     ],
   },
 } as const;
-
-export type Category = keyof typeof filterConfigs;

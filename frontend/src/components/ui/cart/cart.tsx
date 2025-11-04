@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState, useEffect } from "react";
+import { FC, useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
@@ -23,61 +23,134 @@ const Cart: FC<CartProps> = ({ isOpen, onClose }) => {
   const router = useRouter();
   const [isCheckingStock, setIsCheckingStock] = useState(false);
 
-  const checkCartStock = async () => {
+  const checkCartStock = useCallback(async () => {
     if (items.length === 0) {
       setStockStatuses({});
       return;
     }
 
+    console.log("=== STARTING STOCK CHECK ===");
+    console.log("All cart items:", items);
+
     setIsCheckingStock(true);
 
     try {
-      const results = await Promise.all(
-        items.map(async (item) => {
-          try {
-            const parts = item.id.split("-");
-            const ref = parts.slice(0, -1).join("-");
-            const variantType = parts.slice(-1)[0];
+      // Собираем информацию о товарах - используем ref из item.ref
+      const itemsInfo = items.map((item) => {
+        const variantType = item.variant?.type || "pack";
+        const ref = item.ref; // Используем ref который пришел из ProductCard
 
-            const res = await fetch(`/api/products/${ref}`);
-            if (!res.ok) {
-              return { itemId: item.id, inStock: false };
-            }
+        console.log(`Item:`, {
+          id: item.id,
+          ref: item.ref,
+          variantType,
+          name: item.name,
+        });
 
-            const productData = await res.json();
+        return {
+          itemId: item.id,
+          ref,
+          variantType,
+          originalItem: item,
+        };
+      });
 
-            let inStock = Boolean(productData.nalichie);
+      console.log("Items info:", itemsInfo);
 
-            const matchingVariant = productData.variants?.find(
-              (v: any) => v.type === variantType
-            );
-
-            if (matchingVariant && "nalichie" in matchingVariant) {
-              inStock = Boolean(matchingVariant.nalichie);
-            }
-
-            return { itemId: item.id, inStock };
-          } catch (err) {
-            return { itemId: item.id, inStock: false };
-          }
-        })
+      // Собираем уникальные refs
+      const uniqueRefs = [...new Set(itemsInfo.map((info) => info.ref))].filter(
+        Boolean
       );
+      console.log("Unique refs to check:", uniqueRefs);
 
+      if (uniqueRefs.length === 0) {
+        console.log("No valid refs to check");
+        const stockMap: StockStatus = {};
+        items.forEach((item) => (stockMap[item.id] = true));
+        setStockStatuses(stockMap);
+        return;
+      }
+
+      // Проверяем наличие через API
+      const res = await fetch("/api/products/check-stock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refs: uniqueRefs }),
+      });
+
+      console.log("API Response status:", res.status);
+
+      if (!res.ok) {
+        throw new Error(`API returned ${res.status}`);
+      }
+
+      const apiResponse = await res.json();
+      console.log("API Response data:", apiResponse);
+
+      // Обрабатываем результаты
       const stockMap: StockStatus = {};
-      results.forEach((r) => (stockMap[r.itemId] = r.inStock));
+
+      itemsInfo.forEach(({ itemId, ref, variantType }) => {
+        const productData = apiResponse[ref];
+        console.log(`Processing ${itemId}:`, { ref, variantType, productData });
+
+        if (!productData) {
+          console.log(`❌ No product data for ref: ${ref}`);
+          stockMap[itemId] = false;
+          return;
+        }
+
+        // Проверяем общее наличие товара
+        let inStock = Boolean(productData.nalichie);
+        console.log(
+          `📦 Base stock for ${ref}: ${productData.nalichie} -> ${inStock}`
+        );
+
+        // Проверяем наличие конкретного варианта
+        if (productData.variants) {
+          const matchingVariant = productData.variants.find(
+            (v: any) => v.type === variantType
+          );
+
+          console.log(
+            `🔍 Looking for variant ${variantType}:`,
+            matchingVariant
+          );
+
+          if (matchingVariant && "nalichie" in matchingVariant) {
+            inStock = Boolean(matchingVariant.nalichie);
+            console.log(
+              `🎯 Variant stock: ${matchingVariant.nalichie} -> ${inStock}`
+            );
+          }
+        }
+
+        console.log(`✅ Final stock status for ${itemId}: ${inStock}`);
+        stockMap[itemId] = inStock;
+      });
+
+      console.log("Final stock map:", stockMap);
       setStockStatuses(stockMap);
     } catch (error) {
-      console.error("Error checking stock:", error);
+      console.error("❌ Error checking stock:", error);
+      // Fallback: все товары в наличии при ошибке
+      const fallback: StockStatus = {};
+      items.forEach((item) => (fallback[item.id] = true));
+      setStockStatuses(fallback);
     } finally {
       setIsCheckingStock(false);
     }
-  };
+  }, [items]);
 
   useEffect(() => {
-    checkCartStock();
-    const interval = setInterval(checkCartStock, 60000);
-    return () => clearInterval(interval);
-  }, [items]);
+    if (isOpen && items.length > 0) {
+      const timeoutId = setTimeout(() => {
+        checkCartStock();
+      }, 300);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isOpen, items, checkCartStock]);
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) onClose();
@@ -225,10 +298,15 @@ const Cart: FC<CartProps> = ({ isOpen, onClose }) => {
                     onClick={handleOrder}
                     disabled={
                       isOrdering ||
+                      isCheckingStock ||
                       items.some((item) => !stockStatuses[item.id])
                     }
                   >
-                    {isOrdering ? "Оформляем..." : "Оформить заказ"}
+                    {isOrdering
+                      ? "Оформляем..."
+                      : isCheckingStock
+                      ? "Проверка..."
+                      : "Оформить заказ"}
                   </button>
                 </div>
               </div>
