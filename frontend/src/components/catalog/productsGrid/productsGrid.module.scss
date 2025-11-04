@@ -1,0 +1,279 @@
+// productsGrid.module.scss
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+
+  // Для планшетов
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  // Для мобильных устройств
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+  }
+
+  // Для очень маленьких экранов
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .white {
+    .productCard__img {
+      background-color: white !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+// Стили для пагинации
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 8px;
+    // Убираем column и оставляем в строку
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+// Общие стили для кнопок пагинации
+.paginationBtn {
+  padding: 12px 24px;
+  border: 2px solid #3c50e0;
+  border-radius: 8px;
+  background: white;
+  color: #3c50e0;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  text-align: center;
+
+  @media (max-width: 768px) {
+    padding: 10px 20px;
+    font-size: 13px;
+    min-width: 100px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 6px 6px; // Уменьшаем padding для мобильных
+    font-size: 12px;
+    min-width: auto; // Убираем фиксированную ширину
+    flex: 1; // Растягиваем кнопки равномерно
+    max-width: 100px; // Но ограничиваем максимальную ширину
+  }
+
+  // Для очень маленьких экранов делаем еще компактнее
+  @media (max-width: 360px) {
+    padding: 6px 10px;
+    font-size: 11px;
+    min-width: 70px;
+  }
+
+  &:hover:not(:disabled) {
+    background: #3c50e0;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(60, 80, 224, 0.3);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    border-color: #e5e7eb;
+    color: #9ca3af;
+    cursor: not-allowed;
+    background: #f9fafb;
+  }
+}
+
+// Специфичные стили для кнопки "Показать ещё"
+.loadMoreBtn {
+  @extend .paginationBtn;
+  background: #3c50e0;
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  font-size: 15px;
+  font-weight: 600;
+  min-width: 160px;
+
+  @media (max-width: 768px) {
+    padding: 12px 28px;
+    font-size: 14px;
+    min-width: 140px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 10px 20px;
+    min-width: 120px;
+    flex: none; // Для кнопки "Показать ещё" не растягиваем
+  }
+
+  &:hover:not(:disabled) {
+    background: #2a3db3;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(60, 80, 224, 0.4);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+// Стили для кнопок "Назад" и "Вперёд"
+.navBtn {
+  @extend .paginationBtn;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 100px;
+
+  @media (max-width: 480px) {
+    min-width: auto;
+    gap: 4px;
+    flex: 1;
+  }
+
+  @media (max-width: 360px) {
+    min-width: 70px;
+  }
+}
+
+// Стили для информации о странице
+.pageInfo {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+  padding: 8px 16px;
+  background: #f8fafc;
+  border-radius: 6px;
+  min-width: 140px;
+  text-align: center;
+  white-space: nowrap;
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+    padding: 6px 12px;
+    min-width: 120px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+    padding: 6px 10px;
+    min-width: auto;
+    flex: 1;
+    max-width: 120px;
+  }
+
+  @media (max-width: 360px) {
+    font-size: 11px;
+    padding: 5px 8px;
+    min-width: 90px;
+  }
+}
+
+// Стили для состояния загрузки и пустого состояния
+.loading {
+  text-align: center;
+  padding: 40px 20px;
+  font-size: 16px;
+  color: #6b7280;
+
+  @media (max-width: 768px) {
+    padding: 30px 15px;
+    font-size: 14px;
+  }
+}
+
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  font-size: 16px;
+  color: #6b7280;
+
+  @media (max-width: 768px) {
+    padding: 30px 15px;
+    font-size: 14px;
+  }
+}
+
+.retryBtn {
+  margin-top: 12px;
+  padding: 10px 20px;
+  background: #3c50e0;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  @media (max-width: 768px) {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  &:hover {
+    background: #2a3db3;
+    transform: translateY(-1px);
+  }
+}
+
+// Дополнительные стили для контейнера с постраничной навигацией
+.paginationPages {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  justify-content: center;
+
+  @media (max-width: 480px) {
+    gap: 8px;
+
+    // Распределяем пространство равномерно
+    .navBtn {
+      flex: 1;
+    }
+
+    .pageInfo {
+      flex: 1;
+      max-width: 130px;
+    }
+  }
+
+  @media (max-width: 360px) {
+    gap: 6px;
+
+    .pageInfo {
+      max-width: 110px;
+    }
+  }
+}

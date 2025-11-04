@@ -1,0 +1,212 @@
+// toolbar.module.scss - обновленная версия
+.toolbar {
+  background-color: #f9f9f9;
+  padding: 12px 16px;
+  border-radius: 0.5rem;
+  box-shadow: 0 0px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.toolbarMain {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.searchContainer {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  max-width: 400px;
+}
+
+.searchInput {
+  width: 100%;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background-color: white;
+  padding: 10px 40px 10px 12px;
+
+  &:focus {
+    outline: none;
+    border-color: #3c50e0;
+    box-shadow: 0 0 0 3px rgba(60, 80, 224, 0.1);
+  }
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+}
+
+.searchIcon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: #6b7280;
+  pointer-events: none;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.select {
+  padding: 10px 32px 10px 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: white;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 160px;
+  background-position: right 8px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+
+  &:focus {
+    outline: none;
+    border-color: #3c50e0;
+    box-shadow: 0 0 0 3px rgba(60, 80, 224, 0.1);
+  }
+
+  &:hover {
+    border-color: #3c50e0;
+  }
+}
+
+.mobileFilterBtn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #3c50e0;
+  }
+}
+
+// Мобильные фильтры категорий
+.mobileCategoryFilters {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.categoryFilter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filterLabel {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+  min-width: 80px;
+}
+
+.categorySelect {
+  flex: 1;
+  padding: 8px 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: white;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: #3c50e0;
+  }
+}
+
+.clearFilter {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+
+  &:hover {
+    background-color: #f3f4f6;
+    color: #374151;
+  }
+}
+
+// Адаптивность
+@media (max-width: 1024px) {
+  .searchContainer {
+    max-width: 350px;
+  }
+}
+
+@media (max-width: 768px) {
+  .toolbarMain {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .searchContainer {
+    min-width: auto;
+    max-width: none;
+    flex: 1 1 100%;
+    order: 1;
+  }
+
+  .controls {
+    order: 2;
+    flex: 1;
+    justify-content: space-between;
+  }
+
+  .select {
+    min-width: auto;
+    flex: 1;
+    max-width: 200px;
+  }
+
+  .mobileFilterBtn {
+    display: flex;
+  }
+
+  .mobileCategoryFilters {
+    display: flex;
+  }
+}
+
+@media (max-width: 480px) {
+  .toolbar {
+    padding: 10px 12px;
+  }
+
+  .select {
+    min-width: 140px;
+  }
+
+  .categoryFilter {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .filterLabel {
+    min-width: auto;
+  }
+}

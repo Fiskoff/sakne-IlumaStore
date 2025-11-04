@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "name": "IQOS Iluma Standard",
+    "description": "Нагреватель табака IQOS Iluma Standard",
+    "image": "/images/iqos/IQOS Iluma standart WE Edition.png.webp",
+    "price": "12500",
+    "ref": "iqos-iluma-standard",
+    "type": "iqos"
+  }
+]

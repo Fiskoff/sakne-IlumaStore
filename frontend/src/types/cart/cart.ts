@@ -1,0 +1,22 @@
+export interface CartItem {
+  id: string;
+  name: string;
+  ref?: string;
+  price: number;
+  quantity: number;
+  imageUrl: string;
+  variant?: {
+    type: "pack" | "block";
+    name: string;
+  };
+}
+
+export interface CartContextType {
+  items: CartItem[];
+  addItem: (itemData: Omit<CartItem, "id">) => void;
+  removeItem: (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
+  clearCart: () => void;
+  totalItems: number;
+  totalPrice: number;
+}

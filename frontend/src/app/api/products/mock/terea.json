@@ -1,0 +1,13 @@
+[
+  {
+    "id": 1,
+    "name": "Terea Yellow AM",
+    "description": "Стики Terea Yellow",
+    "image": "/images/terea/armenia/Armenia Terea Yellow Блок.png.webp",
+    "imagePack": "/images/terea/armenia/Armenia Terea Yellow.png.webp",
+    "price": "5000",
+    "pricePack": "510",
+    "ref": "terea-armenia-yellow",
+    "type": "terea"
+  }
+]

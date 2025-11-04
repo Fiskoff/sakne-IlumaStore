@@ -1,0 +1,414 @@
+// checkout.module.scss
+
+.title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1c274c;
+  margin-bottom: 40px;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr 500px;
+  gap: 40px;
+  align-items: flex-start;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+}
+
+// Стили для секции формы (теперь слева)
+.formSection {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+
+  // Убираем sticky на мобильных
+  @media (min-width: 1025px) {
+    position: sticky;
+    top: 20px;
+  }
+
+  @media (max-width: 1024px) {
+    order: 2; // На мобильных форма будет ниже
+  }
+}
+
+.orderForm {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.formGroup {
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1c274c;
+    margin-bottom: 16px;
+  }
+}
+
+.inputGroup {
+  margin-bottom: 16px;
+
+  label {
+    display: block;
+    font-size: 16px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 6px;
+  }
+
+  input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #3c50e0;
+      box-shadow: 0 0 0 3px rgba(60, 80, 224, 0.1);
+    }
+
+    &::placeholder {
+      color: #9ca3af;
+    }
+  }
+}
+
+// Стили для способов доставки
+.deliveryMethods {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.deliveryMethod {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #3c50e0;
+  }
+
+  input {
+    display: none;
+
+    &:checked + .radioCustom {
+      border-color: #3c50e0;
+
+      &::after {
+        content: "";
+        width: 8px;
+        height: 8px;
+        background: #3c50e0;
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+    }
+  }
+}
+
+.radioCustom {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.deliveryInfo {
+  flex: 1;
+}
+
+.deliveryTitle {
+  display: block;
+  font-weight: 500;
+  color: #1c274c;
+  margin-bottom: 2px;
+}
+
+.deliveryDescription {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+// Адрес самовывоза
+.pickupAddress {
+  background: #f0f9ff;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+
+  h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1c274c;
+    margin-bottom: 8px;
+  }
+
+  p {
+    font-size: 14px;
+    color: #374151;
+    margin-bottom: 4px;
+  }
+}
+
+.pickupHours {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+// Поля доставки
+.deliveryFields {
+  margin-top: 16px;
+}
+
+// Кнопка оформления
+.submitButton {
+  width: 100%;
+  padding: 16px;
+  background: #3c50e0;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &:hover:not(:disabled) {
+    background: #2a3db3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(60, 80, 224, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid transparent;
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// Стили для секции корзины (теперь справа)
+.cartSection {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+
+  @media (max-width: 1024px) {
+    order: 1; // На мобильных корзина будет выше
+  }
+}
+
+.cartItems {
+  margin-bottom: 30px;
+
+  h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1c274c;
+    margin-bottom: 20px;
+  }
+}
+
+.cartItem {
+  display: flex;
+  gap: 16px;
+  padding: 20px 0;
+  border-bottom: 1px solid #e5e7eb;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.cartItemImage {
+  flex-shrink: 0;
+
+  img {
+    border-radius: 8px;
+    object-fit: cover;
+  }
+}
+
+.cartItemInfo {
+  flex: 1;
+}
+
+.cartItemName {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1c274c;
+  margin-bottom: 4px;
+}
+
+.cartItemVariant {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.cartItemDetails {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cartItemQuantity {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.cartItemPrice {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1c274c;
+}
+
+// Стили для итогов
+.orderSummary {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 24px;
+
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1c274c;
+    margin-bottom: 16px;
+  }
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 14px;
+  color: #6b7280;
+
+  &.total {
+    border-top: 1px solid #e5e7eb;
+    margin-top: 8px;
+    padding-top: 16px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1c274c;
+  }
+}
+
+.totalPrice {
+  font-size: 20px;
+  color: #3c50e0;
+}
+
+// Стили для пустой корзины
+.emptyCart {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emptyCartContent {
+  text-align: center;
+
+  h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1c274c;
+    margin: 20px 0 8px;
+  }
+
+  p {
+    color: #6b7280;
+    margin-bottom: 20px;
+  }
+}
+
+.continueShopping {
+  padding: 12px 24px;
+  background: #3c50e0;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #2a3db3;
+  }
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+  .checkout {
+    padding: 20px 0;
+  }
+
+  .title {
+    font-size: 24px;
+    margin-bottom: 30px;
+    text-align: left;
+  }
+
+  .cartSection,
+  .formSection {
+    padding: 20px;
+  }
+
+  .cartItem {
+    padding: 16px 0;
+  }
+
+  .cartItemImage {
+    img {
+      width: 60px;
+      height: 60px;
+    }
+  }
+}

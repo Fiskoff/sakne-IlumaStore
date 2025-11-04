@@ -1,0 +1,172 @@
+.catalogLayout {
+  position: relative;
+  margin-top: 50px;
+
+  @media (max-width: 992px) {
+    margin-top: 25px;
+  }
+}
+
+.mobileFiltersToggle {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 12px;
+  width: 100%;
+  justify-content: center;
+
+  &:hover {
+    border-color: #3c50e0;
+  }
+}
+
+/* 🔹 Быстрые фильтры */
+.quickFilters {
+  display: none;
+
+  @media (max-width: 768px) {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    margin-bottom: 16px;
+    padding-bottom: 4px;
+  }
+}
+
+.filterSlider {
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.filterSlider::-webkit-scrollbar {
+  display: none;
+}
+
+.filterChip {
+  display: inline-block;
+  padding: 8px 14px;
+  background-color: #f3f4f6;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  font-size: 14px;
+  color: #374151;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    background-color: #e5e7eb;
+  }
+
+  &.active {
+    background-color: #3c50e0;
+    color: white;
+    border-color: #3c50e0;
+  }
+}
+
+.catalogContainer {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.sidebar {
+  width: 25%;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebarHeader {
+  display: none;
+}
+
+/* 📱 Мобильная адаптация */
+@media (max-width: 1024px) {
+  .catalogContainer {
+    gap: 16px;
+  }
+
+  .sidebar {
+    width: 240px;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobileFiltersToggle {
+    display: flex;
+  }
+
+  .catalogContainer {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 320px;
+    height: 100vh;
+    background: white;
+    z-index: 1000;
+    padding: 20px;
+    overflow-y: auto;
+    transition: left 0.3s ease;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+
+    &.mobileOpen {
+      left: 0;
+    }
+  }
+
+  .sidebarHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0 16px 0;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 16px;
+
+    span {
+      font-weight: 600;
+      font-size: 18px;
+    }
+  }
+
+  .closeMobileFilters {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #6b7280;
+
+    &:hover {
+      color: #374151;
+    }
+  }
+
+  .content {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    width: 100%;
+  }
+}
