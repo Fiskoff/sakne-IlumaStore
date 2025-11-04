@@ -1,22 +1,18 @@
-// productsGrid.module.scss
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 20px;
 
-  // Для планшетов
   @media (max-width: 1024px) {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 16px;
   }
 
-  // Для мобильных устройств
   @media (max-width: 768px) {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 12px;
   }
 
-  // Для очень маленьких экранов
   @media (max-width: 480px) {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
@@ -36,7 +32,6 @@
   gap: 30px;
 }
 
-// Стили для пагинации
 .pagination {
   display: flex;
   justify-content: center;
@@ -52,14 +47,12 @@
 
   @media (max-width: 480px) {
     gap: 8px;
-    // Убираем column и оставляем в строку
     flex-direction: row;
     align-items: center;
     justify-content: center;
   }
 }
 
-// Общие стили для кнопок пагинации
 .paginationBtn {
   padding: 12px 24px;
   border: 2px solid #3c50e0;
@@ -80,14 +73,13 @@
   }
 
   @media (max-width: 480px) {
-    padding: 6px 6px; // Уменьшаем padding для мобильных
+    padding: 6px 6px;
     font-size: 12px;
-    min-width: auto; // Убираем фиксированную ширину
-    flex: 1; // Растягиваем кнопки равномерно
-    max-width: 100px; // Но ограничиваем максимальную ширину
+    min-width: auto;
+    flex: 1;
+    max-width: 100px;
   }
 
-  // Для очень маленьких экранов делаем еще компактнее
   @media (max-width: 360px) {
     padding: 6px 10px;
     font-size: 11px;
@@ -113,7 +105,6 @@
   }
 }
 
-// Специфичные стили для кнопки "Показать ещё"
 .loadMoreBtn {
   @extend .paginationBtn;
   background: #3c50e0;
@@ -133,7 +124,7 @@
   @media (max-width: 480px) {
     padding: 10px 20px;
     min-width: 120px;
-    flex: none; // Для кнопки "Показать ещё" не растягиваем
+    flex: none;
   }
 
   &:hover:not(:disabled) {
@@ -147,7 +138,6 @@
   }
 }
 
-// Стили для кнопок "Назад" и "Вперёд"
 .navBtn {
   @extend .paginationBtn;
   display: flex;
@@ -167,7 +157,6 @@
   }
 }
 
-// Стили для информации о странице
 .pageInfo {
   font-size: 14px;
   color: #6b7280;
@@ -200,7 +189,6 @@
   }
 }
 
-// Стили для состояния загрузки и пустого состояния
 .loading {
   text-align: center;
   padding: 40px 20px;
@@ -247,7 +235,6 @@
   }
 }
 
-// Дополнительные стили для контейнера с постраничной навигацией
 .paginationPages {
   display: flex;
   align-items: center;
@@ -258,7 +245,6 @@
   @media (max-width: 480px) {
     gap: 8px;
 
-    // Распределяем пространство равномерно
     .navBtn {
       flex: 1;
     }

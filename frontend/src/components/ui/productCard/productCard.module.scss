@@ -1,4 +1,3 @@
-// productCard.module.scss
 .productCard {
   display: block;
   border-radius: 12px;
@@ -9,7 +8,6 @@
   overflow: hidden;
   height: 100%;
 
-  // Десктоп
   @media (min-width: 1025px) {
     &:hover {
       .productCard__action {
@@ -23,12 +21,10 @@
     }
   }
 
-  // Планшет
   @media (max-width: 1024px) {
     border-radius: 10px;
   }
 
-  // Мобильные
   @media (max-width: 768px) {
     border-radius: 8px;
   }
@@ -115,7 +111,6 @@
     border-radius: 8px 8px 0 0;
     background: #f8f9fa;
 
-    // Адаптивная высота изображения
     aspect-ratio: 1 / 1;
 
     @media (max-width: 1024px) {
@@ -163,7 +158,6 @@
     transform: translateY(100%);
     transition: all 0.3s ease;
 
-    // На мобильных всегда показываем action
     @media (max-width: 1024px) {
       opacity: 1;
       transform: translateY(0);
@@ -339,7 +333,6 @@
     }
   }
 
-  // Компактный режим для очень маленьких экранов
   @media (max-width: 360px) {
     &__action {
       flex-direction: column;
@@ -365,7 +358,6 @@
   }
 }
 
-// Улучшаем touch targets для мобильных
 @media (max-width: 768px) {
   .productCard {
     &__variant,
@@ -375,7 +367,6 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    // Увеличиваем зону клика для маленьких элементов
     &__variant {
       min-height: 20px;
       display: flex;

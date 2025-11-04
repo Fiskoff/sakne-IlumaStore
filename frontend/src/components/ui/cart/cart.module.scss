@@ -12,7 +12,6 @@
   visibility: hidden;
   transition: all 0.3s ease;
 
-  // Анимация появления overlay
   &.open {
     opacity: 1;
     visibility: visible;
@@ -27,12 +26,11 @@
   display: flex;
   flex-direction: column;
   box-shadow: -5px 0 25px rgba(0, 0, 0, 0.1);
-  transform: translateX(100%); // Начальное положение за пределами экрана
+  transform: translateX(100%);
   transition: transform 0.3s ease;
 
-  // Анимация выезжания
   .cartOverlay.open & {
-    transform: translateX(0); // Конечное положение
+    transform: translateX(0);
   }
 
   &__header {

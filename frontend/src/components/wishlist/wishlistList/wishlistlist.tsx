@@ -18,7 +18,6 @@ export default function WishlistList() {
   );
   const [loading, setLoading] = useState(true);
 
-  // ✅ Проверка наличия
   const checkStockStatus = async () => {
     if (favoriteItems.length === 0) {
       setStockStatuses({});
@@ -67,13 +66,11 @@ export default function WishlistList() {
     checkStockStatus();
   }, [favoriteItems]);
 
-  // Автообновление каждые 60 секунд
   useEffect(() => {
     const interval = setInterval(checkStockStatus, 60000);
     return () => clearInterval(interval);
   }, [favoriteItems]);
 
-  // Обновление при возвращении на вкладку
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") checkStockStatus();
@@ -181,7 +178,6 @@ export default function WishlistList() {
         </div>
       </div>
 
-      {/* 🖥️ Десктопная таблица */}
       <div className={styles.wishlistTable}>
         <div className={styles.wishlistTable__header}>
           <div className={styles.wishlistTable__col}>Товар</div>
@@ -224,14 +220,14 @@ export default function WishlistList() {
               <div className={styles.wishlistTable__col}>
                 <div
                   className={`${styles.stockStatus} ${
-                    stockStatuses[item.id] // <-- Теперь использует правильное значение для item.id
+                    stockStatuses[item.id]
                       ? styles.stockStatus_inStock
                       : styles.stockStatus_outOfStock
                   } ${loading ? styles.stockStatus_loading : ""}`}
                 >
                   {loading
                     ? "Проверка..."
-                    : stockStatuses[item.id] // <-- И тут
+                    : stockStatuses[item.id]
                     ? "В наличии"
                     : "Нет в наличии"}
                 </div>
@@ -242,7 +238,7 @@ export default function WishlistList() {
                   <button
                     className={styles.productActions__addToCart}
                     onClick={() => handleAddToCart(item)}
-                    disabled={!stockStatuses[item.id] || loading} // <-- И тут
+                    disabled={!stockStatuses[item.id] || loading}
                   >
                     {loading ? "..." : "В корзину"}
                   </button>
@@ -267,7 +263,6 @@ export default function WishlistList() {
         </div>
       </div>
 
-      {/* 📱 Мобильные карточки */}
       <div className={styles.wishlistCards}>
         {favoriteItems.map((item) => (
           <div key={item.id} className={styles.wishlistCard}>
@@ -308,21 +303,21 @@ export default function WishlistList() {
             <div className={styles.wishlistCard__footer}>
               <div
                 className={`${styles.wishlistCard__stock} ${
-                  stockStatuses[item.id] // <-- И тут
+                  stockStatuses[item.id]
                     ? styles.wishlistCard__stock_inStock
                     : styles.wishlistCard__stock_outOfStock
                 } ${loading ? styles.wishlistCard__stock_loading : ""}`}
               >
                 {loading
                   ? "Проверка..."
-                  : stockStatuses[item.id] // <-- И тут
+                  : stockStatuses[item.id]
                   ? "В наличии"
                   : "Нет в наличии"}
               </div>
               <button
                 className={styles.wishlistCard__addToCart}
                 onClick={() => handleAddToCart(item)}
-                disabled={!stockStatuses[item.id] || loading} // <-- И тут
+                disabled={!stockStatuses[item.id] || loading}
               >
                 {loading ? "..." : "В корзину"}
               </button>

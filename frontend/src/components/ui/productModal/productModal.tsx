@@ -68,7 +68,7 @@ const ProductModal: FC<ProductModalProps> = ({
       });
     } else {
       addToFavorites({
-        id: itemId, // ✅ добавили ID
+        id: itemId,
         name: currentVariant.name,
         price: currentVariant.price,
         imageUrl: currentVariant.imageUrl,
@@ -133,7 +133,6 @@ const ProductModal: FC<ProductModalProps> = ({
         </button>
 
         <div className={styles.modal__content}>
-          {/* Левая часть - изображение */}
           <div className={styles.modal__image}>
             <Image
               src={currentVariant.imageUrl}
@@ -144,12 +143,10 @@ const ProductModal: FC<ProductModalProps> = ({
             />
           </div>
 
-          {/* Правая часть - информация */}
           <div className={styles.modal__info}>
             <div className={styles.modal__infoContent}>
               <h2 className={styles.modal__title}>{productName}</h2>
 
-              {/* Переключатель вариантов */}
               {hasMultipleVariants && (
                 <div className={styles.modal__variants}>
                   <button
@@ -178,7 +175,6 @@ const ProductModal: FC<ProductModalProps> = ({
               <p className={styles.modal__description}>{description}</p>
             </div>
 
-            {/* Блок с ценой, количеством и кнопками - всегда внизу */}
             <div className={styles.modal__bottomSection}>
               <div className={styles.modal__action}>
                 <div className={styles.modal__priceSection}>

@@ -6,7 +6,6 @@ interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
-// Функция для получения данных товара с API
 async function getProductData(slug: string) {
   try {
     const apiUrl = `${

@@ -61,7 +61,7 @@ export default function Header() {
     setTimeout(() => {
       setIsCategoriesOpen(false);
       setIsClosing(false);
-    }, 200); // Должно совпадать с длительностью анимации
+    }, 200);
   };
 
   const toggleDropdown = () => {

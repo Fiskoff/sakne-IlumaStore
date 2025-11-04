@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 
 const validCategories = ["terea", "iqos", "devices"] as const;
 
-// Получение всех товаров
 async function getAllProducts() {
   const endpoints = [
     "http://127.0.0.1:8000/products/devices",
@@ -26,7 +25,6 @@ async function getAllProducts() {
   }
 }
 
-// Получение товаров по категории
 async function getProductsByCategory(category: string) {
   if (!validCategories.includes(category as any)) category = "terea";
 
@@ -36,7 +34,7 @@ async function getProductsByCategory(category: string) {
     const res = await fetch(apiUrl.trim());
     if (!res.ok) throw new Error(`API error: ${res.status}`);
     const data = await res.json();
-    return (data[category] ?? []).map(formatProduct); // форматируем сразу
+    return (data[category] ?? []).map(formatProduct);
   } catch (err) {
     console.error(`Error fetching category ${category}:`, err);
     throw new Error("Не удалось получить данные");
@@ -59,7 +57,6 @@ function getStockStatus(product: any): boolean {
   return false;
 }
 
-// Форматирование продукта и вариантов
 export function formatProduct(product: any) {
   const inStock = getStockStatus(product);
 
@@ -97,14 +94,12 @@ export function formatProduct(product: any) {
   return { ...product, variants, nalichie: inStock };
 }
 
-// GET-роут
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
 
-  // Если slug — категория
   if (validCategories.includes(slug as any)) {
     try {
       const products = await getProductsByCategory(slug);
@@ -117,7 +112,6 @@ export async function GET(
     }
   }
 
-  // Если slug — ref или id товара
   try {
     const allProducts = await getAllProducts();
 

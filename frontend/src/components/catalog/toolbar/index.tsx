@@ -1,4 +1,3 @@
-// Toolbar.tsx - обновленная версия
 import styles from "./index.module.scss";
 
 interface ToolbarProps {
@@ -38,13 +37,6 @@ export default function Toolbar({ onMobileFiltersToggle }: ToolbarProps) {
               className={styles.mobileFilterBtn}
               onClick={onMobileFiltersToggle}
             >
-              {/* <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M4 6H20M4 12H20M4 18H20"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                />
-              </svg> */}
               <span>Фильтры</span>
             </button>
           )}

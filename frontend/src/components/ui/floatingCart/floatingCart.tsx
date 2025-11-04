@@ -10,7 +10,6 @@ const FloatingCart = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { totalItems, totalPrice } = useCart();
 
-  // Не показываем иконку, если корзина пуста
   if (totalItems === 0) return null;
 
   return (
@@ -44,7 +43,6 @@ const FloatingCart = () => {
   );
 };
 
-// Функция для правильного склонения слова "товар"
 const getItemsText = (count: number) => {
   const lastDigit = count % 10;
   const lastTwoDigits = count % 100;

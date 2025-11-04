@@ -47,25 +47,7 @@ export default function CatalogLayout({ category }: CatalogLayoutProps) {
       </div>
 
       <div className={styles.catalogLayout}>
-        {/* Кнопка фильтров для мобильных */}
-        {/* <button
-          className={styles.mobileFiltersToggle}
-          onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M4 6H20M4 12H20M4 18H20"
-              stroke="currentColor"
-              strokeWidth="2"
-            />
-          </svg>
-          Фильтры
-        </button> */}
-
-        {/* 🔹 Быстрые фильтры (только для мобильной версии) */}
-
         <div className={styles.catalogContainer}>
-          {/* Боковая панель фильтров */}
           <div
             className={`${styles.sidebar} ${
               isMobileFiltersOpen ? styles.mobileOpen : ""
@@ -88,7 +70,6 @@ export default function CatalogLayout({ category }: CatalogLayoutProps) {
             />
           </div>
 
-          {/* Основной контент */}
           <div className={styles.content}>
             <Toolbar
               onMobileFiltersToggle={() =>

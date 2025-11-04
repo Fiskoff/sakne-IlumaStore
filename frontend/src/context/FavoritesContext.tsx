@@ -26,7 +26,6 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({
     localStorage.setItem("favorites", JSON.stringify(items));
   }, [items]);
 
-  // Изменяем: принимаем полный объект FavoriteItem с id
   const addItem = (item: FavoriteItem) => {
     setItems((prevItems) => {
       const existingItem = prevItems.find(

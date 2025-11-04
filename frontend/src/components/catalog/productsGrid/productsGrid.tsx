@@ -40,7 +40,6 @@ export default function ProductsGrid({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Скролл
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
   const scrollToGrid = () => {
     const gridElement = document.querySelector(`.${styles.grid}`);
@@ -49,7 +48,6 @@ export default function ProductsGrid({
     else scrollToTop();
   };
 
-  // Загрузка товаров
   useEffect(() => {
     if (!category) return;
 
@@ -73,7 +71,6 @@ export default function ProductsGrid({
     fetchProducts();
   }, [category]);
 
-  // Отображаемые товары
   useEffect(() => {
     if (paginationMode === "showMore") {
       setDisplayed(products.slice(0, page * perPage));
@@ -83,7 +80,6 @@ export default function ProductsGrid({
     }
   }, [products, page, paginationMode, perPage]);
 
-  // Синхронизация страницы с URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     params.set("page", page.toString());
@@ -92,7 +88,6 @@ export default function ProductsGrid({
     });
   }, [page, router]);
 
-  // Хэндлеры пагинации
   const handleLoadMore = () => {
     setPage((prev) => prev + 1);
     setTimeout(scrollToGrid, 100);
@@ -107,7 +102,6 @@ export default function ProductsGrid({
     if (paginationMode === "pages") scrollToTop();
   }, [page, paginationMode]);
 
-  // Статусы загрузки
   if (loading)
     return (
       <div className={styles.loading}>
@@ -179,7 +173,6 @@ export default function ProductsGrid({
         })}
       </div>
 
-      {/* Пагинация */}
       {paginationMode === "showMore" ? (
         displayed.length < products.length && (
           <div className={styles.pagination}>

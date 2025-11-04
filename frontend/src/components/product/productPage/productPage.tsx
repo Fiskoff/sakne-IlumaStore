@@ -14,7 +14,7 @@ export interface ProductVariant {
   imageUrl: string;
   price: number;
   name: string;
-  nalichie: boolean; // теперь обязательно для каждого варианта
+  nalichie: boolean;
 }
 
 export interface ProductSpecification {
@@ -69,7 +69,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
     if (!isInStock) return;
 
     addItem({
-      id: itemId,
+      ref: itemId,
       name: currentVariant.name,
       price: currentVariant.price,
       quantity,

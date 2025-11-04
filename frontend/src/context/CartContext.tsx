@@ -10,7 +10,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [items, setItems] = useState<CartItem[]>([]);
 
-  // Загружаем корзину из localStorage
   useEffect(() => {
     const savedCart = localStorage.getItem("cart");
     if (savedCart) setItems(JSON.parse(savedCart));
@@ -20,9 +19,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     localStorage.setItem("cart", JSON.stringify(items));
   }, [items]);
 
-  // В CartContext измените addItem:
   const addItem = (itemData: Omit<CartItem, "id">) => {
-    // Используем ref вместо name для создания ID
     const id = `${itemData.ref}-${itemData.variant?.type || "default"}`;
 
     setItems((prevItems) => {

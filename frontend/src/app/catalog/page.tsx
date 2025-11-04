@@ -1,4 +1,3 @@
-// catalog.tsx
 import BreadCrumbs from "@/components/common/breadcrums";
 import styles from "./catalog.module.scss";
 import BrowseCategory from "@/components/main-page/browseCategory/browseCategory";

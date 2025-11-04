@@ -1,4 +1,3 @@
-// app/checkout/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -154,10 +153,8 @@ export default function CheckoutPage() {
         <h1 className={styles.title}>Оформление заказа</h1>
 
         <div className={styles.content}>
-          {/* Левая колонка - Форма */}
           <div className={styles.formSection}>
             <form onSubmit={handleSubmit} className={styles.orderForm}>
-              {/* Личные данные */}
               <div className={styles.formGroup}>
                 <h3>Контактные данные</h3>
                 <div className={styles.inputGroup}>
@@ -186,7 +183,6 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Способ получения */}
               <div className={styles.formGroup}>
                 <h3>Способ получения</h3>
                 <div className={styles.deliveryMethods}>
@@ -229,7 +225,6 @@ export default function CheckoutPage() {
                   </label>
                 </div>
 
-                {/* Адрес самовывоза */}
                 {deliveryMethod === "pickup" && (
                   <div className={styles.pickupAddress}>
                     <h4>Адрес самовывоза:</h4>
@@ -240,7 +235,6 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
-                {/* Поля для доставки */}
                 {deliveryMethod === "delivery" && (
                   <div className={styles.deliveryFields}>
                     <div className={styles.inputGroup}>
@@ -271,7 +265,6 @@ export default function CheckoutPage() {
                 )}
               </div>
 
-              {/* Кнопка оформления */}
               <button
                 type="submit"
                 className={styles.submitButton}
@@ -289,7 +282,6 @@ export default function CheckoutPage() {
             </form>
           </div>
 
-          {/* Правая колонка - Товары и итоги */}
           <div className={styles.cartSection}>
             <div className={styles.cartItems}>
               <h3>Ваш заказ</h3>

@@ -1,4 +1,3 @@
-// productPage.module.scss
 .productPage {
   max-width: 1200px;
   margin: 0 auto;
@@ -41,7 +40,6 @@
   }
 }
 
-// Галерея изображений
 .productImage {
   position: relative;
 
@@ -65,7 +63,6 @@
   }
 }
 
-// Бейдж наличия на изображении
 .stockBadge {
   position: absolute;
   top: 16px;
@@ -88,7 +85,6 @@
   }
 }
 
-// Информация о товаре
 .productInfo {
   &__title {
     font-size: 32px;
@@ -125,7 +121,6 @@
   }
 }
 
-// Статус наличия
 .stockStatus {
   display: flex;
   align-items: center;
@@ -230,7 +225,6 @@
   font-style: italic;
 }
 
-// Особенности товара
 .features {
   margin: 30px 0;
 
@@ -272,7 +266,6 @@
   }
 }
 
-// Блок покупки
 .purchaseBlock {
   background: linear-gradient(135deg, #f8fafc, #f1f5f9);
   border-radius: 16px;
@@ -420,7 +413,6 @@
   }
 }
 
-// Дополнительная информация
 .productMeta {
   display: flex;
   flex-direction: column;
@@ -445,7 +437,6 @@
   }
 }
 
-// Спиннер
 .spinner {
   width: 18px;
   height: 18px;
@@ -461,7 +452,6 @@
   }
 }
 
-// Детальная информация
 .productDetails {
   margin-bottom: 60px;
   background: white;
@@ -566,7 +556,6 @@
   }
 }
 
-// Адаптивность
 @media (max-width: 768px) {
   .productPage {
     padding: 15px;

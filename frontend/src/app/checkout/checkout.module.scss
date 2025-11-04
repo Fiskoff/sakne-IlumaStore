@@ -1,5 +1,3 @@
-// checkout.module.scss
-
 .title {
   font-size: 32px;
   font-weight: 700;
@@ -19,21 +17,19 @@
   }
 }
 
-// Стили для секции формы (теперь слева)
 .formSection {
   background: white;
   border-radius: 12px;
   padding: 30px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 
-  // Убираем sticky на мобильных
   @media (min-width: 1025px) {
     position: sticky;
     top: 20px;
   }
 
   @media (max-width: 1024px) {
-    order: 2; // На мобильных форма будет ниже
+    order: 2;
   }
 }
 
@@ -83,7 +79,6 @@
   }
 }
 
-// Стили для способов доставки
 .deliveryMethods {
   display: flex;
   flex-direction: column;
@@ -151,7 +146,6 @@
   color: #6b7280;
 }
 
-// Адрес самовывоза
 .pickupAddress {
   background: #f0f9ff;
   border-radius: 8px;
@@ -177,12 +171,10 @@
   color: #6b7280;
 }
 
-// Поля доставки
 .deliveryFields {
   margin-top: 16px;
 }
 
-// Кнопка оформления
 .submitButton {
   width: 100%;
   padding: 16px;
@@ -230,7 +222,6 @@
   }
 }
 
-// Стили для секции корзины (теперь справа)
 .cartSection {
   background: white;
   border-radius: 12px;
@@ -238,7 +229,7 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 
   @media (max-width: 1024px) {
-    order: 1; // На мобильных корзина будет выше
+    order: 1;
   }
 }
 
@@ -307,7 +298,6 @@
   color: #1c274c;
 }
 
-// Стили для итогов
 .orderSummary {
   background: #f8fafc;
   border-radius: 8px;
@@ -344,7 +334,6 @@
   color: #3c50e0;
 }
 
-// Стили для пустой корзины
 .emptyCart {
   min-height: 60vh;
   display: flex;
@@ -384,7 +373,6 @@
   }
 }
 
-// Адаптивность
 @media (max-width: 768px) {
   .checkout {
     padding: 20px 0;
