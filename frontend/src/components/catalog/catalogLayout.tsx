@@ -10,14 +10,16 @@ import { useURLFilters } from "@/hooks/useURLFilters";
 
 interface CatalogLayoutProps {
   category: "terea" | "iqos" | "devices";
-  initialSub?: string; // 🔹 добавили подкатегорию, например "one" или "kazakhstan"
+  initialSub?: string;
 }
 
 export default function CatalogLayout({
   category,
   initialSub,
 }: CatalogLayoutProps) {
-  const { filters, updateFilters, clearFilters } = useURLFilters();
+  const { filters, updateFilters, clearFilters, updateSearch, updateSort } =
+    useURLFilters();
+
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   // 🔹 Если есть initialSub из URL — применяем соответствующий фильтр при загрузке
@@ -41,6 +43,22 @@ export default function CatalogLayout({
       updateFilters(newFilters);
     },
     [updateFilters]
+  );
+
+  // 🔹 Обработка поиска
+  const handleSearchChange = useCallback(
+    (query: string) => {
+      updateSearch(query);
+    },
+    [updateSearch]
+  );
+
+  // 🔹 Обработка сортировки
+  const handleSortChange = useCallback(
+    (sort: string) => {
+      updateSort(sort);
+    },
+    [updateSort]
   );
 
   // 🔹 Быстрые фильтры (кнопки)
@@ -84,24 +102,22 @@ export default function CatalogLayout({
   // 🔹 Тоггл фильтров
   const handleQuickFilter = useCallback(
     (value: string) => {
-      const currentFilters = filters[quickFilterKey] || [];
-      const isActive = currentFilters.includes(value);
+      const currentFilters = { ...filters };
+      const currentFilterValues = currentFilters[quickFilterKey] || [];
+      const isActive = currentFilterValues.includes(value);
 
       const newFiltersValue = isActive
-        ? currentFilters.filter((v: string) => v !== value)
-        : [...currentFilters, value];
+        ? currentFilterValues.filter((v: string) => v !== value)
+        : [...currentFilterValues, value];
 
-      const newFilters = {
-        ...filters,
-        [quickFilterKey]:
-          newFiltersValue.length > 0 ? newFiltersValue : undefined,
-      };
-
+      // Если массив стал пустым - удаляем ключ полностью
       if (newFiltersValue.length === 0) {
-        delete newFilters[quickFilterKey];
+        delete currentFilters[quickFilterKey];
+      } else {
+        currentFilters[quickFilterKey] = newFiltersValue;
       }
 
-      updateFilters(newFilters);
+      updateFilters(currentFilters);
     },
     [filters, quickFilterKey, updateFilters]
   );
@@ -112,6 +128,14 @@ export default function CatalogLayout({
   const handleClearFilters = useCallback(() => {
     clearFilters();
   }, [clearFilters]);
+
+  // Подсчет активных фильтров (исключая поиск и сортировку)
+  const activeFiltersCount = useCallback(() => {
+    const filterKeys = Object.keys(filters).filter(
+      (key) => !["search", "sort", "page"].includes(key)
+    );
+    return filterKeys.length;
+  }, [filters]);
 
   return (
     <section className="hero-container">
@@ -163,7 +187,11 @@ export default function CatalogLayout({
                 setIsMobileFiltersOpen(!isMobileFiltersOpen)
               }
               onClearFilters={handleClearFilters}
-              activeFiltersCount={Object.keys(filters).length}
+              activeFiltersCount={activeFiltersCount()}
+              searchQuery={filters.search || ""}
+              onSearchChange={handleSearchChange}
+              sortBy={filters.sort || "default"}
+              onSortChange={handleSortChange}
             />
 
             {quickFilterOptions.length > 0 && (

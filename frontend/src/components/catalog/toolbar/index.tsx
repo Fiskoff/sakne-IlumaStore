@@ -1,12 +1,52 @@
 import styles from "./index.module.scss";
+import { useCallback, useEffect, useState } from "react";
 
 interface ToolbarProps {
   onMobileFiltersToggle?: () => void;
   onClearFilters?: () => void;
   activeFiltersCount?: number;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
+  sortBy?: string;
+  onSortChange?: (sort: string) => void;
 }
 
-export default function Toolbar({ onMobileFiltersToggle }: ToolbarProps) {
+export default function Toolbar({
+  onMobileFiltersToggle,
+  onClearFilters,
+  activeFiltersCount,
+  searchQuery = "",
+  onSearchChange,
+  sortBy = "default",
+  onSortChange,
+}: ToolbarProps) {
+  const [localSearch, setLocalSearch] = useState(searchQuery);
+
+  // Дебаунс для поиска
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (onSearchChange && localSearch !== searchQuery) {
+        onSearchChange(localSearch);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [localSearch, searchQuery, onSearchChange]);
+
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setLocalSearch(e.target.value);
+    },
+    []
+  );
+
+  const handleSortChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      onSortChange?.(e.target.value);
+    },
+    [onSortChange]
+  );
+
   return (
     <div className={styles.toolbar}>
       <div className={styles.toolbarMain}>
@@ -15,6 +55,8 @@ export default function Toolbar({ onMobileFiltersToggle }: ToolbarProps) {
             type="text"
             placeholder="Поиск товаров..."
             className={styles.searchInput}
+            value={localSearch}
+            onChange={handleSearchChange}
           />
           <svg className={styles.searchIcon} viewBox="0 0 24 24" fill="none">
             <path
@@ -28,10 +70,14 @@ export default function Toolbar({ onMobileFiltersToggle }: ToolbarProps) {
         </div>
 
         <div className={styles.controls}>
-          <select className={styles.select}>
-            <option value="default">Сортировка</option>
-            <option value="price-asc">По цене ↑</option>
-            <option value="price-desc">По цене ↓</option>
+          <select
+            className={styles.select}
+            value={sortBy}
+            onChange={handleSortChange}
+          >
+            <option value="default">По умолчанию</option>
+            <option value="price-asc">По возрастанию цены</option>
+            <option value="price-desc">По убывыанию цены</option>
           </select>
 
           {onMobileFiltersToggle && (

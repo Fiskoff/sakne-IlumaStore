@@ -23,8 +23,7 @@ export default function RangeFilter({
 
   const handleChange = (newValue: { min: number; max: number }) => {
     setLocalValue(newValue);
-    // Дебаунс для избежания частых обновлений
-    setTimeout(() => onChange(newValue), 300);
+    onChange(newValue); // Без дебаунса
   };
 
   const formatValue = (val: number) => {

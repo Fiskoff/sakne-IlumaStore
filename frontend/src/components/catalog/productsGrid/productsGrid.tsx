@@ -113,13 +113,6 @@ export default function ProductsGrid({
             const normalizedFilter = filterVal.toLowerCase();
             const normalizedProduct = String(productValue || "").toLowerCase();
 
-            console.log(`Filtering ${filterId}:`, {
-              filterVal: normalizedFilter,
-              productValue: normalizedProduct,
-              matches: normalizedProduct === normalizedFilter,
-            });
-
-            // Используем точное сравнение для стран
             return normalizedProduct === normalizedFilter;
           });
         }
@@ -138,17 +131,66 @@ export default function ProductsGrid({
         }
         return true;
 
+      case "search":
+        if (!filterValue) return true;
+        const searchTerm = filterValue.toLowerCase();
+        return (
+          product.name?.toLowerCase().includes(searchTerm) ||
+          product.description?.toLowerCase().includes(searchTerm) ||
+          product.country?.toLowerCase().includes(searchTerm) ||
+          product.brend?.toLowerCase().includes(searchTerm) ||
+          false
+        );
+
       default:
         return true;
     }
   };
 
-  // Функция применения фильтров
+  // Функция сортировки продуктов
+  const sortProducts = (products: Product[], sortBy: string): Product[] => {
+    const sorted = [...products];
+
+    switch (sortBy) {
+      case "price-asc":
+        return sorted.sort((a, b) => {
+          const priceA = a.priceValue || 0;
+          const priceB = b.priceValue || 0;
+          return priceA - priceB;
+        });
+
+      case "price-desc":
+        return sorted.sort((a, b) => {
+          const priceA = a.priceValue || 0;
+          const priceB = b.priceValue || 0;
+          return priceB - priceA;
+        });
+
+      case "name-asc":
+        return sorted.sort((a, b) => {
+          const nameA = a.name?.toLowerCase() || "";
+          const nameB = b.name?.toLowerCase() || "";
+          return nameA.localeCompare(nameB);
+        });
+
+      case "name-desc":
+        return sorted.sort((a, b) => {
+          const nameA = a.name?.toLowerCase() || "";
+          const nameB = b.name?.toLowerCase() || "";
+          return nameB.localeCompare(nameA);
+        });
+
+      default:
+        return sorted;
+    }
+  };
+
+  // Функция применения фильтров и сортировки
   const filteredProducts = useMemo(() => {
     if (!products.length) return [];
 
+    // Применяем фильтры
     const filtered = products.filter((product) => {
-      // Проверяем все активные фильтры
       for (const [filterId, filterValue] of Object.entries(filters)) {
         if (!matchesFilter(product, filterId, filterValue)) {
           return false;
@@ -157,15 +199,11 @@ export default function ProductsGrid({
       return true;
     });
 
-    console.log(
-      "Filtered products:",
-      filtered.length,
-      filtered.map((p) => ({
-        id: p.id,
-        name: p.name,
-        country: p.country,
-      }))
-    );
+    // Применяем сортировку
+    if (filters.sort) {
+      return sortProducts(filtered, filters.sort);
+    }
+
     return filtered;
   }, [products, filters, category]);
 
@@ -180,7 +218,6 @@ export default function ProductsGrid({
         if (!res.ok) throw new Error(`Ошибка загрузки: ${res.status}`);
         const data = await res.json();
 
-        // Преобразуем данные для фильтрации
         const processedProducts = (Array.isArray(data) ? data : [data]).map(
           (product: Product) => ({
             ...product,
@@ -219,10 +256,17 @@ export default function ProductsGrid({
     });
   }, [page, router]);
 
-  // Сбрасываем страницу при изменении фильтров
+  // Сбрасываем страницу при изменении фильтров, поиска или сортировки
   useEffect(() => {
     setPage(1);
-  }, [filters]);
+  }, [
+    filters.search,
+    filters.sort,
+    filters.brand,
+    filters.color,
+    filters.country,
+    filters.price,
+  ]);
 
   const handleLoadMore = () => {
     setPage((prev) => prev + 1);
