@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import styles from "./productsGrid.module.scss";
 import ProductCard from "@/components/ui/productCard/productCard";
 
@@ -29,13 +28,15 @@ interface Product {
   };
   priceValue?: number;
   pricePackValue?: number;
+  nalichie?: boolean; // наличие товара
 }
 
 interface ProductsGridProps {
   category: ProductType;
   paginationMode?: "showMore" | "pages";
   perPage?: number;
-  filters?: any;
+  filters: any;
+  onPageChange?: (page: number) => void;
   onFiltersReset?: () => void;
 }
 
@@ -44,169 +45,25 @@ export default function ProductsGrid({
   paginationMode = "showMore",
   perPage = 8,
   filters = {},
+  onPageChange,
   onFiltersReset,
 }: ProductsGridProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const page = filters.page ? Number(filters.page) : 1;
 
-  const pageFromUrl = parseInt(searchParams.get("page") || "1", 10);
-  const [page, setPage] = useState(pageFromUrl);
   const [products, setProducts] = useState<Product[]>([]);
-  const [displayed, setDisplayed] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+  // Скролл к сетке
   const scrollToGrid = () => {
-    const gridElement = document.querySelector(`.${styles.grid}`);
-    if (gridElement)
-      gridElement.scrollIntoView({ behavior: "smooth", block: "start" });
-    else scrollToTop();
-  };
-
-  // Функция для получения значения продукта для фильтрации
-  const getProductFilterValue = (product: Product, filterKey: string): any => {
-    switch (filterKey) {
-      case "brand":
-        if (category === "iqos")
-          return product.category?.category_name?.toLowerCase();
-        if (category === "terea") return product.brend?.toLowerCase();
-        if (category === "devices")
-          return product.category?.category_name?.toLowerCase();
-        return null;
-
-      case "color":
-        return product.color?.toLowerCase();
-
-      case "country":
-        return product.country?.toLowerCase();
-
-      case "price":
-        return product.priceValue || parseFloat(product.price || "0");
-
-      default:
-        return null;
-    }
-  };
-
-  // Функция проверки соответствия фильтрам
-  const matchesFilter = (
-    product: Product,
-    filterId: string,
-    filterValue: any
-  ): boolean => {
-    const productValue = getProductFilterValue(product, filterId);
-
-    if (
-      !filterValue ||
-      (Array.isArray(filterValue) && filterValue.length === 0)
-    ) {
-      return true;
-    }
-
-    switch (filterId) {
-      case "brand":
-      case "color":
-      case "country":
-        if (Array.isArray(filterValue)) {
-          return filterValue.some((filterVal: string) => {
-            const normalizedFilter = filterVal.toLowerCase();
-            const normalizedProduct = String(productValue || "").toLowerCase();
-
-            return normalizedProduct === normalizedFilter;
-          });
-        }
-        return (
-          String(productValue).toLowerCase() ===
-          String(filterValue).toLowerCase()
-        );
-
-      case "price":
-        const productPrice = productValue;
-        if (filterValue.min !== undefined && productPrice < filterValue.min) {
-          return false;
-        }
-        if (filterValue.max !== undefined && productPrice > filterValue.max) {
-          return false;
-        }
-        return true;
-
-      case "search":
-        if (!filterValue) return true;
-        const searchTerm = filterValue.toLowerCase();
-        return (
-          product.name?.toLowerCase().includes(searchTerm) ||
-          product.description?.toLowerCase().includes(searchTerm) ||
-          product.country?.toLowerCase().includes(searchTerm) ||
-          product.brend?.toLowerCase().includes(searchTerm) ||
-          false
-        );
-
-      default:
-        return true;
-    }
-  };
-
-  // Функция сортировки продуктов
-  const sortProducts = (products: Product[], sortBy: string): Product[] => {
-    const sorted = [...products];
-
-    switch (sortBy) {
-      case "price-asc":
-        return sorted.sort((a, b) => {
-          const priceA = a.priceValue || 0;
-          const priceB = b.priceValue || 0;
-          return priceA - priceB;
-        });
-
-      case "price-desc":
-        return sorted.sort((a, b) => {
-          const priceA = a.priceValue || 0;
-          const priceB = b.priceValue || 0;
-          return priceB - priceA;
-        });
-
-      case "name-asc":
-        return sorted.sort((a, b) => {
-          const nameA = a.name?.toLowerCase() || "";
-          const nameB = b.name?.toLowerCase() || "";
-          return nameA.localeCompare(nameB);
-        });
-
-      case "name-desc":
-        return sorted.sort((a, b) => {
-          const nameA = a.name?.toLowerCase() || "";
-          const nameB = b.name?.toLowerCase() || "";
-          return nameB.localeCompare(nameA);
-        });
-
-      default:
-        return sorted;
-    }
-  };
-
-  // Функция применения фильтров и сортировки
-  const filteredProducts = useMemo(() => {
-    if (!products.length) return [];
-
-    // Применяем фильтры
-    const filtered = products.filter((product) => {
-      for (const [filterId, filterValue] of Object.entries(filters)) {
-        if (!matchesFilter(product, filterId, filterValue)) {
-          return false;
-        }
-      }
-      return true;
+    const offset = 100; // высота шапки/отступ, если нужно
+    window.scrollTo({
+      top: 0, // можно заменить на gridElement?.offsetTop - offset
+      behavior: "smooth",
     });
+  };
 
-    // Применяем сортировку
-    if (filters.sort) {
-      return sortProducts(filtered, filters.sort);
-    }
-
-    return filtered;
-  }, [products, filters, category]);
-
+  // Получаем продукты с API
   useEffect(() => {
     if (!category) return;
 
@@ -239,50 +96,149 @@ export default function ProductsGrid({
     fetchProducts();
   }, [category]);
 
-  useEffect(() => {
+  // Получение значения фильтра для продукта
+  const getProductFilterValue = (product: Product, filterKey: string) => {
+    switch (filterKey) {
+      case "brand":
+        if (category === "iqos" || category === "devices")
+          return product.category?.category_name?.toLowerCase();
+        if (category === "terea") return product.brend?.toLowerCase();
+        return null;
+
+      case "color":
+        return product.color?.toLowerCase();
+
+      case "country":
+        return product.country?.toLowerCase();
+
+      case "price":
+        return product.priceValue || parseFloat(product.price || "0");
+
+      default:
+        return null;
+    }
+  };
+
+  // Проверка совпадения фильтров
+  const matchesFilter = (
+    product: Product,
+    filterId: string,
+    filterValue: any
+  ) => {
+    const productValue = getProductFilterValue(product, filterId);
+
+    if (
+      !filterValue ||
+      (Array.isArray(filterValue) && filterValue.length === 0)
+    )
+      return true;
+
+    switch (filterId) {
+      case "brand":
+      case "color":
+      case "country":
+        if (Array.isArray(filterValue)) {
+          return filterValue.some(
+            (val: string) =>
+              val.toLowerCase() === String(productValue || "").toLowerCase()
+          );
+        }
+        return (
+          String(productValue).toLowerCase() ===
+          String(filterValue).toLowerCase()
+        );
+
+      case "price":
+        const productPrice = productValue ?? 0;
+        if (filterValue.min !== undefined && productPrice < filterValue.min)
+          return false;
+        if (filterValue.max !== undefined && productPrice > filterValue.max)
+          return false;
+        return true;
+
+      case "search":
+        if (!filterValue) return true;
+        const term = filterValue.toLowerCase();
+        return (
+          product.name?.toLowerCase().includes(term) ||
+          product.description?.toLowerCase().includes(term) ||
+          product.country?.toLowerCase().includes(term) ||
+          product.brend?.toLowerCase().includes(term)
+        );
+
+      default:
+        return true;
+    }
+  };
+
+  // Сортировка продуктов
+  const sortProducts = (products: Product[], sortBy: string) => {
+    const sorted = [...products];
+    switch (sortBy) {
+      case "price-asc":
+        return sorted.sort((a, b) => (a.priceValue || 0) - (b.priceValue || 0));
+      case "price-desc":
+        return sorted.sort((a, b) => (b.priceValue || 0) - (a.priceValue || 0));
+      case "name-asc":
+        return sorted.sort((a, b) =>
+          (a.name || "").localeCompare(b.name || "")
+        );
+      case "name-desc":
+        return sorted.sort((a, b) =>
+          (b.name || "").localeCompare(a.name || "")
+        );
+      default:
+        return sorted;
+    }
+  };
+
+  // Фильтруем продукты
+  const filteredProducts = useMemo(() => {
+    if (!products.length) return [];
+    let filtered = products
+      .filter((p) => p.nalichie) // 🔹 только товары в наличии
+      .filter((p) => {
+        for (const [filterId, value] of Object.entries(filters)) {
+          if (filterId === "page") continue;
+          if (!matchesFilter(p, filterId, value)) return false;
+        }
+        return true;
+      });
+
+    if (filters.sort) filtered = sortProducts(filtered, filters.sort);
+
+    return filtered;
+  }, [products, filters]);
+
+  // Выводим только нужные для текущей страницы
+  const displayed = useMemo(() => {
     if (paginationMode === "showMore") {
-      setDisplayed(filteredProducts.slice(0, page * perPage));
+      return filteredProducts.slice(0, page * perPage);
     } else {
       const start = (page - 1) * perPage;
-      setDisplayed(filteredProducts.slice(start, start + perPage));
+      return filteredProducts.slice(start, start + perPage);
     }
   }, [filteredProducts, page, paginationMode, perPage]);
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    params.set("page", page.toString());
-    router.replace(`${window.location.pathname}?${params.toString()}`, {
-      scroll: false,
-    });
-  }, [page, router]);
-
-  // Сбрасываем страницу при изменении фильтров, поиска или сортировки
-  useEffect(() => {
-    setPage(1);
-  }, [
-    filters.search,
-    filters.sort,
-    filters.brand,
-    filters.color,
-    filters.country,
-    filters.price,
-  ]);
-
+  // Навигация по страницам
   const handleLoadMore = () => {
-    setPage((prev) => prev + 1);
+    const newPage = page + 1;
+    onPageChange?.(newPage);
+    setTimeout(scrollToGrid, 100); // плавный скролл
+  };
+  const handlePrevPage = () => {
+    const newPage = Math.max(page - 1, 1);
+    onPageChange?.(newPage);
     setTimeout(scrollToGrid, 100);
   };
-
-  const handlePrevPage = () => setPage((prev) => Math.max(prev - 1, 1));
-
-  const handleNextPage = () =>
-    setPage((prev) =>
-      prev < Math.ceil(filteredProducts.length / perPage) ? prev + 1 : prev
+  const handleNextPage = () => {
+    const newPage = Math.min(
+      page + 1,
+      Math.ceil(filteredProducts.length / perPage)
     );
-
-  useEffect(() => {
-    if (paginationMode === "pages") scrollToTop();
-  }, [page, paginationMode]);
+    onPageChange?.(newPage);
+    setTimeout(scrollToGrid, 100);
+  };
 
   if (loading)
     return (
@@ -290,31 +246,23 @@ export default function ProductsGrid({
         <p>Загрузка товаров...</p>
       </div>
     );
-
   if (error)
     return (
       <div className={styles.empty}>
         <p>{error}</p>
         <button
-          onClick={() => window.location.reload()}
           className={styles.retryBtn}
+          onClick={() => window.location.reload()}
         >
           Попробовать снова
         </button>
       </div>
     );
-
   if (!filteredProducts.length)
     return (
       <div className={styles.empty}>
         <p>Товары не найдены для выбранных фильтров</p>
-        <button
-          onClick={() => {
-            onFiltersReset?.();
-            setPage(1);
-          }}
-          className={styles.retryBtn}
-        >
+        <button className={styles.retryBtn} onClick={onFiltersReset}>
           Сбросить фильтры
         </button>
       </div>
@@ -335,12 +283,14 @@ export default function ProductsGrid({
                     imageUrl: p.imagePack ?? p.image ?? "",
                     price: Number(p.pricePack ?? p.price ?? 0),
                     name: `${p.name ?? "Товар"} (пачка)`,
+                    nalichie: p.nalichie,
                   },
                   {
                     type: "block" as const,
                     imageUrl: p.image ?? "",
                     price: Number(p.price ?? 0),
                     name: `${p.name ?? "Товар"} (блок)`,
+                    nalichie: p.nalichie,
                   },
                 ]
               : [
@@ -349,6 +299,7 @@ export default function ProductsGrid({
                     imageUrl: p.image ?? "",
                     price: Number(p.price ?? 0),
                     name: p.name ?? "Товар",
+                    nalichie: p.nalichie,
                   },
                 ];
 

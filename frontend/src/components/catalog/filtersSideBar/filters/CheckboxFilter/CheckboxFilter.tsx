@@ -8,6 +8,7 @@ interface CheckboxFilterProps {
   value: string[];
   onChange: (value: string[]) => void;
   isCollapsible?: boolean;
+  singleSelect?: boolean; // 👈 Добавляем флаг для режима одного выбора
 }
 
 export default function CheckboxFilter({
@@ -15,14 +16,25 @@ export default function CheckboxFilter({
   value,
   onChange,
   isCollapsible = false,
+  singleSelect = false, // 👈 значение по умолчанию — множественный выбор
 }: CheckboxFilterProps) {
   const [isExpanded, setIsExpanded] = useState(!isCollapsible);
 
   const handleChange = (optionValue: string, checked: boolean) => {
-    if (checked) {
-      onChange([...value, optionValue]);
+    if (singleSelect) {
+      // 👇 Если режим одиночного выбора — выбираем только один пункт
+      if (checked) {
+        onChange([optionValue]);
+      } else {
+        onChange([]);
+      }
     } else {
-      onChange(value.filter((v) => v !== optionValue));
+      // 👇 Стандартное поведение (множественный выбор)
+      if (checked) {
+        onChange([...value, optionValue]);
+      } else {
+        onChange(value.filter((v) => v !== optionValue));
+      }
     }
   };
 
@@ -31,8 +43,6 @@ export default function CheckboxFilter({
       setIsExpanded(!isExpanded);
     }
   };
-
-  const selectedCount = value.length;
 
   return (
     <div className={styles.filter}>

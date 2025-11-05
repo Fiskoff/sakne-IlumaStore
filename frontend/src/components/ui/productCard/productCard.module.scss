@@ -21,6 +21,43 @@
     }
   }
 
+  &_outOfStock {
+    opacity: 0.7;
+    position: relative;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  &__outOfStockBadge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #ff4444;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    z-index: 3;
+    box-shadow: 0 2px 4px rgba(255, 68, 68, 0.3);
+
+    @media (max-width: 1024px) {
+      top: 6px;
+      right: 6px;
+      padding: 3px 6px;
+      font-size: 10px;
+    }
+
+    @media (max-width: 768px) {
+      top: 5px;
+      right: 5px;
+      padding: 2px 5px;
+      font-size: 9px;
+    }
+  }
+
   @media (max-width: 1024px) {
     border-radius: 10px;
   }
@@ -74,6 +111,17 @@
     white-space: nowrap;
     min-width: 45px;
     line-height: 1.2;
+
+    &_outOfStock {
+      opacity: 0.5;
+      text-decoration: line-through;
+      cursor: not-allowed !important;
+
+      &:hover {
+        background: transparent !important;
+        color: inherit !important;
+      }
+    }
 
     @media (max-width: 1024px) {
       padding: 3px 6px;
@@ -130,6 +178,11 @@
     padding: 35px;
     background: #f2f3f8;
 
+    &_outOfStock {
+      filter: grayscale(0.3);
+      opacity: 0.6;
+    }
+
     @media (max-width: 1024px) {
       padding: 25px;
     }
@@ -157,6 +210,17 @@
     opacity: 0;
     transform: translateY(100%);
     transition: all 0.3s ease;
+
+    &_disabled {
+      background: #95a5a6 !important;
+      cursor: not-allowed !important;
+      box-shadow: none !important;
+
+      &:hover {
+        background: #95a5a6 !important;
+        transform: none !important;
+      }
+    }
 
     @media (max-width: 1024px) {
       opacity: 1;
@@ -251,6 +315,18 @@
       &:active {
         transform: translateY(0);
       }
+    }
+  }
+
+  &__priceNote {
+    display: block;
+    font-size: 12px;
+    color: #ff4444;
+    font-weight: normal;
+    margin-top: 2px;
+
+    @media (max-width: 768px) {
+      font-size: 10px;
     }
   }
 
@@ -354,6 +430,16 @@
       min-width: auto;
       padding: 2px 4px;
       font-size: 8px;
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .productCard {
+    &_outOfStock {
+      .productCard__action {
+        background: linear-gradient(transparent, rgba(149, 165, 166, 0.1));
+      }
     }
   }
 }

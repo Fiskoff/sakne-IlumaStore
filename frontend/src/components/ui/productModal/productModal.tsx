@@ -93,10 +93,10 @@ const ProductModal: FC<ProductModalProps> = ({
     e.stopPropagation();
 
     addItem({
-      ref: id,
+      ref: id ?? productName,
       name: currentVariant.name,
       price: currentVariant.price,
-      quantity: 1,
+      quantity,
       imageUrl: currentVariant.imageUrl,
       variant: hasMultipleVariants
         ? {

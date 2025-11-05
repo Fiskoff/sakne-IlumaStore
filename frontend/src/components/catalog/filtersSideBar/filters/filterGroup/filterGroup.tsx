@@ -36,6 +36,7 @@ export default function FilterGroup({
             filter={filter}
             value={value || []}
             onChange={onChange}
+            singleSelect={true}
           />
         );
 

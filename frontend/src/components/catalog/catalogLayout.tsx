@@ -2,7 +2,7 @@
 
 import BreadCrumbs from "../common/breadcrums";
 import FiltersSidebar from "./filtersSideBar";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Toolbar from "./toolbar";
 import ProductsGrid from "./productsGrid/productsGrid";
 import styles from "./catalogLayout.module.scss";
@@ -17,27 +17,66 @@ export default function CatalogLayout({
   category,
   initialSub,
 }: CatalogLayoutProps) {
-  const { filters, updateFilters, clearFilters, updateSearch, updateSort } =
-    useURLFilters();
+  // 🔹 Создаем начальные фильтры на основе initialSub
+  const getInitialFilters = () => {
+    if (!initialSub) return {};
+
+    const normalized = decodeURIComponent(initialSub).toLowerCase();
+    const initialFilters: any = {};
+
+    if (category === "iqos" || category === "devices") {
+      initialFilters.brand = [normalized];
+    } else if (category === "terea") {
+      initialFilters.country = [normalized];
+    }
+
+    return initialFilters;
+  };
+
+  const {
+    filters,
+    updateFilters,
+    clearFilters,
+    updateSearch,
+    updateSort,
+    updatePage,
+  } = useURLFilters(getInitialFilters());
 
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+  const hasInitialized = useRef(false);
 
-  // 🔹 Если есть initialSub из URL — применяем соответствующий фильтр при загрузке
+  // 🔹 Синхронизация initialSub с фильтрами (ТОЛЬКО при первом рендере)
   useEffect(() => {
-    if (!initialSub) return;
+    if (!initialSub || hasInitialized.current) return;
 
     const normalized = decodeURIComponent(initialSub).toLowerCase();
 
-    if (category === "iqos") {
-      updateFilters({ brand: [normalized] });
-    } else if (category === "terea") {
-      updateFilters({ country: [normalized] });
-    } else if (category === "devices") {
-      updateFilters({ brand: [normalized] });
-    }
-  }, [initialSub, category, updateFilters]);
+    // Получаем текущий фильтр и приводим к нижнему регистру
+    const currentFilter =
+      category === "terea"
+        ? filters.country?.[0]?.toLowerCase()
+        : filters.brand?.[0]?.toLowerCase();
 
-  // 🔹 Обработка обычных фильтров
+    // Применяем фильтр только если он еще не установлен
+    if (!currentFilter) {
+      if (category === "terea") {
+        updateFilters({ ...filters, country: [normalized] });
+      } else {
+        updateFilters({ ...filters, brand: [normalized] });
+      }
+    }
+
+    hasInitialized.current = true;
+  }, [initialSub, category]); // 🔹 Убрали filters и updateFilters из зависимостей
+
+  // 🔹 Обработчики
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      updateFilters({ ...filters, page: newPage });
+    },
+    [filters, updateFilters]
+  );
+
   const handleFiltersChange = useCallback(
     (newFilters: any) => {
       updateFilters(newFilters);
@@ -45,7 +84,6 @@ export default function CatalogLayout({
     [updateFilters]
   );
 
-  // 🔹 Обработка поиска
   const handleSearchChange = useCallback(
     (query: string) => {
       updateSearch(query);
@@ -53,7 +91,6 @@ export default function CatalogLayout({
     [updateSearch]
   );
 
-  // 🔹 Обработка сортировки
   const handleSortChange = useCallback(
     (sort: string) => {
       updateSort(sort);
@@ -61,19 +98,25 @@ export default function CatalogLayout({
     [updateSort]
   );
 
-  // 🔹 Быстрые фильтры (кнопки)
+  const handleClearFilters = useCallback(() => {
+    clearFilters();
+    // Сбрасываем флаг при очистке фильтров
+    hasInitialized.current = false;
+  }, [clearFilters]);
+
+  // 🔹 Быстрые фильтры
   const getQuickFilterOptions = () => {
     switch (category) {
       case "terea":
         return [
-          { value: "Казахстан", label: "Казахстан" },
-          { value: "Узбекистан", label: "Узбекистан" },
-          { value: "Армения", label: "Армения" },
-          { value: "Индонезия", label: "Индонезия" },
-          { value: "Польша", label: "Польша" },
-          { value: "Япония", label: "Япония" },
-          { value: "Швейцария", label: "Швейцария" },
-          { value: "Европа", label: "Европа" },
+          { value: "казахстан", label: "Казахстан" },
+          { value: "узбекистан", label: "Узбекистан" },
+          { value: "армения", label: "Армения" },
+          { value: "индонезия", label: "Индонезия" },
+          { value: "польша", label: "Польша" },
+          { value: "япония", label: "Япония" },
+          { value: "швейцария", label: "Швейцария" },
+          { value: "европа", label: "Европа" },
         ];
       case "iqos":
         return [
@@ -99,23 +142,20 @@ export default function CatalogLayout({
   const quickFilterOptions = getQuickFilterOptions();
   const quickFilterKey = category === "terea" ? "country" : "brand";
 
-  // 🔹 Тоггл фильтров
   const handleQuickFilter = useCallback(
     (value: string) => {
       const currentFilters = { ...filters };
-      const currentFilterValues = currentFilters[quickFilterKey] || [];
-      const isActive = currentFilterValues.includes(value);
+      const currentValues: string[] = currentFilters[quickFilterKey] || [];
+      const isActive = currentValues.some(
+        (v) => v.toLowerCase() === value.toLowerCase()
+      );
 
-      const newFiltersValue = isActive
-        ? currentFilterValues.filter((v: string) => v !== value)
-        : [...currentFilterValues, value];
+      let newValues: string[];
+      if (isActive) newValues = [];
+      else newValues = [value];
 
-      // Если массив стал пустым - удаляем ключ полностью
-      if (newFiltersValue.length === 0) {
-        delete currentFilters[quickFilterKey];
-      } else {
-        currentFilters[quickFilterKey] = newFiltersValue;
-      }
+      if (newValues.length === 0) delete currentFilters[quickFilterKey];
+      else currentFilters[quickFilterKey] = newValues;
 
       updateFilters(currentFilters);
     },
@@ -123,18 +163,15 @@ export default function CatalogLayout({
   );
 
   const isQuickFilterActive = (value: string) =>
-    filters[quickFilterKey]?.includes(value) || false;
+    filters[quickFilterKey]?.some(
+      (v: string) => v.toLowerCase() === value.toLowerCase()
+    ) || false;
 
-  const handleClearFilters = useCallback(() => {
-    clearFilters();
-  }, [clearFilters]);
-
-  // Подсчет активных фильтров (исключая поиск и сортировку)
   const activeFiltersCount = useCallback(() => {
-    const filterKeys = Object.keys(filters).filter(
-      (key) => !["search", "sort", "page"].includes(key)
+    const keys = Object.keys(filters).filter(
+      (k) => !["search", "sort", "page"].includes(k)
     );
-    return filterKeys.length;
+    return keys.length;
   }, [filters]);
 
   return (
@@ -142,7 +179,7 @@ export default function CatalogLayout({
       <div className="second_page_header">
         <h1>
           Каталог
-          {category && ` — ${category.toUpperCase()}`}
+          {category && ` ${category.toUpperCase()}`}
           {initialSub && ` ${decodeURIComponent(initialSub)}`}
         </h1>
         <BreadCrumbs
@@ -157,7 +194,6 @@ export default function CatalogLayout({
 
       <div className={styles.catalogLayout}>
         <div className={styles.catalogContainer}>
-          {/* 🔹 Сайдбар */}
           <div
             className={`${styles.sidebar} ${
               isMobileFiltersOpen ? styles.mobileOpen : ""
@@ -172,7 +208,6 @@ export default function CatalogLayout({
                 ✕
               </button>
             </div>
-
             <FiltersSidebar
               category={category}
               filters={filters}
@@ -180,7 +215,6 @@ export default function CatalogLayout({
             />
           </div>
 
-          {/* 🔹 Контент */}
           <div className={styles.content}>
             <Toolbar
               onMobileFiltersToggle={() =>
@@ -217,6 +251,7 @@ export default function CatalogLayout({
               category={category}
               paginationMode="pages"
               perPage={12}
+              onPageChange={handlePageChange}
               onFiltersReset={handleClearFilters}
             />
           </div>

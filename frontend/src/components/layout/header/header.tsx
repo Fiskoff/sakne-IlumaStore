@@ -73,7 +73,8 @@ export default function Header() {
     }
   };
 
-  const categories = ["Iqos", "Terea", "Devices"];
+  const categories = ["Iqos", "Terea", "Devices", "Хит продаж", "Новинки"];
+  const href = ["iqos", "terea", "devices", "bestsellers", "new-products"];
 
   return (
     <>
@@ -124,7 +125,7 @@ export default function Header() {
                       {categories.map((category, index) => (
                         <Link
                           key={index}
-                          href={`/catalog/${category
+                          href={`/catalog/${href[index]
                             .toLowerCase()
                             .replace(/\s+/g, "-")}`}
                           onClick={() => closeDropdown()}
@@ -179,7 +180,7 @@ export default function Header() {
           >
             <div className={styles.hero_bottom_left}>
               <nav className={styles.hero_bottom_left_nav}>
-                <Link href="/new">Новинки</Link>
+                <Link href="/catalog/new-products">Новинки</Link>
                 <Link href="/catalog">Каталог</Link>
                 <Link href="/blog">Блог</Link>
                 <Link href="/contacts">Контакты</Link>
@@ -187,7 +188,7 @@ export default function Header() {
             </div>
             <div className={styles.hero_bottom_right}>
               <div className={styles.hero_bottom_right_nav}>
-                <Link href="">Хит продаж</Link>
+                <Link href="/catalog/bestsellers">Хит продаж</Link>
                 <span>SALE</span>
               </div>
             </div>

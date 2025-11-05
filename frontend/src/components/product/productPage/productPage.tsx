@@ -8,6 +8,7 @@ import { useNotification } from "@/context/NotificationContext";
 import styles from "./productPage.module.scss";
 import BreadCrumbs from "@/components/common/breadcrums";
 import { isProductInStock } from "@/utils/stock";
+import SimilarProducts from "../similarProducts/similarProducts";
 
 export interface ProductVariant {
   type: "pack" | "block";
@@ -31,6 +32,7 @@ export interface Product {
   variants: ProductVariant[];
   features: string[];
   specifications: ProductSpecification[];
+  type: "iqos" | "terea" | "devices";
 }
 
 interface ProductPageProps {
@@ -56,6 +58,23 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
   const isItemFavorite = isFavorite(itemId);
 
   const isInStock = isProductInStock(currentVariant.nalichie);
+
+  const getProductCategory = () => {
+    // Логика определения категории на основе product данных
+    if (
+      product.name.toLowerCase().includes("iqos") ||
+      product.type === "iqos"
+    ) {
+      return "iqos";
+    } else if (
+      product.name.toLowerCase().includes("terea") ||
+      product.type === "terea"
+    ) {
+      return "terea";
+    } else {
+      return "devices";
+    }
+  };
 
   useEffect(() => {
     setQuantity(1);
@@ -125,6 +144,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
         items={[
           { label: "Главная", href: "/" },
           { label: "Каталог", href: "/catalog" },
+          { label: product.type, href: `/catalog/${product.type}` },
           { label: product.name },
         ]}
       />
@@ -242,6 +262,11 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
           </div>
         </div>
       </div>
+      <SimilarProducts
+        currentProductId={product.id}
+        category={getProductCategory()}
+        limit={4}
+      />
     </div>
   );
 };

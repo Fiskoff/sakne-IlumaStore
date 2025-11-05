@@ -13,9 +13,9 @@ export default function Home() {
       <Hero />
       <BrowseCategory />
       <BrowseCountry />
-      <NewProducts />
+      <NewProducts title="Новинки" limit={8} />
       <Sales />
-      <BestSellers />
+      <BestSellers title="Хит продаж" limit={8} />
       <Exclusive />
       <Reviews />
     </>

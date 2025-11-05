@@ -22,7 +22,7 @@ const BrowseCountryItem: FC<BrowseCountryItemProps> = ({
 }) => {
   return (
     <Link href={url} className={styles.category_item}>
-      <Image src={imageUrl} alt={title} width={200} height={200} />
+      <Image src={imageUrl} alt={title} width={150} height={150} />
       <p>{title}</p>
     </Link>
   );
@@ -31,34 +31,39 @@ const BrowseCountryItem: FC<BrowseCountryItemProps> = ({
 export default function BrowseCountry() {
   const categories: BrowseCountryItemProps[] = [
     {
-      title: "Iqos Iluma One",
-      imageUrl: "/browseCategory/ilumaone.webp",
-      url: "/category1",
+      title: "Terea Казахстан",
+      imageUrl: "/terea/kz.webp",
+      url: "/catalog/terea/казахстан",
     },
     {
-      title: "Iqos Iluma One",
-      imageUrl: "/browseCategory/ilumastandart.webp",
-      url: "/category1",
+      title: "Terea Узбекистан",
+      imageUrl: "/terea/uzb.webp",
+      url: "/catalog/terea/узбекистан",
     },
     {
-      title: "Iqos Iluma One",
-      imageUrl: "/browseCategory/ilumaprime.webp",
-      url: "/category1",
+      title: "Terea Армения",
+      imageUrl: "/terea/armenia.webp",
+      url: "/catalog/terea/армения",
     },
     {
-      title: "Iqos Iluma One",
-      imageUrl: "/browseCategory/ilumaione.webp",
-      url: "/category1",
+      title: "Terea Индонезия",
+      imageUrl: "/terea/ind.webp",
+      url: "/catalog/terea/индонезия",
     },
     {
-      title: "Iqos Iluma One",
-      imageUrl: "/browseCategory/ilumaistandart.png",
-      url: "/category1",
+      title: "Terea Япония",
+      imageUrl: "/terea/jap.webp",
+      url: "/catalog/terea/япония",
     },
     {
-      title: "Iqos Iluma One",
-      imageUrl: "/browseCategory/ilumaiprime.webp",
-      url: "/category1",
+      title: "Terea Швейцария",
+      imageUrl: "/terea/swiz.webp",
+      url: "/catalog/terea/швейцария",
+    },
+    {
+      title: "Terea Европа",
+      imageUrl: "/terea/europe.webp",
+      url: "/catalog/terea/европа",
     },
   ];
 

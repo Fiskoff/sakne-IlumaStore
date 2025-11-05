@@ -5,18 +5,46 @@ import { CartItem, CartContextType } from "@/types/cart/cart";
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+const CART_STORAGE_KEY = "cart";
+const CART_EXPIRATION_KEY = "cart_expiration";
+const CART_TTL = 30 * 60 * 1000; // 30 минут в миллисекундах
+
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [items, setItems] = useState<CartItem[]>([]);
 
+  // Загружаем корзину из localStorage
   useEffect(() => {
-    const savedCart = localStorage.getItem("cart");
-    if (savedCart) setItems(JSON.parse(savedCart));
+    try {
+      const savedCart = localStorage.getItem(CART_STORAGE_KEY);
+      const expiration = localStorage.getItem(CART_EXPIRATION_KEY);
+
+      if (savedCart && expiration) {
+        const now = Date.now();
+        if (now < Number(expiration)) {
+          setItems(JSON.parse(savedCart));
+        } else {
+          localStorage.removeItem(CART_STORAGE_KEY);
+          localStorage.removeItem(CART_EXPIRATION_KEY);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load cart from localStorage", err);
+    }
   }, []);
 
+  // Сохраняем корзину в localStorage с обновлённым TTL
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(items));
+    try {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+      localStorage.setItem(
+        CART_EXPIRATION_KEY,
+        (Date.now() + CART_TTL).toString()
+      );
+    } catch (err) {
+      console.error("Failed to save cart to localStorage", err);
+    }
   }, [items]);
 
   const addItem = (itemData: Omit<CartItem, "id">) => {
@@ -24,7 +52,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
     setItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === id);
-
       if (existingItem) {
         return prevItems.map((item) =>
           item.id === id
@@ -32,7 +59,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
             : item
         );
       } else {
-        // Сохраняем все поля включая ref
         return [...prevItems, { ...itemData, id }];
       }
     });

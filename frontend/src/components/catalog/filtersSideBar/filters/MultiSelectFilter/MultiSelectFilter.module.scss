@@ -2,7 +2,7 @@
 .filter {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   padding-top: 12px;
 }
 
@@ -12,6 +12,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   border-radius: 6px;
+  padding: 8px 0;
 
   &:hover {
     background-color: #f8f9fa;
@@ -94,7 +95,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: 16px;
   color: #374151;
   font-weight: 400;
   flex: 1;

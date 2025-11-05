@@ -33,32 +33,32 @@ export default function BrowseCategory() {
     {
       title: "Iqos Iluma One",
       imageUrl: "/browseCategory/ilumaone.webp",
-      url: "/category1",
+      url: "/catalog/iqos/one",
     },
     {
-      title: "Iqos Iluma One",
+      title: "Iqos Iluma I One",
       imageUrl: "/browseCategory/ilumastandart.webp",
-      url: "/category1",
+      url: "/catalog/iqos/onei",
     },
     {
-      title: "Iqos Iluma One",
+      title: "Iqos Iluma Standart",
       imageUrl: "/browseCategory/ilumaprime.webp",
-      url: "/category1",
+      url: "/catalog/iqos/standart",
     },
     {
-      title: "Iqos Iluma One",
+      title: "Iqos Iluma I Standart",
       imageUrl: "/browseCategory/ilumaione.webp",
-      url: "/category1",
+      url: "/catalog/iqos/standarti",
     },
     {
-      title: "Iqos Iluma One",
+      title: "Iqos Iluma Prime",
       imageUrl: "/browseCategory/ilumaistandart.png",
-      url: "/category1",
+      url: "/catalog/iqos/prime",
     },
     {
-      title: "Iqos Iluma One",
+      title: "Iqos Iluma I Prime",
       imageUrl: "/browseCategory/ilumaiprime.webp",
-      url: "/category1",
+      url: "/catalog/iqos/primei",
     },
   ];
 

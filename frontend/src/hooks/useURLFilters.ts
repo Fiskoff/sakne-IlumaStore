@@ -1,8 +1,8 @@
 // hooks/useURLFilters.ts
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
-export function useURLFilters() {
+export function useURLFilters(initialFilters: any = {}) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [filters, setFilters] = useState<any>({});
@@ -11,9 +11,7 @@ export function useURLFilters() {
     const params: any = {};
     searchParams.forEach((value, key) => {
       try {
-        // Пробуем распарсить JSON, если не получается - оставляем как строку
         const parsedValue = JSON.parse(value);
-        // Игнорируем null, undefined и пустые массивы
         if (
           parsedValue !== null &&
           parsedValue !== undefined &&
@@ -22,89 +20,97 @@ export function useURLFilters() {
           params[key] = parsedValue;
         }
       } catch {
-        // Если не JSON, то проверяем что это не пустая строка
         if (value.trim() !== "") {
           params[key] = value;
         }
       }
     });
-    setFilters(params);
-  }, [searchParams]);
 
-  const updateFilters = (newFilters: any) => {
-    setFilters(newFilters);
-    const params = new URLSearchParams();
+    console.log("🔗 URL params:", params);
+    console.log("🔗 Initial filters:", initialFilters);
 
-    // Сохраняем текущую страницу (если есть)
-    const page = searchParams.get("page");
-    if (page) params.set("page", page);
+    // 🔹 Объединяем фильтры из URL с начальными фильтрами
+    const mergedFilters = { ...initialFilters, ...params };
+    console.log("🔗 Merged filters:", mergedFilters);
 
-    // Добавляем только непустые фильтры
-    for (const [key, value] of Object.entries(newFilters)) {
-      if (value !== undefined && value !== null) {
-        // Проверяем пустые массивы и объекты
-        if (Array.isArray(value) && value.length === 0) {
-          continue; // Пропускаем пустые массивы
+    setFilters(mergedFilters);
+  }, [searchParams, initialFilters]);
+
+  const updateFilters = useCallback(
+    (newFilters: any) => {
+      console.log("🔄 Updating filters:", newFilters);
+      setFilters(newFilters);
+      const params = new URLSearchParams();
+
+      const page = searchParams.get("page");
+      if (page) params.set("page", page);
+
+      for (const [key, value] of Object.entries(newFilters)) {
+        if (value !== undefined && value !== null) {
+          if (Array.isArray(value) && value.length === 0) continue;
+          if (typeof value === "object" && Object.keys(value).length === 0)
+            continue;
+          if (typeof value === "string" && value.trim() === "") continue;
+
+          const serializedValue =
+            typeof value === "object" ? JSON.stringify(value) : String(value);
+          params.set(key, serializedValue);
         }
-
-        if (typeof value === "object" && Object.keys(value).length === 0) {
-          continue; // Пропускаем пустые объекты
-        }
-
-        if (typeof value === "string" && value.trim() === "") {
-          continue; // Пропускаем пустые строки
-        }
-
-        // Сериализуем в JSON только объекты и массивы
-        const serializedValue =
-          typeof value === "object" ? JSON.stringify(value) : String(value);
-
-        params.set(key, serializedValue);
       }
-    }
 
-    router.replace(`?${params.toString()}`, { scroll: false });
-  };
+      console.log("🔗 New URL params:", params.toString());
+      router.replace(`?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams]
+  );
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setFilters({});
-
     const params = new URLSearchParams();
     const page = searchParams.get("page");
-
     if (page) params.set("page", page);
-
     router.replace(`?${params.toString()}`, { scroll: false });
-  };
+  }, [router, searchParams]);
 
-  // 🔹 Функция для обновления поиска
-  const updateSearch = (searchQuery: string) => {
-    const currentFilters = { ...filters };
+  const updateSearch = useCallback(
+    (searchQuery: string) => {
+      const currentFilters = { ...filters };
+      if (searchQuery.trim()) {
+        currentFilters.search = searchQuery;
+      } else {
+        delete currentFilters.search;
+      }
+      currentFilters.page = 1;
+      updateFilters(currentFilters);
+    },
+    [filters, updateFilters]
+  );
 
-    if (searchQuery.trim()) {
-      currentFilters.search = searchQuery;
-    } else {
-      delete currentFilters.search;
-    }
+  const updateSort = useCallback(
+    (sortBy: string) => {
+      const currentFilters = { ...filters };
+      if (sortBy && sortBy !== "default") {
+        currentFilters.sort = sortBy;
+      } else {
+        delete currentFilters.sort;
+      }
+      updateFilters(currentFilters);
+    },
+    [filters, updateFilters]
+  );
 
-    // Сбрасываем страницу при поиске
-    currentFilters.page = 1;
-
-    updateFilters(currentFilters);
-  };
-
-  // 🔹 Функция для обновления сортировки
-  const updateSort = (sortBy: string) => {
-    const currentFilters = { ...filters };
-
-    if (sortBy && sortBy !== "default") {
-      currentFilters.sort = sortBy;
-    } else {
-      delete currentFilters.sort;
-    }
-
-    updateFilters(currentFilters);
-  };
+  const updatePage = useCallback(
+    (page: number) => {
+      const currentFilters = { ...filters };
+      if (page > 1) {
+        currentFilters.page = page;
+      } else {
+        delete currentFilters.page;
+      }
+      updateFilters(currentFilters);
+    },
+    [filters, updateFilters]
+  );
 
   return {
     filters,
@@ -112,5 +118,6 @@ export function useURLFilters() {
     clearFilters,
     updateSearch,
     updateSort,
+    updatePage,
   };
 }
