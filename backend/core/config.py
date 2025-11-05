@@ -39,7 +39,7 @@ class RunConfig(BaseModel):
 
 class DataBaseConfig(BaseModel):
     url: str = f"mysql+aiomysql://{DatabaseENV.DB_USER}:{DatabaseENV.DB_PASSWORD}@{DatabaseENV.DB_HOST}:{DatabaseENV.DB_PORT}/{DatabaseENV.DB_NAME}"
-    echo: bool = True
+    echo: bool = False
     pool_size: int = 10
     max_overflow: int = 15
 
