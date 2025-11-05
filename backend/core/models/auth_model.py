@@ -4,7 +4,7 @@ from backend.core.models.base_model import BaseModel
 from passlib.hash import pbkdf2_sha256
 
 class AdminUserModel(BaseModel):
-    __tablename__ = "admin_users"
+    __tablename__ = "Admin_users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     username: Mapped[str] = mapped_column(VARCHAR(80), unique=True, nullable=False, index=True)

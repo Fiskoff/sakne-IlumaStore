@@ -20,6 +20,7 @@ class OrdersService:
                 id=order_model.id,
                 customer_name=order_model.customer_name,
                 phone_number=order_model.phone_number,
+                is_first_order=order_model.is_first_order,
                 is_delivery=order_model.is_delivery,
                 city=order_model.city,
                 address=order_model.address,

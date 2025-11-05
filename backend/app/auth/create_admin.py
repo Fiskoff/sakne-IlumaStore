@@ -1,11 +1,7 @@
 import asyncio
 
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
-
 from backend.core.db_helper import db_helper
 from backend.core.models.auth_model import AdminUserModel
-from backend.core.models.base_model import BaseModel
 
 
 async def create_admin(username: str, password: str):

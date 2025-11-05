@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from sqladmin import ModelView
 
 from backend.core.models import OrderModel, OrderedProductModel
@@ -11,6 +13,7 @@ class OrdersAdmin(ModelView, model=OrderModel):
         OrderModel.id,
         OrderModel.customer_name,
         OrderModel.phone_number,
+        OrderModel.is_first_order,
         OrderModel.is_delivery,
         OrderModel.city,
         OrderModel.address,
@@ -30,6 +33,7 @@ class OrdersAdmin(ModelView, model=OrderModel):
         OrderModel.id,
         OrderModel.customer_name,
         OrderModel.phone_number,
+        OrderModel.is_first_order,
         OrderModel.is_delivery,
         OrderModel.city,
         OrderModel.address,
@@ -39,14 +43,16 @@ class OrdersAdmin(ModelView, model=OrderModel):
     column_default_sort = [(OrderModel.id, True)]
 
     column_formatters = {
+        OrderModel.is_first_order: lambda m, a: "Да" if m.is_first_order else "Нет",
         OrderModel.is_delivery: lambda m, a: "Да" if m.is_delivery else "Нет",
-        OrderModel.total_amount: lambda m, a: f"{m.total_amount:.2f}" # Форматирование суммы
+        OrderModel.total_amount: lambda m, a: f"{m.total_amount:.2f}"
     }
 
     column_labels = {
         OrderModel.id: "ID",
         OrderModel.customer_name: "Имя заказчика",
         OrderModel.phone_number: "Номер телефона",
+        OrderModel.is_first_order: "Первый заказ",
         OrderModel.is_delivery: "Доставка",
         OrderModel.city: "Город",
         OrderModel.address: "Адрес",
@@ -98,12 +104,6 @@ class OrdersAdmin(ModelView, model=OrderModel):
 
     page_size = 25
     page_size_options = [10, 25, 50, 100]
-
-
-from sqladmin import ModelView
-from decimal import Decimal
-
-from backend.core.models import OrderedProductModel, OrderModel
 
 
 class OrdersProductAdmin(ModelView, model=OrderedProductModel):

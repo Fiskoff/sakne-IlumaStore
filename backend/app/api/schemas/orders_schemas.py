@@ -1,6 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 from typing import List
+
 from pydantic import BaseModel, Field, ConfigDict
 
 
@@ -34,6 +35,7 @@ class OrderCreate(OrderBase):
 
 class GetOrder(OrderBase):
     id: int = Field(examples=[1])
+    is_first_order: bool = Field(examples=[True])
     total_amount: Decimal = Field(examples=[Decimal('59999.98')])
     created_at: datetime = Field(examples=["2024-01-15T10:30:00Z"])
     ordered_items: List[OrderedItemResponse] = Field(description="Список товаров в заказе")

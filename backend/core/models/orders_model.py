@@ -13,6 +13,7 @@ class OrderModel(BaseModel):
     __tablename__ = "Orders"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    is_first_order: Mapped[bool] = mapped_column(TINYINT(display_width=1))
     customer_name: Mapped[str] = mapped_column(VARCHAR(256))
     phone_number: Mapped[str] = mapped_column(VARCHAR(32))
     is_delivery: Mapped[bool] = mapped_column(TINYINT(display_width=1))
@@ -21,6 +22,7 @@ class OrderModel(BaseModel):
     total_amount: Mapped[decimal.Decimal] = mapped_column(DECIMAL(precision=12, scale=2))
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
+
     ordered_items: Mapped[List["OrderedProductModel"]] = relationship(back_populates="order", cascade="all, delete-orphan")
 
     def __str__(self):
@@ -28,7 +30,7 @@ class OrderModel(BaseModel):
 
 
 class OrderedProductModel(BaseModel):
-    __tablename__ = "ordered_products"
+    __tablename__ = "Ordered_products"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     product_name: Mapped[str] = mapped_column(VARCHAR(256))
