@@ -37,9 +37,6 @@ const BrowseCategoryItem: FC<BrowseCategoryItemProps> = ({
       </div>
       <p>{text}</p>
       <div className={styles.user_info}>
-        <div className={styles.user_avatar}>
-          <Image src={avatarUrl} alt={name} width={40} height={40} />
-        </div>
         <div className={styles.user_details}>
           <span className={styles.user_name}>{name}</span>
           <span className={styles.review_date}>{date}</span>

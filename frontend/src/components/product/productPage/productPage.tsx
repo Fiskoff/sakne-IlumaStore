@@ -47,15 +47,77 @@ interface ProductPageProps {
   product: Product;
 }
 
+// 🔥 Функция для определения типа продукта (дублируем для клиентской части)
+const determineProductType = (product: any): "iqos" | "terea" | "devices" => {
+  const name = (product.name || "").toLowerCase();
+  const description = (product.description || "").toLowerCase();
+
+  if (name.includes("terea") || description.includes("terea")) {
+    return "terea";
+  } else if (
+    name.includes("iqos") ||
+    description.includes("iqos") ||
+    name.includes("iluma")
+  ) {
+    return "iqos";
+  } else {
+    return "devices";
+  }
+};
+
+// 🔥 Функция для нормализации продукта на клиенте
+const normalizeProductOnClient = (product: any): Product => {
+  if (!product) throw new Error("Product is undefined");
+
+  // Определяем тип продукта
+  const productType = product.type || determineProductType(product);
+
+  // Нормализуем варианты
+  let variants = product.variants || [];
+
+  // Если нет вариантов, создаем базовый вариант
+  if (variants.length === 0) {
+    variants = [
+      {
+        type: "pack" as const,
+        imageUrl: product.image || product.imageUrl || "/placeholder.jpg",
+        price: product.price || product.priceValue || 0,
+        name: product.name || "Товар",
+        nalichie: product.nalichie || false,
+      },
+    ];
+  }
+
+  return {
+    ...product,
+    type: productType,
+    variants,
+    // Обеспечиваем обратную совместимость
+    id:
+      product.id?.toString() ||
+      product.ref?.toString() ||
+      Math.random().toString(),
+    name: product.name || "Без названия",
+    description: product.description || "",
+  };
+};
+
 const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
-  // 🔥 ИСПРАВЛЕНИЕ: Обработка разных форматов данных
+  // 🔥 Нормализуем продукт на клиенте
+  const normalizedProduct = normalizeProductOnClient(product);
+
+  // 🔥 ИСПРАВЛЕНИЕ: Используем нормализованный продукт
   const mainImageUrl =
-    product.imageUrl || product.image || product.variants?.[0]?.imageUrl;
-  const mainPrice = product.price || product.variants?.[0]?.price || 0;
-  const productName = product.name || "Товар";
+    normalizedProduct.imageUrl ||
+    normalizedProduct.image ||
+    normalizedProduct.variants?.[0]?.imageUrl;
+
+  const mainPrice =
+    normalizedProduct.price || normalizedProduct.variants?.[0]?.price || 0;
+  const productName = normalizedProduct.name || "Товар";
 
   const [activeVariant, setActiveVariant] = useState<"pack" | "block">(
-    product.variants[0]?.type || "pack"
+    normalizedProduct.variants[0]?.type || "pack"
   );
   const [quantity, setQuantity] = useState(1);
 
@@ -64,28 +126,32 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
   const { addNotification } = useNotification();
 
   const currentVariant =
-    product.variants.find((v) => v.type === activeVariant) ||
-    product.variants[0];
+    normalizedProduct.variants.find((v) => v.type === activeVariant) ||
+    normalizedProduct.variants[0];
 
-  const hasMultipleVariants = product.variants.length > 1;
-  const isTereaProduct = product.type === "terea";
+  const hasMultipleVariants = normalizedProduct.variants.length > 1;
+  const isTereaProduct = normalizedProduct.type === "terea";
 
   // 🔥 ИСПРАВЛЕНИЕ: Правильное формирование itemId
-  const baseId = product.name.trim().toLowerCase().replace(/\s+/g, "-");
+  const baseId = normalizedProduct.name
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-");
   const itemId = generateProductId(baseId, currentVariant.type);
   const cartItemId = generateCartItemId(baseId, currentVariant.type);
 
   const isItemFavorite = isFavorite(itemId);
   const isInStock = isProductInStock(currentVariant.nalichie);
+
   const getProductCategory = () => {
     if (
-      product.name.toLowerCase().includes("iqos") ||
-      product.type === "iqos"
+      normalizedProduct.name.toLowerCase().includes("iqos") ||
+      normalizedProduct.type === "iqos"
     ) {
       return "iqos";
     } else if (
-      product.name.toLowerCase().includes("terea") ||
-      product.type === "terea"
+      normalizedProduct.name.toLowerCase().includes("terea") ||
+      normalizedProduct.type === "terea"
     ) {
       return "terea";
     } else {
@@ -112,7 +178,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
 
     const cartItem: CartItem = {
       id: cartItemId,
-      ref: product.id.toString(),
+      ref: normalizedProduct.id.toString(),
       name: currentVariant.name,
       price: currentVariant.price,
       quantity,
@@ -168,8 +234,13 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
     }
   };
 
-  if (!product || !product.variants || product.variants.length === 0) {
-    console.error("❌ Invalid product data:", product);
+  // 🔥 ИСПРАВЛЕНИЕ: Используем нормализованный продукт для проверок
+  if (
+    !normalizedProduct ||
+    !normalizedProduct.variants ||
+    normalizedProduct.variants.length === 0
+  ) {
+    console.error("❌ Invalid product data:", normalizedProduct);
     return (
       <div className="hero-container">
         <div className={styles.error}>
@@ -188,7 +259,10 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
         items={[
           { label: "Главная", href: "/" },
           { label: "Каталог", href: "/catalog" },
-          { label: product.type, href: `/catalog/${product.type}` },
+          {
+            label: normalizedProduct.type,
+            href: `/catalog/${normalizedProduct.type}`,
+          },
           { label: productName },
         ]}
       />
@@ -225,7 +299,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
             <div className={styles.productInfo__variants}>
               <h3 className={styles.productInfo__subtitle}>Вариант:</h3>
               <div className={styles.variants}>
-                {product.variants.map((variant) => (
+                {normalizedProduct.variants.map((variant) => (
                   <button
                     key={variant.type}
                     className={`${styles.variant} ${
@@ -249,7 +323,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
           </div>
 
           <div className={styles.productInfo__description}>
-            <p>{product.description}</p>
+            <p>{normalizedProduct.description}</p>
           </div>
 
           <div className={styles.purchaseBlock}>
@@ -308,7 +382,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
         </div>
       </div>
       <SimilarProducts
-        currentProductId={product.id.toString()}
+        currentProductId={normalizedProduct.id.toString()}
         category={getProductCategory()}
         limit={4}
       />

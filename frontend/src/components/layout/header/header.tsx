@@ -132,8 +132,13 @@ export default function Header() {
                 </Link>
               </div>
               <div className={styles.socials}>
-                <Image src="/header/wa.svg" alt="wa" width={30} height={30} />
-                <Image src="/header/tg.svg" alt="tg" width={30} height={30} />
+                <Link href="https://api.whatsapp.com/send/?phone=79951538019&text=%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5%21+%D0%A5%D0%BE%D1%87%D1%83+%D0%BE%D1%84%D0%BE%D1%80%D0%BC%D0%B8%D1%82%D1%8C+%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7&type=phone_number&app_absent=0">
+                  <Image src="/header/wa.svg" alt="wa" width={30} height={30} />
+                </Link>
+                <Link href="https://t.me/+tXZ1x8yraKUzNWEy">
+                  <Image src="/header/tg.svg" alt="tg" width={30} height={30} />
+                </Link>
+
                 <Link href="tel:+7 (995) 153-80-19" className={styles.phone}>
                   +7 (995) 153-80-19
                 </Link>

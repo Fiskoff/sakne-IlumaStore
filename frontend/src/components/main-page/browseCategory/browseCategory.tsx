@@ -130,7 +130,7 @@ export default function BrowseCategory() {
             "@type": "ListItem",
             position: index + 1,
             name: cat.title,
-            url: `https://example.com${cat.url}`,
+            url: `https://iqos-24.ru${cat.url}`,
           })),
         })}
       </Script>

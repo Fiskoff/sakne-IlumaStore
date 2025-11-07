@@ -6,6 +6,7 @@ import { useFavorites } from "@/context/FavoritesContext";
 import { useNotification } from "@/context/NotificationContext";
 import { generateCartItemId, generateProductId } from "@/utils/productId";
 import { CartItem } from "@/types/cart/cart";
+import { getStableProductBaseId } from "@/utils/productUtils";
 
 export interface ProductVariant {
   type: "pack" | "block";
@@ -59,7 +60,7 @@ const ProductModal: FC<ProductModalProps> = ({
     }
   };
 
-  const baseId = id?.toString() || productName;
+  const baseId = getStableProductBaseId(id, undefined, productName);
   const itemId = generateProductId(baseId, currentVariant.type);
   const cartItemId = generateCartItemId(baseId, currentVariant.type);
   const isItemFavorite = isFavorite(itemId);

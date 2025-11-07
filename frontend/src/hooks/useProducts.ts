@@ -76,8 +76,7 @@ async function fetchFilteredProducts(
   }
 
   try {
-    const baseUrl = "http://localhost:3001";
-    const url = new URL(`${baseUrl}/api/product/${category}`);
+    const url = new URL(`/api/product/${category}`, window.location.origin);
 
     // 🔹 УПРОЩЕННАЯ обработка фильтров - отправляем как есть
     Object.entries(filters).forEach(([key, value]) => {
@@ -97,8 +96,6 @@ async function fetchFilteredProducts(
     // Добавляем пагинацию
     url.searchParams.set("page", page.toString());
     url.searchParams.set("perPage", perPage.toString());
-
-    console.log("🔍 Fetching products with URL:", url.toString());
 
     // Создаем таймаут сигнал
     const timeoutSignal = createTimeout(10000); // 10 секунд таймаут
@@ -123,7 +120,6 @@ async function fetchFilteredProducts(
     return data;
   } catch (error: any) {
     if (error.name === "AbortError") {
-      console.log("⏰ Request timeout");
       throw new Error("Превышено время ожидания запроса");
     }
     throw error;
@@ -155,15 +151,7 @@ export function useProducts({
   const abortControllerRef = useRef<AbortController | null>(null);
 
   // 🔹 ДОБАВИМ ОТЛАДОЧНЫЙ ВЫВОД ДЛЯ ФИЛЬТРОВ
-  useEffect(() => {
-    console.log("🔍 useProducts filters:", {
-      category,
-      filters,
-      priceFilter: filters.price,
-      page,
-      perPage,
-    });
-  }, [category, filters, page, perPage]);
+  useEffect(() => {}, [category, filters, page, perPage]);
 
   const loadProducts = useCallback(async () => {
     if (!enabled) return;
@@ -191,16 +179,9 @@ export function useProducts({
         setTotal(data.total);
         setTotalPages(data.totalPages);
         setHasMore(data.hasMore);
-
-        console.log("✅ Products loaded:", {
-          count: data.products.length,
-          total: data.total,
-          filtersApplied: filters,
-        });
       }
     } catch (err: any) {
       if (err.name === "AbortError") {
-        console.log("🔄 Request aborted");
         return;
       }
 
@@ -223,11 +204,9 @@ export function useProducts({
   const shouldUseDebounce = useCallback(() => {
     // 🔹 Для price фильтра НЕ используем дебаунс (слайдер должен работать плавно)
     if (filters.price) {
-      console.log("🎯 Price filter detected - NO debounce");
       return false;
     }
     // 🔹 Для поиска и других фильтров используем дебаунс
-    console.log("🔍 Other filter - using debounce");
     return true;
   }, [filters.price]);
 
@@ -241,13 +220,11 @@ export function useProducts({
 
     if (shouldUseDebounce()) {
       // 🔹 Дебаунс для поиска и других фильтров
-      console.log("⏱️ Using debounce for non-price filters");
       debounceRef.current = setTimeout(() => {
         loadProducts();
       }, 200);
     } else {
       // 🔹 БЕЗ дебаунса для price фильтра - мгновенная загрузка
-      console.log("⚡ No debounce for price filter - immediate load");
       loadProducts();
     }
 

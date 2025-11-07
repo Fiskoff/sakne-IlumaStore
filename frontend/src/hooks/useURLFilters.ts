@@ -80,7 +80,6 @@ export function useURLFilters(initialFilters: Filters = {}) {
     });
 
     const mergedFilters = { ...initialFilters, ...params };
-    console.log("🔄 useURLFilters parsed filters:", mergedFilters);
     setFilters(mergedFilters);
   }, [searchParams, JSON.stringify(initialFilters)]);
 
@@ -114,7 +113,6 @@ export function useURLFilters(initialFilters: Filters = {}) {
             // 🔹 УБИРАЕМ строгую проверку - сохраняем всегда когда есть значения
             if (!isNaN(min) && !isNaN(max)) {
               cleanedFilters[key] = { min, max };
-              console.log(`💰 Price filter set: ${min} - ${max}`);
             }
           }
         } else if (Array.isArray(value)) {
@@ -133,7 +131,6 @@ export function useURLFilters(initialFilters: Filters = {}) {
         }
       });
 
-      console.log("🔄 useURLFilters updating filters:", cleanedFilters);
       setFilters(cleanedFilters);
 
       const params = new URLSearchParams();
@@ -151,14 +148,12 @@ export function useURLFilters(initialFilters: Filters = {}) {
       });
 
       const queryString = params.toString();
-      console.log("🔗 Updating URL with query:", queryString);
       router.replace(queryString ? `?${queryString}` : "?", { scroll: false });
     },
     [router]
   );
 
   const clearFilters = useCallback(() => {
-    console.log("🗑️ Clearing all filters");
     setFilters(initialFilters);
     const params = new URLSearchParams();
     Object.entries(initialFilters).forEach(([key, value]) => {

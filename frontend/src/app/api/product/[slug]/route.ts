@@ -33,14 +33,6 @@ function formatProduct(product: any) {
     ? Number(product.pricePack.toString())
     : 0;
 
-  console.log("🔍 Formatting product:", {
-    name: product.name,
-    originalPrice: product.price,
-    originalPriceType: typeof product.price,
-    convertedPrice: safePriceValue,
-    convertedPriceType: typeof safePriceValue,
-  });
-
   let variants = [];
 
   if (product.type === "terea" && product.imagePack) {
@@ -105,16 +97,12 @@ async function getProductsByCategory(category: string) {
   // Проверяем кэш
   const cacheKey = `category_${category}`;
   if (categoryCache.has(cacheKey)) {
-    console.log(`📦 Using cached category: ${category}`);
     return categoryCache.get(cacheKey);
   }
 
   try {
-    console.log(`🚀 Fetching category: ${category}`);
-
     // Получаем ВСЕ продукты за один запрос
     const apiUrl = `http://217.198.9.128:8000/products/${category}?limit=1000`;
-    console.log(`📦 Fetching from external API: ${apiUrl}`);
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -130,7 +118,6 @@ async function getProductsByCategory(category: string) {
 
     // Безопасное получение массива продуктов
     const products = (data[category] || data.products || []) as any[];
-    console.log(`✅ Fetched ${products.length} products for ${category}`);
 
     const formattedProducts = products.map(formatProduct);
 
@@ -142,7 +129,6 @@ async function getProductsByCategory(category: string) {
 
     return formattedProducts;
   } catch (err) {
-    console.error(`❌ Error fetching category ${category}:`, err);
     // Если ошибка, возвращаем пустой массив вместо выброса ошибки
     return [];
   }
@@ -165,10 +151,7 @@ function safeCompare(productValue: any, filterValue: any): boolean {
     });
   } else if (typeof filterValue === "object") {
     // Если фильтр - объект (например, для диапазона цены)
-    console.warn(
-      "Object filter value not handled in safeCompare:",
-      filterValue
-    );
+
     return false;
   } else {
     // Если фильтр - одиночное значение
@@ -185,9 +168,6 @@ function filterProductsOnServer(
 ) {
   let filtered = products.filter((p) => p.nalichie);
 
-  console.log("🔍 Filtering products with filters:", filters);
-  console.log(`📊 Starting with ${filtered.length} available products`);
-
   const priceTypes = products.map((p) => ({
     name: p.name,
     priceValue: p.priceValue,
@@ -195,7 +175,6 @@ function filterProductsOnServer(
     priceOriginal: p.price,
     priceOriginalType: typeof p.price,
   }));
-  console.log("💰 Price types check:", priceTypes);
 
   Object.entries(filters).forEach(([key, value]) => {
     if (key === "sort" || key === "page" || value == null) return;
@@ -209,36 +188,20 @@ function filterProductsOnServer(
               const priceFilter = value as { min?: number; max?: number };
 
               // 🔹 ДЕТАЛЬНОЕ ЛОГИРОВАНИЕ ДЛЯ ВЫСОКИХ ЦЕН
-              if (productPrice >= 30000) {
-                console.log(
-                  `🔍 HIGH PRICE CHECK: "${product.name}" price ${productPrice} vs filter [${priceFilter.min}, ${priceFilter.max}]`
-                );
-              }
 
               if (
                 priceFilter.min !== undefined &&
                 productPrice < priceFilter.min
               ) {
-                console.log(
-                  `❌ ${product.name} filtered out - price ${productPrice} < min ${priceFilter.min}`
-                );
                 return false;
               }
               if (
                 priceFilter.max !== undefined &&
                 productPrice > priceFilter.max
               ) {
-                console.log(
-                  `❌ ${product.name} filtered out - price ${productPrice} > max ${priceFilter.max}`
-                );
                 return false;
               }
 
-              if (productPrice >= 30000) {
-                console.log(
-                  `✅ HIGH PRICE PASSED: ${product.name} price ${productPrice} in range [${priceFilter.min}, ${priceFilter.max}]`
-                );
-              }
               return true;
             }
             return true;
@@ -253,24 +216,15 @@ function filterProductsOnServer(
               minPrice = value;
             } else {
               // Если value - объект или другой тип, пропускаем фильтр
-              console.warn(
-                `⚠️ minPrice has unexpected type: ${typeof value}`,
-                value
-              );
+
               return true;
             }
 
             if (!isNaN(minPrice)) {
               const productPrice = product.priceValue ?? 0;
               if (productPrice < minPrice) {
-                console.log(
-                  `❌ ${product.name} filtered out - price ${productPrice} < min ${minPrice}`
-                );
                 return false;
               }
-              console.log(
-                `✅ ${product.name} passed minPrice filter: ${productPrice} >= ${minPrice}`
-              );
             }
             return true;
 
@@ -283,24 +237,15 @@ function filterProductsOnServer(
               maxPrice = value;
             } else {
               // Если value - объект или другой тип, пропускаем фильтр
-              console.warn(
-                `⚠️ maxPrice has unexpected type: ${typeof value}`,
-                value
-              );
+
               return true;
             }
 
             if (!isNaN(maxPrice)) {
               const productPrice = product.priceValue ?? 0;
               if (productPrice > maxPrice) {
-                console.log(
-                  `❌ ${product.name} filtered out - price ${productPrice} > max ${maxPrice}`
-                );
                 return false;
               }
-              console.log(
-                `✅ ${product.name} passed maxPrice filter: ${productPrice} <= ${maxPrice}`
-              );
             }
             return true;
 
@@ -381,10 +326,6 @@ function filterProductsOnServer(
       }
     });
   });
-
-  console.log(
-    `✅ After filtering: ${filtered.length} products out of ${products.length}`
-  );
   return filtered;
 }
 
@@ -421,23 +362,15 @@ export async function GET(
       const { searchParams } = new URL(req.url);
       const filters: any = {};
 
-      console.log(
-        "🔍 Raw search parameters:",
-        Object.fromEntries(searchParams.entries())
-      );
-
       // 🔹 УЛУЧШЕННЫЙ парсинг параметров фильтрации
       searchParams.forEach((value, key) => {
         if (key !== "page" && key !== "perPage") {
           try {
-            console.log(`📊 Processing parameter: ${key} = ${value}`);
-
             // 🔹 ОСОБАЯ ОБРАБОТКА ДЛЯ PRICE ПАРАМЕТРА
             if (key === "price") {
               try {
                 // Пробуем декодировать URL-encoded JSON
                 const decodedValue = decodeURIComponent(value);
-                console.log(`💰 Decoded price value: ${decodedValue}`);
 
                 const parsedPrice = JSON.parse(decodedValue);
                 if (parsedPrice && typeof parsedPrice === "object") {
@@ -451,7 +384,6 @@ export async function GET(
                         ? Number(parsedPrice.max)
                         : 10000,
                   };
-                  console.log(`✅ Successfully parsed price:`, filters[key]);
                 }
               } catch (parseError) {
                 console.error(
@@ -482,33 +414,10 @@ export async function GET(
               }
             }
           } catch (error) {
-            console.error(`❌ Error parsing parameter ${key}:`, error);
             filters[key] = value;
           }
         }
       });
-
-      console.log("🎯 Final filters object:", filters);
-
-      // 🔹 ДОБАВЛЕНО: Преобразуем minPrice/maxPrice в единый price объект для совместимости
-      // if (
-      //   (filters.minPrice !== undefined || filters.maxPrice !== undefined) &&
-      //   !filters.price
-      // ) {
-      //   filters.price = {
-      //     min: filters.minPrice !== undefined ? Number(filters.minPrice) : 0,
-      //     max:
-      //       filters.maxPrice !== undefined ? Number(filters.maxPrice) : 10000,
-      //   };
-      //   console.log(
-      //     "🔄 Converted minPrice/maxPrice to price object:",
-      //     filters.price
-      //   );
-
-      //   // Удаляем отдельные параметры чтобы не мешали
-      //   delete filters.minPrice;
-      //   delete filters.maxPrice;
-      // }
 
       // Получаем все продукты категории
       const allProducts = await getProductsByCategory(category);
@@ -517,17 +426,8 @@ export async function GET(
         throw new Error("Failed to fetch products");
       }
 
-      console.log(`📦 Total products fetched: ${allProducts.length}`);
-
       // 🔹 ДЕБАГ: Выводим цены продуктов для проверки
       const prices = allProducts.map((p) => p.priceValue).filter(Boolean);
-      if (prices.length > 0) {
-        console.log("💰 Product prices range:", {
-          min: Math.min(...prices),
-          max: Math.max(...prices),
-          count: prices.length,
-        });
-      }
 
       // Применяем фильтрацию на сервере
       const filteredProducts = filterProductsOnServer(
@@ -549,10 +449,6 @@ export async function GET(
       const endIndex = startIndex + perPage;
       const paginatedProducts = sortedProducts.slice(startIndex, endIndex);
 
-      console.log(
-        `✅ Returning ${paginatedProducts.length} products out of ${sortedProducts.length} total for category ${category}`
-      );
-
       return NextResponse.json({
         products: paginatedProducts,
         total: sortedProducts.length,
@@ -563,7 +459,6 @@ export async function GET(
     }
 
     // Если не категория, ищем продукт
-    console.log(`🔍 Treating slug as product ref: "${slug}"`);
     const productByRef = await getProductByRef(slug);
 
     if (productByRef) {
@@ -592,13 +487,10 @@ export async function GET(
 async function getProductByRef(ref: string) {
   const cacheKey = `product_${ref}`;
   if (productCache.has(cacheKey)) {
-    console.log(`📦 Using cached product: ${ref}`);
     return productCache.get(cacheKey);
   }
 
   try {
-    console.log(`🔍 Starting search for product by ref: "${ref}"`);
-
     // Параллельно ищем во всех категориях
     const categories = ["terea", "iqos", "devices"];
     const promises = categories.map((category) =>
@@ -633,7 +525,6 @@ async function getProductByRef(ref: string) {
       return product;
     }
 
-    console.log(`❌ Product not found: "${ref}"`);
     return null;
   } catch (error) {
     console.error("❌ Error in getProductByRef:", error);

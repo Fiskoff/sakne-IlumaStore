@@ -25,8 +25,6 @@ export default function FiltersSidebar({
 
   const handleFilterChange = useCallback(
     (id: string, value: any) => {
-      console.log(`🎯 FiltersSidebar: ${id} changed:`, value);
-
       const newFilters = { ...filters };
 
       // 🔹 ОСОБАЯ ОБРАБОТКА ДЛЯ PRICE ФИЛЬТРА - УПРОЩЕННАЯ
@@ -34,12 +32,10 @@ export default function FiltersSidebar({
         if (value === null || value === undefined) {
           // Если пришел null или undefined - удаляем фильтр
           delete newFilters[id];
-          console.log("🗑️ Price filter removed");
         } else if (value && typeof value === "object") {
           // 🔹 ВАЖНО: Сохраняем price объект ВСЕГДА, даже если значения дефолтные
           // Это нужно для корректной работы фильтрации
           newFilters[id] = value;
-          console.log("💰 Price filter set:", value);
         }
       }
       // 🔹 ОБЫЧНАЯ ОБРАБОТКА ДЛЯ ДРУГИХ ФИЛЬТРОВ
@@ -57,15 +53,12 @@ export default function FiltersSidebar({
       // 🔹 Всегда сбрасываем страницу при изменении фильтров
       delete newFilters.page;
 
-      console.log("🔄 FiltersSidebar updating filters:", newFilters);
       onFiltersChange(newFilters);
     },
     [filters, onFiltersChange]
   );
 
   const handleClearAll = useCallback(() => {
-    console.log("🗑️ Clearing all filters from sidebar");
-
     // При очистке оставляем только служебные фильтры (search, sort)
     const clearedFilters: any = {};
     if (filters.search) clearedFilters.search = filters.search;

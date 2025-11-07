@@ -8,6 +8,7 @@ import { FavoritesProvider } from "@/context/FavoritesContext";
 import { NotificationProvider } from "@/context/NotificationContext";
 import Notification from "@/components/ui/notification/notification";
 import FloatingCart from "@/components/ui/floatingCart/floatingCart";
+import AgeGate from "@/components/ui/AgeModal/AgeGate";
 
 const roboto = Montserrat({
   subsets: ["latin"],
@@ -20,9 +21,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en" className={roboto.className}>
       <body>
@@ -30,7 +31,7 @@ export default function RootLayout({
           <CartProvider>
             <FavoritesProvider>
               <Header />
-              {children}
+              <AgeGate>{children}</AgeGate>
               <Notification />
               <FloatingCart />
               <Footer />

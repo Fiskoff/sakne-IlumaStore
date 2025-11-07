@@ -15,7 +15,7 @@ export default function Sales() {
             нагрева табака, что исключает поломку нагревательного элемента
             механическим способом
           </span>
-          <Link href="">Купить</Link>
+          <Link href="/catalog/iqos/one">Купить</Link>
           <Image
             src="/sales/sale1.webp"
             alt="iluma i one"
@@ -34,7 +34,7 @@ export default function Sales() {
             <h2>Iqos Iluma Standart</h2>
             <p>СКИДКА 15%</p>
             <span>Новинка от IQOS</span>
-            <Link href="">Купить</Link>
+            <Link href="/catalog/iqos/standart">Купить</Link>
           </div>
           <div className={styles.salse_bottom__right}>
             <Image
@@ -46,7 +46,7 @@ export default function Sales() {
             <h2>Iqos Iluma Standart I</h2>
             <p>новинка от IQOS</p>
             <span>Скидка 15%</span>
-            <Link href="">Купить</Link>
+            <Link href="/catalog/iqos/standarti">Купить</Link>
           </div>
         </div>
       </div>

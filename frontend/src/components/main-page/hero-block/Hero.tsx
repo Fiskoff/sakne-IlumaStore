@@ -51,7 +51,7 @@ const Hero: FC = () => {
           "@context": "https://schema.org",
           "@type": "Product",
           name: "IQOS ILUMA Prime Oasis",
-          image: "https://example.com/hero_slider/slider2.png",
+          image: "https://iqos-24.ru/hero_slider/slider2.png",
           description:
             "Ограниченная серия IQOS ILUMA Prime Oasis с доставкой по Москве.",
           brand: {
@@ -63,7 +63,7 @@ const Hero: FC = () => {
             priceCurrency: "RUB",
             price: "8990",
             availability: "https://schema.org/InStock",
-            url: "https://example.com/product/iqos-iluma-prime-oasis",
+            url: "https://iqos-24.ru/product/iqos-iluma-prime-oasis",
           },
         })}
       </Script>
@@ -72,7 +72,7 @@ const Hero: FC = () => {
           "@context": "https://schema.org",
           "@type": "Product",
           name: "IQOS ILUMA Prime Oasis",
-          image: "https://example.com/hero_slider/slider2.png",
+          image: "https://iqos-24.ru/hero_slider/slider2.png",
           description:
             "Ограниченная серия IQOS ILUMA Prime Oasis с доставкой по Москве.",
           brand: {
@@ -84,7 +84,7 @@ const Hero: FC = () => {
             priceCurrency: "RUB",
             price: "8990",
             availability: "https://schema.org/InStock",
-            url: "https://example.com/product/iqos-iluma-prime-oasis",
+            url: "https://iqos-24.ru/product/iqos-iluma-prime-oasis",
           },
         })}
       </Script>
@@ -93,7 +93,7 @@ const Hero: FC = () => {
           "@context": "https://schema.org",
           "@type": "Product",
           name: "IQOS ILUMA Prime Oasis",
-          image: "https://example.com/hero_slider/slider2.png",
+          image: "https://iqos-24.ru/hero_slider/slider2.png",
           description:
             "Ограниченная серия IQOS ILUMA Prime Oasis с доставкой по Москве.",
           brand: {
@@ -105,7 +105,7 @@ const Hero: FC = () => {
             priceCurrency: "RUB",
             price: "8990",
             availability: "https://schema.org/InStock",
-            url: "https://example.com/product/iqos-iluma-prime-oasis",
+            url: "https://iqos-24.ru/product/iqos-iluma-prime-oasis",
           },
         })}
       </Script>
@@ -145,7 +145,7 @@ const Hero: FC = () => {
         </div>
 
         <div className={styles.hero_content}>
-          <div className={styles.hero_container__top}>
+          <Link href="/catalog/terea" className={styles.hero_container__top}>
             <Image
               src="/hero_slider/terea.webp"
               alt="Стики TEREA для IQOS ILUMA — купить в Москве"
@@ -156,8 +156,11 @@ const Hero: FC = () => {
               <h3>Стики Terea для Iqos Iluma</h3>
               <p>Купить от 360 рублей</p>
             </div>
-          </div>
-          <div className={styles.hero_container__bottom}>
+          </Link>
+          <Link
+            href="/catalog/devices"
+            className={styles.hero_container__bottom}
+          >
             <Image
               src="/hero_slider/device.webp"
               alt="Стики TEREA для IQOS ILUMA — купить в Москве"
@@ -168,7 +171,7 @@ const Hero: FC = () => {
               <h3>Аксессуары для Iqos Iluma</h3>
               <p>Купить от 1490 рублей</p>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
       <div className={styles.hero_divider}>

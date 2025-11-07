@@ -10,7 +10,7 @@ export default function Exclusive() {
           <p>Не пропустите!!</p>
           <h3>Iqos Iluma i Prime Minera</h3>
           <span>Эксклюзив</span>
-          <Link href="">Купить</Link>
+          <Link href="/product/i-Prime-Minera">Купить</Link>
         </div>
         <div className={styles.exclusive_iamge}>
           <Image

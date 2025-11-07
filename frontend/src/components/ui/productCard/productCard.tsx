@@ -11,13 +11,14 @@ import ProductModal from "../productModal/productModal";
 import styles from "./productCard.module.scss";
 import { generateCartItemId, generateProductId } from "@/utils/productId";
 import { CartItem } from "@/types/cart/cart";
+import { getStableProductBaseId } from "@/utils/productUtils";
 
 export interface ProductVariant {
   type: "pack" | "block";
   imageUrl: string;
   price: number;
   name: string;
-  nalichie?: boolean; // 🔥 ДОБАВЛЕНО: для проверки наличия
+  nalichie?: boolean;
 }
 
 export interface ProductCardProps {
@@ -36,13 +37,25 @@ const ProductCard: FC<ProductCardProps> = ({
   description,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const safeVariants =
+    Array.isArray(variants) && variants.length > 0
+      ? variants
+      : [
+          {
+            type: "pack",
+            imageUrl: "/placeholder.jpg",
+            price: 0,
+            name: "Без названия",
+            nalichie: false,
+          },
+        ];
   const [activeVariant, setActiveVariant] = useState<"pack" | "block">(
-    variants[0]?.type || "pack"
+    safeVariants[0].type as "pack" | "block"
   );
 
   const currentVariant =
-    variants.find((v) => v.type === activeVariant) || variants[0];
-  const hasMultipleVariants = variants.length > 1;
+    safeVariants.find((v) => v.type === activeVariant) || safeVariants[0];
+  const hasMultipleVariants = safeVariants.length > 1;
 
   const { addItem } = useCart();
   const {
@@ -53,9 +66,10 @@ const ProductCard: FC<ProductCardProps> = ({
   const { addNotification } = useNotification();
 
   // 🔥 ИСПРАВЛЕНИЕ: Безопасное формирование itemId
-  const baseId = id?.toString() || currentVariant.name;
-  const itemId = generateProductId(baseId, currentVariant.type);
-  const cartItemId = generateCartItemId(baseId, currentVariant.type);
+  const baseId = getStableProductBaseId(id, undefined, currentVariant.name);
+  const variantType = currentVariant.type as "pack" | "block" | undefined;
+  const itemId = generateProductId(baseId, variantType);
+  const cartItemId = generateCartItemId(baseId, variantType);
 
   const isItemFavorite = isFavorite(itemId);
 
@@ -86,7 +100,7 @@ const ProductCard: FC<ProductCardProps> = ({
       imageUrl: currentVariant.imageUrl,
       variant: hasMultipleVariants
         ? {
-            type: currentVariant.type,
+            type: currentVariant.type as "pack" | "block",
             name: currentVariant.type === "pack" ? "Пачка" : "Блок",
           }
         : undefined,
@@ -122,7 +136,7 @@ const ProductCard: FC<ProductCardProps> = ({
         imageUrl: currentVariant.imageUrl,
         variant: hasMultipleVariants
           ? {
-              type: currentVariant.type,
+              type: currentVariant.type as "pack" | "block",
               name: currentVariant.type === "pack" ? "Пачка" : "Блок",
             }
           : undefined,

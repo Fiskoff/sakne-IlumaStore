@@ -52,7 +52,6 @@ export default function RangeFilter({
       currentValue.min !== prevValue.min ||
       currentValue.max !== prevValue.max
     ) {
-      console.log("🔄 RangeFilter updating local value:", currentValue);
       setLocalValue(currentValue);
       prevValueRef.current = currentValue;
     }
@@ -62,7 +61,6 @@ export default function RangeFilter({
     (newValue: { min: number; max: number }) => {
       const safeValue = getSafeValue(newValue);
 
-      console.log("🎯 RangeFilter handleChange:", safeValue);
       setLocalValue(safeValue);
 
       // 🔹 Проверяем, отличается ли значение от дефолтного
@@ -70,7 +68,6 @@ export default function RangeFilter({
         safeValue.min === filter.min && safeValue.max === filter.max;
 
       if (isDefaultValue) {
-        console.log("🗑️ RangeFilter reset to default");
         onChange(null);
       } else {
         onChange(safeValue);
@@ -82,13 +79,11 @@ export default function RangeFilter({
   // 🔹 Обработчики для ползунков
   const handleMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newMin = Math.min(Number(e.target.value), localValue.max);
-    console.log("⬅️ Min slider changed:", newMin);
     handleChange({ ...localValue, min: newMin });
   };
 
   const handleMaxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newMax = Math.max(Number(e.target.value), localValue.min);
-    console.log("➡️ Max slider changed:", newMax);
     handleChange({ ...localValue, max: newMax });
   };
 

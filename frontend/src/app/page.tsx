@@ -56,7 +56,7 @@ export default function Home() {
           "@context": "https://schema.org",
           "@type": "Store",
           name: "SmokeStore",
-          image: "https://example.com/logo.png",
+          image: "https://iqos-24.ru/logo.png",
           description:
             "Интернет-магазин IQOS ILUMA и стиков TEREA с доставкой по Москве и всей России.",
           address: {
@@ -64,7 +64,7 @@ export default function Home() {
             addressLocality: "Москва",
             addressCountry: "Россия",
           },
-          url: "https://example.com",
+          url: "https://iqos-24.ru",
           telephone: "+7 (900) 123-45-67",
         })}
       </Script>

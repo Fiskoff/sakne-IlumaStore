@@ -60,8 +60,6 @@ export default function FilterGroup({
   const handlePriceChange = (
     priceValue: { min: number; max: number } | null
   ) => {
-    console.log("🎯 Price range changed in FilterGroup:", priceValue);
-
     if (priceValue) {
       onChange(priceValue);
     } else {

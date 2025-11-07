@@ -11,17 +11,69 @@ interface CartProps {
   onClose: () => void;
 }
 
+// Минимальные требования для заказа
+const MIN_PACKS_FOR_DELIVERY = 10;
+const MIN_BLOCKS_FOR_DELIVERY = 1;
+const MIN_ORDER_AMOUNT = 3500;
+
 const Cart: FC<CartProps> = ({ isOpen, onClose }) => {
   const { items, removeItem, updateQuantity, clearCart, totalPrice } =
     useCart();
   const [isOrdering, setIsOrdering] = useState(false);
   const router = useRouter();
 
+  // Функция для проверки минимального количества товаров и суммы
+  const canOrderDelivery = () => {
+    const totalPacks = items.reduce((sum, item) => {
+      const isPack =
+        item.name.toLowerCase().includes("пачка") ||
+        item.name.toLowerCase().includes("sticks");
+      return isPack ? sum + item.quantity : sum;
+    }, 0);
+
+    const totalBlocks = items.reduce((sum, item) => {
+      const isBlock =
+        item.name.toLowerCase().includes("блок") ||
+        item.name.toLowerCase().includes("block");
+      return isBlock ? sum + item.quantity : sum;
+    }, 0);
+
+    return (
+      totalPacks >= MIN_PACKS_FOR_DELIVERY ||
+      totalBlocks >= MIN_BLOCKS_FOR_DELIVERY ||
+      totalPrice >= MIN_ORDER_AMOUNT
+    );
+  };
+
+  // Функция для подсчета текущего количества пачек и блоков
+  const getProductCounts = () => {
+    const packs = items.reduce((sum, item) => {
+      const isPack =
+        item.name.toLowerCase().includes("пачка") ||
+        item.name.toLowerCase().includes("sticks");
+      return isPack ? sum + item.quantity : sum;
+    }, 0);
+
+    const blocks = items.reduce((sum, item) => {
+      const isBlock =
+        item.name.toLowerCase().includes("блок") ||
+        item.name.toLowerCase().includes("block");
+      return isBlock ? sum + item.quantity : sum;
+    }, 0);
+
+    return { packs, blocks };
+  };
+
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) onClose();
   };
 
   const handleOrder = () => {
+    if (!canOrderDelivery()) {
+      alert("Для заказа доставки необходимо минимум 10 пачек или 1 блок");
+      return;
+    }
+
     setIsOrdering(true);
     setTimeout(() => {
       setIsOrdering(false);
@@ -29,6 +81,9 @@ const Cart: FC<CartProps> = ({ isOpen, onClose }) => {
       router.push("/checkout");
     }, 1000);
   };
+
+  const { packs, blocks } = getProductCounts();
+  const canDeliver = canOrderDelivery();
 
   return (
     <div
@@ -68,6 +123,21 @@ const Cart: FC<CartProps> = ({ isOpen, onClose }) => {
           ) : (
             <>
               <div className={styles.cart__items}>
+                {/* Сообщение о минимальном количестве для доставки */}
+                {!canDeliver && (
+                  <div className={styles.deliveryWarning}>
+                    <div className={styles.deliveryWarningIcon}>🚫</div>
+                    <div className={styles.deliveryWarningText}>
+                      <p className={styles.currentCount}>
+                        Доставка доступна от 1 блока или 10 пачек или 3500
+                        рублей
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Отображение количества пачек и блоков */}
+
                 {items.map((item) => (
                   <div key={item.id} className={styles.cartItem}>
                     <div className={styles.cartItem__image}>
@@ -143,11 +213,17 @@ const Cart: FC<CartProps> = ({ isOpen, onClose }) => {
                     Очистить корзину
                   </button>
                   <button
-                    className={styles.cart__order}
+                    className={`${styles.cart__order} ${
+                      !canDeliver ? styles.cart__orderDisabled : ""
+                    }`}
                     onClick={handleOrder}
-                    disabled={isOrdering}
+                    disabled={isOrdering || !canDeliver}
                   >
-                    {isOrdering ? "Оформляем..." : "Оформить заказ"}
+                    {isOrdering
+                      ? "Оформляем..."
+                      : !canDeliver
+                      ? "Недостаточно товаров"
+                      : "Оформить заказ"}
                   </button>
                 </div>
               </div>

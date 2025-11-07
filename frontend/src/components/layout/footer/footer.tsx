@@ -25,22 +25,19 @@ export default function Footer() {
         <div className={styles.footer_section}>
           <h3 className={styles.section_title}>Каталог</h3>
           <div className={styles.links_container}>
-            <Link href={""}>Iqos ILuma</Link>
-            <Link href={""}>Стики Terea</Link>
-            <Link href={""}>Аксессуары</Link>
-            <Link href={""}>Хит продаж</Link>
-            <Link href={""}>Новинки</Link>
+            <Link href={"/catalog/iqos"}>Iqos ILuma</Link>
+            <Link href={"/catalog/terea"}>Стики Terea</Link>
+            <Link href={"/catalog/devices"}>Аксессуары</Link>
+            <Link href={"/catalog/bestsellers"}>Хит продаж</Link>
+            <Link href={"/catalog/new-products"}>Новинки</Link>
           </div>
         </div>
 
         <div className={styles.footer_section}>
           <h3 className={styles.section_title}>Информация</h3>
           <div className={styles.links_container}>
-            <Link href={""}>О компании</Link>
-            <Link href={""}>Доставка и оплата</Link>
-            <Link href={""}>Гарантия</Link>
-            <Link href={""}>Отзывы</Link>
-            <Link href={""}>Блог</Link>
+            <Link href={"/contacts"}>Контакты</Link>
+            <Link href={"/blog"}>Блог</Link>
           </div>
         </div>
 
@@ -52,7 +49,10 @@ export default function Footer() {
             </Link>
             <p className={styles.work_hours}>Ежедневно с 9:00 до 21:00</p>
             <div className={styles.social_links}>
-              <Link href="#" className={styles.social_link}>
+              <Link
+                href="https://api.whatsapp.com/send/?phone=79951538019&text=%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5%21+%D0%A5%D0%BE%D1%87%D1%83+%D0%BE%D1%84%D0%BE%D1%80%D0%BC%D0%B8%D1%82%D1%8C+%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7&type=phone_number&app_absent=0"
+                className={styles.social_link}
+              >
                 <Image
                   src="/header/wa.svg"
                   alt="WhatsApp"
@@ -60,7 +60,10 @@ export default function Footer() {
                   width={30}
                 />
               </Link>
-              <Link href="#" className={styles.social_link}>
+              <Link
+                href="https://t.me/+tXZ1x8yraKUzNWEy"
+                className={styles.social_link}
+              >
                 <Image
                   src="/header/tg.svg"
                   alt="Telegram"
@@ -75,11 +78,11 @@ export default function Footer() {
 
       <div className={styles.footer_bottom}>
         <div className={styles.copyright}>
-          © 2025 Iluma Store. Все права защищены.
+          © 2025 IQOS-24. Все права защищены.
         </div>
         <div className={styles.legal_links}>
-          <Link href={""}>Политика конфиденциальности</Link>
-          <Link href={""}>Пользовательское соглашение</Link>
+          <Link href={"/privacy-policy"}>Политика конфиденциальности</Link>
+          <Link href={"/terms"}>Пользовательское соглашение</Link>
         </div>
       </div>
     </section>

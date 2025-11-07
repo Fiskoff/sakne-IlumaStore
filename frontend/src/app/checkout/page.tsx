@@ -12,13 +12,19 @@ type DeliveryMethod = "pickup" | "delivery";
 const TELEGRAM_BOT_TOKEN = "7364548522:AAGpn05pGfX3rqtu8if1BDxILlbtOUGHbeA";
 const TELEGRAM_CHAT_ID = "-1002155675591";
 
+// Минимальные требования для заказа
+const MIN_PACKS_FOR_DELIVERY = 10;
+const MIN_BLOCKS_FOR_DELIVERY = 1;
+const MIN_ORDER_AMOUNT = 3500; // 3.5 тысячи рублей
+
 export default function CheckoutPage() {
   const { items, totalPrice, clearCart } = useCart();
   const router = useRouter();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deliveryMethod, setDeliveryMethod] =
-    useState<DeliveryMethod>("pickup");
+    useState<DeliveryMethod>("delivery"); // По умолчанию доставка
+  const [agreementChecked, setAgreementChecked] = useState(false); // Добавлено состояние для чекбокса
 
   const [formData, setFormData] = useState({
     name: "",
@@ -29,28 +35,92 @@ export default function CheckoutPage() {
 
   const pickupAddress = "г. Москва, ул. Примерная, д. 123, офис 45";
 
+  // Функция для проверки минимального количества товаров и суммы
+  const canOrderDelivery = () => {
+    const totalPacks = items.reduce((sum, item) => {
+      // Предполагаем, что товары с определенными категориями или названиями являются пачками
+      const isPack =
+        item.name.toLowerCase().includes("пачка") ||
+        item.name.toLowerCase().includes("sticks");
+      return isPack ? sum + item.quantity : sum;
+    }, 0);
+
+    const totalBlocks = items.reduce((sum, item) => {
+      // Предполагаем, что товары с определенными категориями или названиями являются блоками
+      const isBlock =
+        item.name.toLowerCase().includes("блок") ||
+        item.name.toLowerCase().includes("block");
+      return isBlock ? sum + item.quantity : sum;
+    }, 0);
+
+    // Проверяем все условия: достаточно пачек ИЛИ достаточно блоков ИЛИ сумма заказа достаточна
+    return (
+      totalPacks >= MIN_PACKS_FOR_DELIVERY ||
+      totalBlocks >= MIN_BLOCKS_FOR_DELIVERY ||
+      totalPrice >= MIN_ORDER_AMOUNT
+    );
+  };
+
+  // Функция для получения причины недоступности доставки
+  const getDeliveryRestrictionReason = () => {
+    const { packs, blocks } = getProductCounts();
+    const reasons = [];
+
+    if (packs < MIN_PACKS_FOR_DELIVERY) {
+      reasons.push(`${MIN_PACKS_FOR_DELIVERY} пачек`);
+    }
+    if (blocks < MIN_BLOCKS_FOR_DELIVERY) {
+      reasons.push(`${MIN_BLOCKS_FOR_DELIVERY} блок`);
+    }
+    if (totalPrice < MIN_ORDER_AMOUNT) {
+      reasons.push(`${MIN_ORDER_AMOUNT.toLocaleString("ru-RU")} ₽`);
+    }
+
+    return reasons.length > 0
+      ? `Для заказа доставки необходимо минимум ${reasons.join(" ИЛИ ")}`
+      : null;
+  };
+
+  // Функция для подсчета текущего количества пачек и блоков
+  const getProductCounts = () => {
+    const packs = items.reduce((sum, item) => {
+      const isPack =
+        item.name.toLowerCase().includes("пачка") ||
+        item.name.toLowerCase().includes("sticks");
+      return isPack ? sum + item.quantity : sum;
+    }, 0);
+
+    const blocks = items.reduce((sum, item) => {
+      const isBlock =
+        item.name.toLowerCase().includes("блок") ||
+        item.name.toLowerCase().includes("block");
+      return isBlock ? sum + item.quantity : sum;
+    }, 0);
+
+    return { packs, blocks };
+  };
+
   // Функция для отправки уведомления в Telegram
   const sendTelegramNotification = async (orderData: any) => {
     try {
       // Формируем красивое сообщение для Telegram
       const message = `
-🛒 *НОВЫЙ ЗАКАЗ С САЙТА iluma-store.ru*
+заказ с сайта iqos-24.ru
 
-*Контактные данные:*
- Имя: ${orderData.customer_name}
- Телефон: ${orderData.phone_number}
- Способ: ${orderData.is_delivery ? "Доставка" : "Самовывоз"}
+
+Имя: ${orderData.customer_name}
+Телефон: ${orderData.phone_number}
+Способ доставки: ${orderData.is_delivery ? "Доставка" : "Самовывоз"}
 
 ${
   orderData.is_delivery
-    ? `📍 *Адрес доставки:*
+    ? `
  Город: ${orderData.city}
  Адрес: ${orderData.address}`
-    : `📍 *Самовывоз:*
-${pickupAddress}`
+    : ``
 }
 
-*Корзина:*
+Корзина:
 ${orderData.ordered_items
   .map(
     (item: any, index: number) =>
@@ -85,7 +155,6 @@ ${orderData.ordered_items
         throw new Error("Не удалось отправить уведомление в Telegram");
       }
 
-      console.log("✅ Уведомление отправлено в Telegram");
       return true;
     } catch (error) {
       console.error("❌ Ошибка при отправке в Telegram:", error);
@@ -144,6 +213,23 @@ ${orderData.ordered_items
       formData.phone.replace(/\D/g, "").length < 11
     ) {
       alert("Пожалуйста, введите корректный номер телефона");
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Проверка согласия с политикой
+    if (!agreementChecked) {
+      alert(
+        "Пожалуйста, согласитесь с политикой конфиденциальности и пользовательским соглашением"
+      );
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Проверка минимального количества для доставки
+    if (deliveryMethod === "delivery" && !canOrderDelivery()) {
+      const restrictionReason = getDeliveryRestrictionReason();
+      alert(restrictionReason || "Недостаточно товаров для заказа доставки");
       setIsSubmitting(false);
       return;
     }
@@ -220,6 +306,10 @@ ${orderData.ordered_items
     };
   }, []);
 
+  const { packs, blocks } = getProductCounts();
+  const canDeliver = canOrderDelivery();
+  const restrictionReason = getDeliveryRestrictionReason();
+
   if (items.length === 0) {
     return (
       <div className={styles.emptyCart}>
@@ -281,13 +371,39 @@ ${orderData.ordered_items
 
               <div className={styles.formGroup}>
                 <h3>Способ получения</h3>
+
+                {/* Сообщение о недоступности самовывоза */}
+                <div className={styles.pickupDisabled}>
+                  <div className={styles.pickupDisabledIcon}>⚠️</div>
+                  <div className={styles.pickupDisabledText}>
+                    <strong>Самовывоз временно недоступен</strong>
+                    <p>В данный момент доступна только доставка</p>
+                  </div>
+                </div>
+
+                {/* Сообщение о минимальном количестве для доставки */}
+                {!canDeliver && (
+                  <div className={styles.deliveryWarning}>
+                    <div className={styles.deliveryWarningIcon}>🚫</div>
+                    <div className={styles.deliveryWarningText}>
+                      <p className={styles.currentCount}>
+                        Доставка доступна от 1 блока или 10 пачек
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <div className={styles.deliveryMethods}>
-                  <label className={styles.deliveryMethod}>
+                  {/* Самовывоз - заблокирован */}
+                  <label
+                    className={`${styles.deliveryMethod} ${styles.disabled}`}
+                  >
                     <input
                       type="radio"
                       name="deliveryMethod"
                       value="pickup"
-                      checked={deliveryMethod === "pickup"}
+                      checked={false}
+                      disabled
                       onChange={(e) =>
                         setDeliveryMethod(e.target.value as DeliveryMethod)
                       }
@@ -296,17 +412,23 @@ ${orderData.ordered_items
                     <div className={styles.deliveryInfo}>
                       <span className={styles.deliveryTitle}>Самовывоз</span>
                       <span className={styles.deliveryDescription}>
-                        Бесплатно
+                        Временно недоступен
                       </span>
                     </div>
                   </label>
 
-                  <label className={styles.deliveryMethod}>
+                  {/* Доставка - может быть заблокирована */}
+                  <label
+                    className={`${styles.deliveryMethod} ${
+                      !canDeliver ? styles.disabled : ""
+                    }`}
+                  >
                     <input
                       type="radio"
                       name="deliveryMethod"
                       value="delivery"
                       checked={deliveryMethod === "delivery"}
+                      disabled={!canDeliver}
                       onChange={(e) =>
                         setDeliveryMethod(e.target.value as DeliveryMethod)
                       }
@@ -315,23 +437,18 @@ ${orderData.ordered_items
                     <div className={styles.deliveryInfo}>
                       <span className={styles.deliveryTitle}>Доставка</span>
                       <span className={styles.deliveryDescription}>
-                        Стоимость уточняется
+                        {canDeliver
+                          ? "Стоимость уточняется"
+                          : `Минимум ${MIN_PACKS_FOR_DELIVERY} пачек ИЛИ ${MIN_BLOCKS_FOR_DELIVERY} блок ИЛИ ${MIN_ORDER_AMOUNT.toLocaleString(
+                              "ru-RU"
+                            )} ₽`}
                       </span>
                     </div>
                   </label>
                 </div>
 
-                {deliveryMethod === "pickup" && (
-                  <div className={styles.pickupAddress}>
-                    <h4>Адрес самовывоза:</h4>
-                    <p>{pickupAddress}</p>
-                    <p className={styles.pickupHours}>
-                      Часы работы: 10:00 - 20:00
-                    </p>
-                  </div>
-                )}
-
-                {deliveryMethod === "delivery" && (
+                {/* Блок с полями для доставки */}
+                {deliveryMethod === "delivery" && canDeliver && (
                   <div className={styles.deliveryFields}>
                     <div className={styles.inputGroup}>
                       <label htmlFor="city">Город *</label>
@@ -361,16 +478,44 @@ ${orderData.ordered_items
                 )}
               </div>
 
+              {/* Блок согласия с политикой */}
+              <label className={styles.checkbox}>
+                <input
+                  type="checkbox"
+                  required
+                  checked={agreementChecked}
+                  onChange={(e) => setAgreementChecked(e.target.checked)}
+                />
+                <span className={styles.checkboxText}>
+                  Я соглашаюсь с{" "}
+                  <a
+                    href="/privacy-policy"
+                    target="_blank"
+                    className={styles.link}
+                  >
+                    политикой конфиденциальности
+                  </a>{" "}
+                  и{" "}
+                  <a href="/terms" target="_blank" className={styles.link}>
+                    пользовательским соглашением
+                  </a>
+                </span>
+              </label>
+
               <button
                 type="submit"
                 className={styles.submitButton}
-                disabled={isSubmitting}
+                disabled={isSubmitting || !canDeliver || !agreementChecked}
               >
                 {isSubmitting ? (
                   <>
                     <div className={styles.spinner}></div>
                     Оформляем заказ...
                   </>
+                ) : !canDeliver ? (
+                  "Недостаточно товаров для заказа"
+                ) : !agreementChecked ? (
+                  "Примите соглашение"
                 ) : (
                   `Оформить заказ · ${totalPrice.toLocaleString("ru-RU")} ₽`
                 )}
@@ -381,6 +526,9 @@ ${orderData.ordered_items
           <div className={styles.cartSection}>
             <div className={styles.cartItems}>
               <h3>Ваш заказ</h3>
+
+              {/* Отображение количества пачек, блоков и суммы */}
+
               {items.map((item) => (
                 <div key={item.id} className={styles.cartItem}>
                   <div className={styles.cartItemImage}>
@@ -423,9 +571,7 @@ ${orderData.ordered_items
               <div className={styles.summaryRow}>
                 <span>Доставка</span>
                 <span>
-                  {deliveryMethod === "pickup"
-                    ? "Бесплатно"
-                    : "Рассчитывается отдельно"}
+                  {canDeliver ? "Рассчитывается отдельно" : "Недоступна"}
                 </span>
               </div>
               <div className={`${styles.summaryRow} ${styles.total}`}>
