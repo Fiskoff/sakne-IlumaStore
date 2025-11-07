@@ -1,18 +1,20 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
-  reactCompiler: true,
+// next.config.js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
-    remotePatterns: [
+    domains: ["http://217.198.9.128:3001"],
+    dangerouslyAllowSVG: true,
+    contentDispositionType: "attachment",
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+  },
+  async rewrites() {
+    return [
       {
-        protocol: "https",
-        hostname: "ilumarussia.ru",
-        port: "",
-        pathname: "/**",
+        source: "/images/:path*",
+        destination: "/images/:path*",
       },
-    ],
+    ];
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
