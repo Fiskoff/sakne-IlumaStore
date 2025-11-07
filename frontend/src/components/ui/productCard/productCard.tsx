@@ -29,6 +29,31 @@ export interface ProductCardProps {
   description?: string;
 }
 
+// 🔥 ДОБАВЛЕНО: Функция для кодирования URL с русскими символами
+function encodeImageUrl(url: string): string {
+  if (!url) return "/placeholder.jpg";
+
+  try {
+    // Если это абсолютный URL
+    if (url.startsWith("http")) {
+      const urlObj = new URL(url);
+      urlObj.pathname = encodeURI(urlObj.pathname);
+      return urlObj.toString();
+    }
+
+    // Если это относительный путь
+    // Разбиваем путь на части и кодируем каждую часть отдельно
+    const parts = url.split("/");
+    const encodedParts = parts.map((part) =>
+      part.includes("%") || part === "" ? part : encodeURIComponent(part)
+    );
+    return encodedParts.join("/");
+  } catch (error) {
+    console.warn("Error encoding image URL:", url, error);
+    return url;
+  }
+}
+
 const ProductCard: FC<ProductCardProps> = ({
   id,
   variants,
@@ -56,6 +81,9 @@ const ProductCard: FC<ProductCardProps> = ({
   const currentVariant =
     safeVariants.find((v) => v.type === activeVariant) || safeVariants[0];
   const hasMultipleVariants = safeVariants.length > 1;
+
+  // 🔥 ИСПРАВЛЕНИЕ: Кодируем URL изображения
+  const encodedImageUrl = encodeImageUrl(currentVariant.imageUrl);
 
   const { addItem } = useCart();
   const {
@@ -97,7 +125,7 @@ const ProductCard: FC<ProductCardProps> = ({
       name: currentVariant.name,
       price: currentVariant.price,
       quantity: 1,
-      imageUrl: currentVariant.imageUrl,
+      imageUrl: currentVariant.imageUrl, // Оригинальный URL для данных
       variant: hasMultipleVariants
         ? {
             type: currentVariant.type as "pack" | "block",
@@ -133,7 +161,7 @@ const ProductCard: FC<ProductCardProps> = ({
         id: itemId,
         name: currentVariant.name,
         price: currentVariant.price,
-        imageUrl: currentVariant.imageUrl,
+        imageUrl: currentVariant.imageUrl, // Оригинальный URL для данных
         variant: hasMultipleVariants
           ? {
               type: currentVariant.type as "pack" | "block",
@@ -193,12 +221,18 @@ const ProductCard: FC<ProductCardProps> = ({
               </div>
             )}
 
+            {/* 🔥 ИСПРАВЛЕНИЕ: Используем закодированный URL для отображения */}
             <Image
-              src={currentVariant.imageUrl}
+              src={encodedImageUrl}
               alt={`${currentVariant.name} — купить в Москве с доставкой`}
               width={400}
               height={400}
               className={styles.productCard__img}
+              onError={(e) => {
+                // Fallback при ошибке загрузки
+                const target = e.target as HTMLImageElement;
+                target.src = "/placeholder.jpg";
+              }}
             />
 
             <div className={styles.productCard__action}>
@@ -250,7 +284,7 @@ const ProductCard: FC<ProductCardProps> = ({
               "@context": "https://schema.org",
               "@type": "Product",
               name: currentVariant.name,
-              image: currentVariant.imageUrl,
+              image: currentVariant.imageUrl, // Оригинальный URL для SEO
               description,
               brand: { "@type": "Brand", name: "IQOS / TEREA" },
               offers: {
