@@ -2,7 +2,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    // 🔥 ЗАМЕНА: domains на remotePatterns
     remotePatterns: [
       {
         protocol: "http",
@@ -22,7 +21,6 @@ const nextConfig = {
         port: "3001",
         pathname: "/images/**",
       },
-      // 🔥 ДОБАВЛЕНО: для production домена
       {
         protocol: "https",
         hostname: "iqos-24.ru",
@@ -38,18 +36,17 @@ const nextConfig = {
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
 
-    // 🔥 ДОБАВЛЕНО: для лучшей поддержки русских путей
-    formats: ["image/webp", "image/avif", "image/png", "image/jpeg"],
+    // 🔥 ИСПРАВЛЕНО: только webp и avif
+    formats: ["image/webp", "image/avif"],
   },
 
-  // 🔥 ИСПРАВЛЕНО: rewrites должны проксировать запросы, а не создавать цикл
+  // 🔥 ИСПРАВЛЕНО: правильные rewrites
   async rewrites() {
     return [
       {
         source: "/api/:path*",
         destination: "http://217.198.9.128:3001/api/:path*",
       },
-      // 🔥 ДОБАВЛЕНО: для image optimization
       {
         source: "/_next/image",
         destination: "http://217.198.9.128:3001/_next/image",
@@ -57,7 +54,6 @@ const nextConfig = {
     ];
   },
 
-  // 🔥 ДОБАВЛЕНО: для отладки
   logging: {
     fetches: {
       fullUrl: true,
