@@ -23,7 +23,7 @@ interface Product {
   type: "iqos" | "terea" | "devices";
   price: number;
   nalichie: boolean;
-  new: number;
+  hit: number;
   variants: Variant[];
   url?: string;
 }
@@ -53,7 +53,7 @@ export default async function NewProducts({ title, limit }: PageProps) {
 
       // Берём только новинки с nalichie=true
       let newItems = data.filter(
-        (item) => Number(item.new) === 1 && item.nalichie
+        (item) => Number(item.hit) === 1 && item.nalichie
       );
 
       // Если нет новинок, можно брать все доступные товары
