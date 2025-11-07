@@ -36,7 +36,7 @@ export default async function NewProducts({ title, limit }: PageProps) {
 
   for (const category of categories) {
     try {
-      const res = await fetch(`http://localhost:3020/api/product/${category}`, {
+      const res = await fetch(`http://localhost:3001/api/product/${category}`, {
         next: { revalidate: 60 },
       });
       if (!res.ok) continue;

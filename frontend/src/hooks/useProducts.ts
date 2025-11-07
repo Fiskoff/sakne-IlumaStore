@@ -76,7 +76,7 @@ async function fetchFilteredProducts(
   }
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3020";
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
     const url = new URL(`${baseUrl}/api/product/${category}`);
 
     // 🔹 УПРОЩЕННАЯ обработка фильтров - отправляем как есть

@@ -8,6 +8,10 @@ import styles from "./checkout.module.scss";
 
 type DeliveryMethod = "pickup" | "delivery";
 
+// Константы для Telegram бота
+const TELEGRAM_BOT_TOKEN = "7364548522:AAGpn05pGfX3rqtu8if1BDxILlbtOUGHbeA";
+const TELEGRAM_CHAT_ID = "-1002155675591";
+
 export default function CheckoutPage() {
   const { items, totalPrice, clearCart } = useCart();
   const router = useRouter();
@@ -24,6 +28,71 @@ export default function CheckoutPage() {
   });
 
   const pickupAddress = "г. Москва, ул. Примерная, д. 123, офис 45";
+
+  // Функция для отправки уведомления в Telegram
+  const sendTelegramNotification = async (orderData: any) => {
+    try {
+      // Формируем красивое сообщение для Telegram
+      const message = `
+🛒 *НОВЫЙ ЗАКАЗ С САЙТА iluma-store.ru*
+
+*Контактные данные:*
+ Имя: ${orderData.customer_name}
+ Телефон: ${orderData.phone_number}
+ Способ: ${orderData.is_delivery ? "Доставка" : "Самовывоз"}
+
+${
+  orderData.is_delivery
+    ? `📍 *Адрес доставки:*
+ Город: ${orderData.city}
+ Адрес: ${orderData.address}`
+    : `📍 *Самовывоз:*
+${pickupAddress}`
+}
+
+*Корзина:*
+${orderData.ordered_items
+  .map(
+    (item: any, index: number) =>
+      `• ${item.product_name} x${
+        item.quantity
+      }: ${item.price_at_time_of_order.toLocaleString("ru-RU")} ₽`
+  )
+  .join("\n")}
+
+ *Общая сумма:* ${totalPrice.toLocaleString("ru-RU")} ₽
+      `.trim();
+
+      // Отправляем сообщение в Telegram
+      const response = await fetch(
+        `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            chat_id: TELEGRAM_CHAT_ID,
+            text: message,
+            parse_mode: "Markdown",
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Ошибка отправки в Telegram:", errorData);
+        throw new Error("Не удалось отправить уведомление в Telegram");
+      }
+
+      console.log("✅ Уведомление отправлено в Telegram");
+      return true;
+    } catch (error) {
+      console.error("❌ Ошибка при отправке в Telegram:", error);
+      // Не прерываем основной поток оформления заказа из-за ошибки Telegram
+      return false;
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -106,6 +175,7 @@ export default function CheckoutPage() {
         })),
       };
 
+      // 🔥 Отправляем заказ на бэкенд
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -114,6 +184,16 @@ export default function CheckoutPage() {
 
       if (!res.ok) {
         throw new Error("Ошибка отправки заказа на сервер");
+      }
+
+      // 🔥 Отправляем уведомление в Telegram
+      const telegramSent = await sendTelegramNotification(orderPayload);
+
+      if (!telegramSent) {
+        console.warn(
+          "⚠️ Заказ сохранен, но уведомление в Telegram не отправлено"
+        );
+        // Продолжаем выполнение, так как основной заказ сохранен
       }
 
       clearCart();

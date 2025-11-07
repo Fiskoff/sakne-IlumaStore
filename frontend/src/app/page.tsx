@@ -11,9 +11,9 @@ import Script from "next/script";
 
 export const metadata: Metadata = {
   title:
-    "Купить IQOS ILUMA и стики TEREA в Москве — доставка по России | Iluma-Store",
+    "Купить IQOS ILUMA и стики TEREA в Москве — доставка по России | Iqos-24",
   description:
-    "Интернет-магазин Iluma-Store: IQOS ILUMA, стики TEREA и аксессуары. Быстрая доставка по Москве и всей России. Только оригинальная продукция.",
+    "Интернет-магазин Iqos-24: IQOS ILUMA, стики TEREA и аксессуары. Быстрая доставка по Москве и всей России. Только оригинальная продукция.",
   keywords: [
     "iqos iluma купить",
     "стики terea москва",
@@ -23,24 +23,24 @@ export const metadata: Metadata = {
     "купить iqos онлайн",
   ],
   openGraph: {
-    title: "Iluma-Store — IQOS ILUMA и стики TEREA с доставкой по России",
+    title: "Iqos-24 — IQOS ILUMA и стики TEREA с доставкой по России",
     description:
       "Купить IQOS ILUMA и TEREA по выгодным ценам. Доставка по Москве и всей России. Оригинальная продукция от Philip Morris.",
-    url: "https://iluma-store.ru",
-    siteName: "Iluma-Store",
+    url: "https://iqos-24.ru",
+    siteName: "Iqos-24",
     images: [
       {
-        url: "https://iluma-store.ru/og-image.jpg",
+        url: "https://iqos-24.ru/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Iluma-Store — IQOS ILUMA и TEREA",
+        alt: "Iqos-24 — IQOS ILUMA и TEREA",
       },
     ],
     locale: "ru_RU",
     type: "website",
   },
   alternates: {
-    canonical: "https://iluma-store.ru/",
+    canonical: "https://iqos-24.ru/",
   },
   robots: {
     index: true,

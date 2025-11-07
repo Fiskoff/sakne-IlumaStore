@@ -10,7 +10,7 @@ interface ProductPageProps {
 async function getProductData(slug: string) {
   try {
     // 🔥 ИСПРАВЛЕНИЕ: Правильное формирование URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3020";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3001";
     const apiUrl = `${baseUrl}/api/product/${encodeURIComponent(slug)}`;
 
     const response = await fetch(apiUrl, {
@@ -52,8 +52,8 @@ export async function generateMetadata({
 
   if (!product) {
     return {
-      title: "Товар не найден | Iluma-Store",
-      description: "Запрашиваемый товар не найден в каталоге Iluma-Store",
+      title: "Товар не найден | Iqos-24",
+      description: "Запрашиваемый товар не найден в каталоге Iqos-24",
       robots: {
         index: false,
         follow: true,
@@ -82,7 +82,7 @@ export async function generateMetadata({
     : "";
 
   return {
-    title: `${product.name} - купить в Москве${priceText} | Iluma-Store`,
+    title: `${product.name} - купить в Москве${priceText} | Iqos-24`,
     description: `${product.name} - ${
       product.description ||
       `Оригинальные ${productCategory}. Доставка по Москве и России. Гарантия качества.`
@@ -93,14 +93,14 @@ export async function generateMetadata({
       product.name
     }`,
     openGraph: {
-      title: `${product.name} | Iluma-Store`,
+      title: `${product.name} | Iqos-24`,
       description: `${product.name} - ${
         product.description ||
         `Оригинальные ${productCategory}. Доставка по Москве и России.`
       }`,
       type: "website", // 🔥 ИСПРАВЛЕНИЕ: используем "website" вместо "product"
-      url: `https://iluma-store.ru/product/${slug}`,
-      siteName: "Iluma-Store",
+      url: `https://iqos-24.ru/product/${slug}`,
+      siteName: "Iqos-24",
       images: [
         {
           url:
@@ -116,7 +116,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: `${product.name} | Iluma-Store`,
+      title: `${product.name} | Iqos-24`,
       description: `${product.name} - ${
         product.description || `Оригинальные ${productCategory}`
       }`,
@@ -132,7 +132,7 @@ export async function generateMetadata({
       follow: true,
     },
     alternates: {
-      canonical: `https://iluma-store.ru/product/${slug}`,
+      canonical: `https://iqos-24.ru/product/${slug}`,
     },
     // 🔥 ИСПРАВЛЕНИЕ: Убираем некорректные product теги или используем правильный формат
     // other: {

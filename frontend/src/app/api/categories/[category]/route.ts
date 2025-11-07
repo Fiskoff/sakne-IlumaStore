@@ -74,7 +74,7 @@ async function getProductsByCategory(category: string) {
     let hasMore = true;
 
     while (hasMore) {
-      const apiUrl = `http://5.129.246.215:8000/products/${category}?skip=${skip}&limit=${limit}`;
+      const apiUrl = `http://217.198.9.128:8000/products/${category}?skip=${skip}&limit=${limit}`;
       `📦 [CATEGORIES API] Fetching from external API: ${apiUrl}`;
 
       const res = await fetch(apiUrl.trim());

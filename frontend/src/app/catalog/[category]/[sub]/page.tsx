@@ -58,16 +58,16 @@ export async function generateMetadata({
     subCategoryNames[decodedSub.toLowerCase()] || decodedSub;
 
   return {
-    title: `${subDisplayName} - Купить в Москве | Iluma-Store`,
-    description: `Купить ${subDisplayName} ${config.baseDescription.toLowerCase()} в магазине Iluma-Store. Оригинальная продукция, гарантия качества, доставка по Москве и России.`,
+    title: `${subDisplayName} - Купить в Москве | Iqos-24`,
+    description: `Купить ${subDisplayName} ${config.baseDescription.toLowerCase()} в магазине Iqos-24. Оригинальная продукция, гарантия качества, доставка по Москве и России.`,
     keywords: `${decodedSub} ${config.name.toLowerCase()}, купить ${decodedSub}, ${
       config.baseDescription
     } ${decodedSub}, оригинальные ${config.name.toLowerCase()}`,
     openGraph: {
-      title: `${subDisplayName} | Iluma-Store`,
+      title: `${subDisplayName} | Iqos-24`,
       description: `Выберите и купите ${subDisplayName} ${config.baseDescription.toLowerCase()}. Оригинальная продукция с доставкой.`,
       type: "website",
-      url: `https://iluma-store.ru/catalog/${category}/${sub}`,
+      url: `https://iqos-24.ru/catalog/${category}/${sub}`,
       images: [
         {
           url: `/og-${category}-${sub}-image.jpg`,
@@ -79,7 +79,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: `${subDisplayName} | Iluma-Store`,
+      title: `${subDisplayName} | Iqos-24`,
       description: `${subDisplayName} ${config.baseDescription} - оригинальная продукция`,
       images: [`/twitter-${category}-${sub}-image.jpg`],
     },
@@ -88,7 +88,7 @@ export async function generateMetadata({
       follow: true,
     },
     alternates: {
-      canonical: `https://iluma-store.ru/catalog/${category}/${sub}`,
+      canonical: `https://iqos-24.ru/catalog/${category}/${sub}`,
     },
   };
 }

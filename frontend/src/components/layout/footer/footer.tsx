@@ -14,7 +14,7 @@ export default function Footer() {
               height={70}
               width={70}
             />
-            <h2 className={styles.logo_text}>Iluma-Store</h2>
+            <h2 className={styles.logo_text}>Iqos-24</h2>
           </div>
           <p className={styles.description}>
             Интернет-магазин современных технологичных устройств. Мы предлагаем

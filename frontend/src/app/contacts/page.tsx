@@ -3,20 +3,20 @@ import styles from "./contacts.module.scss";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Контакты магазина IQOS Iluma | Iluma-Store",
+  title: "Контакты магазина IQOS Iluma | Iqos-24",
   description:
     "Свяжитесь с нами для покупки IQOS Iluma в Москве. Адрес: ул. Римского-Корсакова, 11. Работаем с 10:00 до 23:00. Телефон: +7 (995) 153-80-19. Пишите в Telegram/WhatsApp @IlumaPrime. Доставка по России.",
   keywords:
     "IQOS Iluma контакты, магазин IQOS Москва, адрес Iluma Prime, телефон, доставка IQOS, купить Iluma",
   alternates: {
-    canonical: "https://iluma-store.ru/contacts",
+    canonical: "https://iqos-24.ru/contacts",
   },
   openGraph: {
-    title: "Контакты магазина IQOS Iluma | Iluma-Store",
+    title: "Контакты магазина IQOS Iluma | Iqos-24",
     description:
       "Свяжитесь с нами для покупки IQOS Iluma в Москве. Телефон, адрес, мессенджеры. Работаем без выходных.",
-    url: "https://iluma-store.ru/contacts",
-    siteName: "Iluma-Store",
+    url: "https://iqos-24.ru/contacts",
+    siteName: "Iqos-24",
     images: [
       {
         url: "/og-contacts-image.jpg",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Контакты магазина IQOS Iluma | Iluma-Store",
+    title: "Контакты магазина IQOS Iluma | Iqos-24",
     description: "Свяжитесь с нами для покупки IQOS Iluma в Москве",
     images: ["/twitter-contacts-image.jpg"],
   },

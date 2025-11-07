@@ -15,7 +15,7 @@ const roboto = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "iluma-store",
+  title: "Iqos-24",
 };
 
 export default function RootLayout({

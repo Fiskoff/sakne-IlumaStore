@@ -113,7 +113,7 @@ async function getProductsByCategory(category: string) {
     console.log(`🚀 Fetching category: ${category}`);
 
     // Получаем ВСЕ продукты за один запрос
-    const apiUrl = `http://5.129.246.215:8000/products/${category}?limit=1000`;
+    const apiUrl = `http://217.198.9.128:8000/products/${category}?limit=1000`;
     console.log(`📦 Fetching from external API: ${apiUrl}`);
 
     const controller = new AbortController();

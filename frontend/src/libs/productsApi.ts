@@ -59,9 +59,9 @@ export function formatProduct(product: any) {
 // Получаем все товары из всех категорий (для поиска по ref/id)
 export async function getAllProducts() {
   const endpoints = [
-    "http://5.129.246.215:8000/products/devices",
-    "http://5.129.246.215:8000/products/iqos",
-    "http://5.129.246.215:8000/products/terea",
+    "http://217.198.9.128:8000/products/devices",
+    "http://217.198.9.128:8000/products/iqos",
+    "http://217.198.9.128:8000/products/terea",
   ];
 
   const allProducts: any[] = [];
@@ -121,7 +121,7 @@ export async function getProductsByCategory(category: string) {
   while (hasMore) {
     try {
       const res = await fetch(
-        `http://5.129.246.215:8000/products/${category}?skip=${skip}&limit=${limit}`
+        `http://217.198.9.128:8000/products/${category}?skip=${skip}&limit=${limit}`
       );
       if (!res.ok) {
         break;

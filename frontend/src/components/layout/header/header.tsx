@@ -55,7 +55,7 @@ export default function Header() {
                   height={55}
                   width={55}
                 />
-                <h2>Iluma-Store</h2>
+                <h2>Iqos-24</h2>
               </Link>
 
               {/* Бургер меню для мобилки */}
@@ -174,7 +174,7 @@ export default function Header() {
             height={45}
             width={45}
           />
-          <h2>Iluma-Store</h2>
+          <h2>Iqos-24</h2>
         </Link>
 
         <nav>

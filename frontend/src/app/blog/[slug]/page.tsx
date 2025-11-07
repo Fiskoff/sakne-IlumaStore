@@ -65,7 +65,7 @@ export default async function ArticlePage({ params }: PageProps) {
     headline: article.title,
     description: article.excerpt,
     image: article.imageUrl
-      ? `https://iluma-store.ru${article.imageUrl}`
+      ? `https://iqos-24.ru${article.imageUrl}`
       : undefined,
     datePublished: parseDate(article.date).toISOString(),
     dateModified: new Date().toISOString(),
@@ -78,12 +78,12 @@ export default async function ArticlePage({ params }: PageProps) {
       name: "Ваш сайт IQOS",
       logo: {
         "@type": "ImageObject",
-        url: "https://iluma-store.ru/logo.png",
+        url: "https://iqos-24.ru/logo.png",
       },
     },
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `https://iluma-store.ru/blog/${article.slug}`,
+      "@id": `https://iqos-24.ru/blog/${article.slug}`,
     },
     keywords: [
       "IQOS",
@@ -267,13 +267,13 @@ export async function generateMetadata({
   // Генерируем OG изображение
   const ogImage = article.imageUrl
     ? {
-        url: `https://iluma-store.ru${article.imageUrl}`,
+        url: `https://iqos-24.ru${article.imageUrl}`,
         width: 1200,
         height: 630,
         alt: article.title,
       }
     : {
-        url: "https://iluma-store.ru/og-default.jpg",
+        url: "https://iqos-24.ru/og-default.jpg",
         width: 1200,
         height: 630,
         alt: "Блог о IQOS ILUMA и TEREA",
@@ -293,7 +293,7 @@ export async function generateMetadata({
       authors: [article.author],
       tags: ["IQOS", "ILUMA", "TEREA", article.category],
       images: [ogImage],
-      url: `https://iluma-store.ru/blog/${article.slug}`,
+      url: `https://iqos-24.ru/blog/${article.slug}`,
       siteName: "Ваш сайт IQOS",
     },
 
@@ -322,7 +322,7 @@ export async function generateMetadata({
 
     // Canonical URL
     alternates: {
-      canonical: `https://iluma-store.ru/blog/${article.slug}`,
+      canonical: `https://iqos-24.ru/blog/${article.slug}`,
     },
 
     // Дополнительная информация для поисковых систем

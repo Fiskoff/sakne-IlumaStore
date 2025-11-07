@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3020";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3001";
 
     // 🔥 ИСПРАВЛЕНИЕ: Используем новый categories API вместо product API
     const response = await fetch(`${baseUrl}/api/categories/${category}`);

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const API_URL = process.env.API_URL || "http://5.129.246.215:8000";
+const API_URL = process.env.API_URL || "http://217.198.9.128:8000";
 
 export async function POST(req: NextRequest) {
   try {
