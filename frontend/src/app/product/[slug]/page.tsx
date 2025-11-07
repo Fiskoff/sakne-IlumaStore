@@ -10,7 +10,7 @@ interface ProductPageProps {
 async function getProductData(slug: string) {
   try {
     // 🔥 ИСПРАВЛЕНИЕ: Правильное формирование URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3001";
+    const baseUrl = "http://localhost:3001";
     const apiUrl = `${baseUrl}/api/product/${encodeURIComponent(slug)}`;
 
     const response = await fetch(apiUrl, {
