@@ -1,43 +1,59 @@
+// components/catalog/filters/MultiSelectFilter/MultiSelectFilter.tsx
 "use client";
+
 import { MultiSelectFilter as MultiSelectFilterType } from "@/types/catalog/types";
 import styles from "./MultiSelectFilter.module.scss";
 
 interface MultiSelectFilterProps {
   filter: MultiSelectFilterType;
-  value: string[];
-  onChange: (value: string[]) => void;
+  value: string[] | undefined;
+  onChange: (value: string[] | null) => void;
+  singleSelect?: boolean;
 }
 
 export default function MultiSelectFilter({
   filter,
-  value,
+  value = [],
   onChange,
+  singleSelect = false,
 }: MultiSelectFilterProps) {
-  const handleChange = (optionValue: string, checked: boolean) => {
-    if (checked) {
-      onChange([...value, optionValue]);
+  const handleOptionChange = (optionValue: string) => {
+    let newValue: string[];
+
+    if (singleSelect) {
+      // 🔹 РЕЖИМ SINGLE SELECT: выбираем только один вариант
+      if (value.includes(optionValue)) {
+        // Если уже выбран - снимаем выбор (убираем галочку)
+        newValue = [];
+      } else {
+        // Выбираем новый вариант (снимаем предыдущий)
+        newValue = [optionValue];
+      }
     } else {
-      onChange(value.filter((v) => v !== optionValue));
+      // 🔹 РЕЖИМ MULTI SELECT: стандартное поведение
+      if (value.includes(optionValue)) {
+        newValue = value.filter((v) => v !== optionValue);
+      } else {
+        newValue = [...value, optionValue];
+      }
     }
+
+    // 🔹 ВАЖНО: Всегда передаем новое значение, даже если пустой массив
+    onChange(newValue.length === 0 ? null : newValue);
   };
 
   return (
     <div className={styles.filter}>
       {filter.options.map((option) => (
-        <label key={option.value} className={styles.filterLabel}>
+        <label key={option.value} className={styles.option}>
           <input
-            type="checkbox"
-            className={styles.checkbox}
+            type={singleSelect ? "radio" : "checkbox"}
             checked={value.includes(option.value)}
-            onChange={(e) => handleChange(option.value, e.target.checked)}
-            disabled={option.count === 0}
+            onChange={() => handleOptionChange(option.value)}
+            className={styles.input}
           />
-          <span className={styles.optionContent}>
-            <span className={styles.optionLabel}>{option.label}</span>
-            {option.count !== undefined && (
-              <span className={styles.optionCount}>({option.count})</span>
-            )}
-          </span>
+          <span className={styles.checkmark}></span>
+          <span className={styles.label}>{option.label}</span>
         </label>
       ))}
     </div>

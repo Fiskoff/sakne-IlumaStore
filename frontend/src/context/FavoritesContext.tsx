@@ -1,3 +1,4 @@
+// context/FavoritesContext.tsx
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
@@ -5,6 +6,7 @@ import {
   FavoriteItem,
   FavoritesContextType,
 } from "@/types/favorites/favorites";
+import { generateProductId } from "@/utils/productId";
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(
   undefined
@@ -18,7 +20,11 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const savedFavorites = localStorage.getItem("favorites");
     if (savedFavorites) {
-      setItems(JSON.parse(savedFavorites));
+      try {
+        setItems(JSON.parse(savedFavorites));
+      } catch (error) {
+        setItems([]);
+      }
     }
   }, []);
 

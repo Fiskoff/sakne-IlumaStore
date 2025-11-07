@@ -2,230 +2,124 @@
 .filter {
   display: flex;
   flex-direction: column;
-  padding: 16px 0 10px;
-}
-
-.filterHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    .filterTitle {
-      color: #3c50e0;
-    }
-  }
-}
-
-.headerContent {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.filterTitle {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0;
-  transition: color 0.2s ease;
-}
-
-.selectedCount {
-  background: #3c50e0;
-  color: white;
-  border-radius: 12px;
-  padding: 4px 8px;
-  font-size: 12px;
-  font-weight: 500;
-  min-width: 24px;
-  text-align: center;
-}
-
-.filterIcon {
-  transition: transform 0.2s ease;
-  color: #6b7280;
-
-  &.expanded {
-    transform: rotate(180deg);
-  }
-}
-
-.filterOptions {
-  display: flex;
-  flex-direction: column;
   gap: 8px;
-  transition: all 0.3s ease;
-  overflow: hidden;
-
-  &.collapsed {
-    display: none;
-  }
 }
 
-.filterLabel {
+.option {
   display: flex;
+  align-items: center;
   gap: 12px;
-  padding: 8px 0;
   cursor: pointer;
-  transition: all 0.2s ease;
+  padding: 8px 0;
+  transition: background-color 0.2s ease;
   border-radius: 6px;
 
   &:hover {
-    .optionLabel {
-      color: #3c50e0;
+    background-color: #f8f9fa;
+  }
+}
+
+.input {
+  // Скрываем стандартный input
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+
+  // Стили для checkbox
+  &:checked ~ .checkmark {
+    background-color: #3c50e0;
+    border-color: #3c50e0;
+
+    &::after {
+      display: block;
+    }
+  }
+
+  // Стили для radio
+  &[type="radio"] {
+    &:checked ~ .checkmark {
+      background-color: #3c50e0;
+      border-color: #3c50e0;
+
+      &::after {
+        display: block;
+        background: white;
+        border-radius: 50%;
+        width: 6px;
+        height: 6px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border: none;
+      }
     }
   }
 }
 
-.checkbox {
+.checkmark {
   position: relative;
-  width: 18px;
   height: 18px;
-  margin: 0;
-  cursor: pointer;
+  width: 18px;
+  background-color: white;
+  border: 2px solid #d1d5db;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
 
-  // Скрываем стандартный чекбокс
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-
-  // Кастомный чекбокс
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 18px;
-    height: 18px;
-    border: 2px solid #d1d5db;
-    border-radius: 4px;
-    background: white;
-    transition: all 0.2s ease;
+  // Для radio меняем на круглую форму
+  .input[type="radio"] ~ & {
+    border-radius: 50%;
   }
 
   &::after {
     content: "";
     position: absolute;
+    display: none;
+    left: 5px;
     top: 2px;
-    left: 6px;
-    width: 6px;
-    height: 10px;
+    width: 4px;
+    height: 8px;
     border: solid white;
     border-width: 0 2px 2px 0;
-    transform: rotate(45deg) scale(0);
-    transition: all 0.2s ease;
-  }
-
-  // Состояние checked
-  &:checked {
-    &::before {
-      background-color: #3c50e0;
-      border-color: #3c50e0;
-    }
-
-    &::after {
-      transform: rotate(45deg) scale(1);
-    }
-  }
-
-  // Фокус состояние
-  &:focus {
-    outline: none;
-
-    &::before {
-      box-shadow: 0 0 0 3px rgba(60, 80, 224, 0.1);
-      border-color: #3c50e0;
-    }
-  }
-
-  // Отключенное состояние
-  &:disabled {
-    cursor: not-allowed;
-
-    &::before {
-      background-color: #f3f4f6;
-      border-color: #e5e7eb;
-    }
+    transform: rotate(45deg);
   }
 }
 
-.optionContent {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 16px;
+.label {
+  font-size: 14px;
   color: #374151;
-  font-weight: 300;
-  flex: 1;
-}
-
-.optionLabel {
-  color: #1f2937;
-  transition: color 0.2s ease;
-}
-
-.optionCount {
-  color: #6b7280;
-  font-size: 12px;
   font-weight: 400;
+  line-height: 1.4;
+}
+
+// Фокус состояния
+.option:focus-within {
+  .checkmark {
+    box-shadow: 0 0 0 3px rgba(60, 80, 224, 0.1);
+    border-color: #3c50e0;
+  }
 }
 
 // Компактный вариант для мобильных
 @media (max-width: 768px) {
-  .filter {
-    padding: 12px 0;
-  }
-
-  .filterHeader {
-    padding: 10px 0;
-  }
-
-  .filterTitle {
-    font-size: 15px;
-  }
-
-  .filterLabel {
+  .option {
     padding: 10px 0;
     gap: 10px;
   }
 
-  .checkbox {
+  .checkmark {
     width: 20px;
     height: 20px;
 
-    &::before {
-      width: 20px;
-      height: 20px;
-    }
-
     &::after {
+      left: 6px;
       top: 3px;
-      left: 7px;
-      width: 6px;
-      height: 11px;
+      width: 5px;
+      height: 9px;
     }
   }
 
-  .optionContent {
+  .label {
     font-size: 15px;
   }
-}
-
-// Анимация для аккордеона
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    max-height: 0;
-  }
-  to {
-    opacity: 1;
-    max-height: 500px;
-  }
-}
-
-.filterOptions:not(.collapsed) {
-  animation: slideDown 0.3s ease;
 }

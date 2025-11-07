@@ -1,4 +1,4 @@
-// app/api/products/similar/route.ts
+// app/api/product/similar/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -12,18 +12,21 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-    const response = await fetch(`${baseUrl}/api/products/${category}`);
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3020";
+
+    // 🔥 ИСПРАВЛЕНИЕ: Используем новый categories API вместо product API
+    const response = await fetch(`${baseUrl}/api/categories/${category}`);
 
     if (!response.ok) {
-      throw new Error("Failed to fetch products");
+      throw new Error("Failed to fetch products from categories API");
     }
 
     const allProducts = await response.json();
 
     // 🔹 Фильтруем товары по наличию и исключаем текущий
     const availableProducts = allProducts.filter(
-      (product: any) => product.id !== productId && product.nalichie
+      (product: any) =>
+        product.id.toString() !== productId.toString() && product.nalichie
     );
 
     // Случайная сортировка и лимит
@@ -33,17 +36,17 @@ export async function GET(request: NextRequest) {
       .map((product: any) => ({
         id: product.id,
         name: product.name,
-        price: product.variants?.[0]?.price || product.price,
-        imageUrl: product.variants?.[0]?.imageUrl || product.imageUrl,
+        price: product.variants?.[0]?.price || product.priceValue || 0,
+        imageUrl: product.variants?.[0]?.imageUrl || product.image,
         url: `/product/${product.ref || product.id}`,
         description: product.description,
         variants: product.variants,
-        nalichie: product.nalichie, // добавляем наличие
+        nalichie: product.nalichie,
       }));
 
     return NextResponse.json(similarProducts);
   } catch (error) {
-    console.error("Error fetching similar products:", error);
+    console.error("❌ [SIMILAR API] Error fetching similar products:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

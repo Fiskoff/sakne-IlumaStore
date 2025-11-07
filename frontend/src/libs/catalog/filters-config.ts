@@ -4,19 +4,6 @@ export const filterConfigs = {
     title: "Iqos Iluma",
     filters: [
       {
-        id: "brand",
-        type: "checkbox",
-        label: "Модель",
-        options: [
-          { value: "one", label: "One" },
-          { value: "standart", label: "Standart" },
-          { value: "prime", label: "Prime" },
-          { value: "onei", label: "I One" },
-          { value: "standarti", label: "I Standart" },
-          { value: "primei", label: "I Prime" },
-        ],
-      },
-      {
         id: "price",
         type: "range",
         label: "Цена",
@@ -46,21 +33,6 @@ export const filterConfigs = {
     title: "Стики Terea",
     filters: [
       {
-        id: "country",
-        type: "checkbox",
-        label: "Страна",
-        options: [
-          { value: "Казахстан", label: "Казахстан" },
-          { value: "Узбекистан", label: "Узбекистан" },
-          { value: "Армения", label: "Армения" },
-          { value: "Индонезия", label: "Индонезия" },
-          { value: "Польша", label: "Польша" },
-          { value: "Япония", label: "Япония" },
-          { value: "Швейцария", label: "Швейцария" },
-          { value: "Европа", label: "Европа" },
-        ],
-      },
-      {
         id: "price",
         type: "range",
         label: "Цена",
@@ -68,22 +40,22 @@ export const filterConfigs = {
         max: 12000,
         step: 1000,
       },
+      {
+        id: "flavor",
+        type: "multiselect",
+        label: "Вкус",
+        options: [
+          { value: "Табачный вкус", label: "Табачный вкус" },
+          { value: "Фруктовый вкус", label: "Фруктовый вкус" },
+          { value: "Ментол", label: "Ментол" },
+          { value: "Экзотические", label: "Экзотические" },
+        ],
+      },
     ],
   },
   devices: {
     title: "Аксессуары",
     filters: [
-      {
-        id: "brand",
-        type: "checkbox",
-        label: "Модель",
-        options: [
-          { value: "ringsiluma", label: "Кольца Iluma" },
-          { value: "capsilumaprime", label: "Крышки Iluma Prime" },
-          { value: "capsilumastandart", label: "Крышки Iluma Standart" },
-          { value: "holderiqosiluma", label: "Держатель Iqos Iluma" },
-        ],
-      },
       {
         id: "price",
         type: "range",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -93,21 +93,23 @@ export default function CheckoutPage() {
     }
 
     try {
-      const orderData = {
-        name: formData.name,
-        phone: formData.phone,
-        city: formData.city,
-        address: formData.address,
-        deliveryMethod,
-        pickupAddress: deliveryMethod === "pickup" ? pickupAddress : undefined,
-        items,
-        totalPrice,
+      const orderPayload = {
+        customer_name: formData.name,
+        phone_number: formData.phone.replace(/\D/g, ""),
+        is_delivery: deliveryMethod === "delivery",
+        city: formData.city || "",
+        address: formData.address || "",
+        ordered_items: items.map((item) => ({
+          product_name: item.name,
+          quantity: item.quantity,
+          price_at_time_of_order: item.price,
+        })),
       };
 
-      const res = await fetch("http://127.0.0.1:8000/orders", {
+      const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderData),
+        body: JSON.stringify(orderPayload),
       });
 
       if (!res.ok) {
@@ -123,6 +125,20 @@ export default function CheckoutPage() {
       setIsSubmitting(false);
     }
   };
+
+  // Добавляем noindex метатег
+  useEffect(() => {
+    // Создаем meta тег для noindex
+    const metaNoindex = document.createElement("meta");
+    metaNoindex.name = "robots";
+    metaNoindex.content = "noindex, nofollow";
+    document.head.appendChild(metaNoindex);
+
+    // Очистка при размонтировании компонента
+    return () => {
+      document.head.removeChild(metaNoindex);
+    };
+  }, []);
 
   if (items.length === 0) {
     return (

@@ -12,6 +12,120 @@
   align-items: center;
 }
 
+.burger_button {
+  display: none;
+  position: relative;
+  width: 28px;
+  height: 22px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  z-index: 1100;
+
+  span,
+  span::before,
+  span::after {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background-color: #1a1a1a;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+  }
+
+  span {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  span::before {
+    top: -8px;
+  }
+
+  span::after {
+    top: 8px;
+  }
+
+  &.burger_active span {
+    background-color: transparent;
+  }
+
+  &.burger_active span::before {
+    transform: rotate(45deg);
+    top: 0;
+  }
+
+  &.burger_active span::after {
+    transform: rotate(-45deg);
+    top: 0;
+  }
+
+  @media (max-width: 768px) {
+    display: block;
+  }
+}
+
+/* Мобильное меню */
+.mobile_menu {
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: 75%;
+  max-width: 300px;
+  height: 100vh;
+  background-color: #fff;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+  padding: 30px 30px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: left 0.3s ease;
+  z-index: 1000;
+
+  nav {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    a {
+      font-size: 18px;
+      font-weight: 500;
+      color: #1a1a1a;
+      text-decoration: none;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: #1c3fb7;
+      }
+    }
+  }
+
+  &.open {
+    left: 0;
+  }
+}
+
+/* Затемнение фона */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 900;
+}
+
+/* Прячем десктопную кнопку на мобилке */
+@media (max-width: 768px) {
+  .categories_dropdown {
+    display: none;
+  }
+}
+
 .hero_container {
   max-width: 1250px;
   width: 100%;
@@ -182,15 +296,11 @@
     }
 
     @media (max-width: 450px) {
-      font-size: 18px;
+      font-size: 24px;
     }
 
     @media (max-width: 420px) {
-      font-size: 16px;
-    }
-
-    @media (max-width: 408px) {
-      font-size: 15px;
+      font-size: 22px;
     }
   }
 

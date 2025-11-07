@@ -8,6 +8,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
+import Script from "next/script";
 
 interface BrowseCategoryItemProps {
   title: string;
@@ -21,10 +22,17 @@ const BrowseCategoryItem: FC<BrowseCategoryItemProps> = ({
   url,
 }) => {
   return (
-    <Link href={url} className={styles.category_item}>
-      <Image src={imageUrl} alt={title} width={200} height={200} />
-      <p>{title}</p>
-    </Link>
+    <article className={styles.category_item}>
+      <Link href={url} aria-label={`Купить ${title} в Москве`}>
+        <Image
+          src={imageUrl}
+          alt={`${title} — купить IQOS в Москве`}
+          width={200}
+          height={200}
+        />
+        <h3>{title}</h3>
+      </Link>
+    </article>
   );
 };
 
@@ -113,6 +121,19 @@ export default function BrowseCategory() {
           </SwiperSlide>
         ))}
       </Swiper>
+      <Script id="category-jsonld" type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          name: "Категории IQOS ILUMA",
+          itemListElement: categories.map((cat, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            name: cat.title,
+            url: `https://example.com${cat.url}`,
+          })),
+        })}
+      </Script>
     </section>
   );
 }

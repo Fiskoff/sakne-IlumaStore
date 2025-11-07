@@ -59,9 +59,9 @@ export function formatProduct(product: any) {
 // Получаем все товары из всех категорий (для поиска по ref/id)
 export async function getAllProducts() {
   const endpoints = [
-    "http://127.0.0.1:8000/products/devices",
-    "http://127.0.0.1:8000/products/iqos",
-    "http://127.0.0.1:8000/products/terea",
+    "http://5.129.246.215:8000/products/devices",
+    "http://5.129.246.215:8000/products/iqos",
+    "http://5.129.246.215:8000/products/terea",
   ];
 
   const allProducts: any[] = [];
@@ -75,7 +75,6 @@ export async function getAllProducts() {
       try {
         const res = await fetch(`${endpoint}?skip=${skip}&limit=${limit}`);
         if (!res.ok) {
-          console.warn(`Failed to fetch from ${endpoint}: ${res.status}`);
           break;
         }
 
@@ -101,13 +100,12 @@ export async function getAllProducts() {
           hasMore = false;
         }
       } catch (error) {
-        console.error(`Error fetching from ${endpoint}:`, error);
         hasMore = false;
       }
     }
   }
 
-  console.log(`Loaded ${allProducts.length} products total`);
+  `Loaded ${allProducts.length} products total`;
   return allProducts;
 }
 
@@ -123,10 +121,9 @@ export async function getProductsByCategory(category: string) {
   while (hasMore) {
     try {
       const res = await fetch(
-        `http://127.0.0.1:8000/products/${category}?skip=${skip}&limit=${limit}`
+        `http://5.129.246.215:8000/products/${category}?skip=${skip}&limit=${limit}`
       );
       if (!res.ok) {
-        console.warn(`Failed to fetch ${category}: ${res.status}`);
         break;
       }
 
@@ -141,11 +138,10 @@ export async function getProductsByCategory(category: string) {
         skip += limit;
       }
     } catch (error) {
-      console.error(`Error fetching ${category}:`, error);
       hasMore = false;
     }
   }
 
-  console.log(`Loaded ${allProducts.length} products for category ${category}`);
+  `Loaded ${allProducts.length} products for category ${category}`;
   return allProducts;
 }

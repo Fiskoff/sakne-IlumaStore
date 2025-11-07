@@ -35,7 +35,8 @@ export default function WishlistList() {
           const variantType = parts.slice(-1)[0];
 
           try {
-            const res = await fetch(`/api/products/${ref}`);
+            // Используем тот же endpoint, но передаем ref вместо категории
+            const res = await fetch(`/api/product/${ref}`);
             if (!res.ok) throw new Error("Product not found");
             const productData = await res.json();
 
@@ -44,7 +45,7 @@ export default function WishlistList() {
             );
 
             return { itemId: item.id, inStock: !!matchingVariant?.nalichie };
-          } catch {
+          } catch (error) {
             return { itemId: item.id, inStock: false };
           }
         })
@@ -53,7 +54,7 @@ export default function WishlistList() {
       const stockMap: Record<string, boolean> = {};
       results.forEach((r) => (stockMap[r.itemId] = r.inStock));
       setStockStatuses(stockMap);
-    } catch {
+    } catch (error) {
       const fallback: Record<string, boolean> = {};
       favoriteItems.forEach((item) => (fallback[item.id] = false));
       setStockStatuses(fallback);
@@ -86,7 +87,8 @@ export default function WishlistList() {
     const variantType = parts.slice(-1)[0];
 
     try {
-      const res = await fetch(`/api/products/${ref}`);
+      // Используем тот же endpoint
+      const res = await fetch(`/api/product/${ref}`);
       if (!res.ok) throw new Error("Product not found");
       const productData = await res.json();
 
@@ -105,7 +107,8 @@ export default function WishlistList() {
       }
 
       addToCart({
-        ref: item.id,
+        id: item.id,
+        ref: ref,
         name: item.name,
         price: item.price,
         quantity: 1,
@@ -120,7 +123,6 @@ export default function WishlistList() {
         duration: 2000,
       });
     } catch (error) {
-      console.error(error);
       addNotification({
         type: "error",
         title: "Ошибка проверки товара",

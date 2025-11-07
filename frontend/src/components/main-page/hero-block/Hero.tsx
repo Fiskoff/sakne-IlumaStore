@@ -9,6 +9,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import styles from "./Hero.module.scss";
+import Script from "next/script";
 
 interface Slide {
   title: string;
@@ -25,26 +26,92 @@ const Hero: FC = () => {
       name: "Iqos Iluma i Minera",
       text: "Премиальная новинка от IQOS в более консервативном, пластиковом корпусе и бесконтактной системой нагрева табака",
       imageUrl: "/hero_slider/slider1.png",
-      link: "#",
+      link: "/product/I-Standart-Minera",
     },
     {
       title: "LIMITED",
       name: "Iqos Iluma Prime Oasis",
       text: "Премиальная новинка от IQOS с алюминиевым корпусом и бесконтактной системой нагрева табака",
       imageUrl: "/hero_slider/slider2.png",
-      link: "#",
+      link: "/product/Prime-Oasis-Limited-Edition",
     },
     {
       title: "LIMITED",
       name: "Iqos Iluma i Prime Anniversary Model",
       text: "Новинка в ограниченном количестве к 10-летию IQOS!",
       imageUrl: "/hero_slider/slider3.png",
-      link: "#",
+      link: "/product/i-Prime-Anniversary-Model",
     },
   ];
 
   return (
     <section className="hero-container">
+      <Script id="hero-jsonld" type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: "IQOS ILUMA Prime Oasis",
+          image: "https://example.com/hero_slider/slider2.png",
+          description:
+            "Ограниченная серия IQOS ILUMA Prime Oasis с доставкой по Москве.",
+          brand: {
+            "@type": "Brand",
+            name: "IQOS",
+          },
+          offers: {
+            "@type": "Offer",
+            priceCurrency: "RUB",
+            price: "8990",
+            availability: "https://schema.org/InStock",
+            url: "https://example.com/product/iqos-iluma-prime-oasis",
+          },
+        })}
+      </Script>
+      <Script id="hero-jsonld" type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: "IQOS ILUMA Prime Oasis",
+          image: "https://example.com/hero_slider/slider2.png",
+          description:
+            "Ограниченная серия IQOS ILUMA Prime Oasis с доставкой по Москве.",
+          brand: {
+            "@type": "Brand",
+            name: "IQOS",
+          },
+          offers: {
+            "@type": "Offer",
+            priceCurrency: "RUB",
+            price: "8990",
+            availability: "https://schema.org/InStock",
+            url: "https://example.com/product/iqos-iluma-prime-oasis",
+          },
+        })}
+      </Script>
+      <Script id="hero-jsonld" type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: "IQOS ILUMA Prime Oasis",
+          image: "https://example.com/hero_slider/slider2.png",
+          description:
+            "Ограниченная серия IQOS ILUMA Prime Oasis с доставкой по Москве.",
+          brand: {
+            "@type": "Brand",
+            name: "IQOS",
+          },
+          offers: {
+            "@type": "Offer",
+            priceCurrency: "RUB",
+            price: "8990",
+            availability: "https://schema.org/InStock",
+            url: "https://example.com/product/iqos-iluma-prime-oasis",
+          },
+        })}
+      </Script>
+      <h1 className="visually-hidden">
+        Купить IQOS ILUMA и стики TEREA в Москве с доставкой по всей России
+      </h1>
       <div className={styles.hero_container}>
         <div className={styles.hero_slider}>
           <Swiper
@@ -58,15 +125,12 @@ const Hero: FC = () => {
           >
             {slides.map((slide, index) => (
               <SwiperSlide key={index}>
-                <div
+                <article
                   className={styles.slide}
-                  style={{
-                    backgroundImage: `url(${slide.imageUrl})`,
-                  }}
+                  style={{ backgroundImage: `url(${slide.imageUrl})` }}
                 >
                   <div className={styles.slide_overlay}>
                     <div className={styles.slide_content}>
-                      <h3 className={styles.slide_title}>{slide.title}</h3>
                       <h2 className={styles.slide_name}>{slide.name}</h2>
                       <p className={styles.slide_text}>{slide.text}</p>
                       <Link href={slide.link} className={styles.slide_button}>
@@ -74,7 +138,7 @@ const Hero: FC = () => {
                       </Link>
                     </div>
                   </div>
-                </div>
+                </article>
               </SwiperSlide>
             ))}
           </Swiper>
@@ -84,7 +148,7 @@ const Hero: FC = () => {
           <div className={styles.hero_container__top}>
             <Image
               src="/hero_slider/terea.webp"
-              alt="Slider 1"
+              alt="Стики TEREA для IQOS ILUMA — купить в Москве"
               width={250}
               height={250}
             />
@@ -96,7 +160,7 @@ const Hero: FC = () => {
           <div className={styles.hero_container__bottom}>
             <Image
               src="/hero_slider/device.webp"
-              alt="Slider 2"
+              alt="Стики TEREA для IQOS ILUMA — купить в Москве"
               width={200}
               height={200}
             />
@@ -111,7 +175,7 @@ const Hero: FC = () => {
         <div className={styles.hero_divider_item}>
           <Image
             src={"/hero_slider/delivery.svg"}
-            alt="50"
+            alt="Стики TEREA для IQOS ILUMA — купить в Москве"
             width={40}
             height={40}
           />
@@ -123,7 +187,7 @@ const Hero: FC = () => {
         <div className={styles.hero_divider_item}>
           <Image
             src={"/hero_slider/icon1.svg"}
-            alt="50"
+            alt="Стики TEREA для IQOS ILUMA — купить в Москве"
             width={40}
             height={40}
           />
@@ -135,7 +199,7 @@ const Hero: FC = () => {
         <div className={styles.hero_divider_item}>
           <Image
             src={"/hero_slider/icon-03.svg"}
-            alt="50"
+            alt="Стики TEREA для IQOS ILUMA — купить в Москве"
             width={40}
             height={40}
           />
@@ -147,7 +211,7 @@ const Hero: FC = () => {
         <div className={styles.hero_divider_item}>
           <Image
             src={"/hero_slider/icon-02.svg"}
-            alt="50"
+            alt="Стики TEREA для IQOS ILUMA — купить в Москве"
             width={40}
             height={40}
           />

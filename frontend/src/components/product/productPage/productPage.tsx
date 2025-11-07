@@ -1,3 +1,4 @@
+// components/product/productPage/productPage.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -9,6 +10,8 @@ import styles from "./productPage.module.scss";
 import BreadCrumbs from "@/components/common/breadcrums";
 import { isProductInStock } from "@/utils/stock";
 import SimilarProducts from "../similarProducts/similarProducts";
+import { generateCartItemId, generateProductId } from "@/utils/productId";
+import { CartItem } from "@/types/cart/cart";
 
 export interface ProductVariant {
   type: "pack" | "block";
@@ -24,15 +27,20 @@ export interface ProductSpecification {
 }
 
 export interface Product {
-  id: string;
+  id: string | number;
   name: string;
   description: string;
-  price: number;
-  imageUrl: string;
+  price?: number;
+  imageUrl?: string;
   variants: ProductVariant[];
-  features: string[];
-  specifications: ProductSpecification[];
+  features?: string[];
+  specifications?: ProductSpecification[];
   type: "iqos" | "terea" | "devices";
+  ref?: string;
+  image?: string;
+  model?: string;
+  color?: string;
+  nalichie?: boolean;
 }
 
 interface ProductPageProps {
@@ -40,6 +48,12 @@ interface ProductPageProps {
 }
 
 const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
+  // 🔥 ИСПРАВЛЕНИЕ: Обработка разных форматов данных
+  const mainImageUrl =
+    product.imageUrl || product.image || product.variants?.[0]?.imageUrl;
+  const mainPrice = product.price || product.variants?.[0]?.price || 0;
+  const productName = product.name || "Товар";
+
   const [activeVariant, setActiveVariant] = useState<"pack" | "block">(
     product.variants[0]?.type || "pack"
   );
@@ -52,15 +66,18 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
   const currentVariant =
     product.variants.find((v) => v.type === activeVariant) ||
     product.variants[0];
+
   const hasMultipleVariants = product.variants.length > 1;
+  const isTereaProduct = product.type === "terea";
 
-  const itemId = `${product.id}-${currentVariant.type}`;
+  // 🔥 ИСПРАВЛЕНИЕ: Правильное формирование itemId
+  const baseId = product.name.trim().toLowerCase().replace(/\s+/g, "-");
+  const itemId = generateProductId(baseId, currentVariant.type);
+  const cartItemId = generateCartItemId(baseId, currentVariant.type);
+
   const isItemFavorite = isFavorite(itemId);
-
   const isInStock = isProductInStock(currentVariant.nalichie);
-
   const getProductCategory = () => {
-    // Логика определения категории на основе product данных
     if (
       product.name.toLowerCase().includes("iqos") ||
       product.type === "iqos"
@@ -84,27 +101,37 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
   const decreaseQuantity = () =>
     setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
+  // 🔥 ИСПРАВЛЕНИЕ: Убираем "Пачка"/"Блок" для не-TEREA товаров
+  const getVariantDisplayName = () => {
+    if (!isTereaProduct) return "";
+    return currentVariant.type === "pack" ? "Пачка" : "Блок";
+  };
+
   const handleAddToCart = () => {
     if (!isInStock) return;
 
-    addItem({
-      ref: itemId,
+    const cartItem: CartItem = {
+      id: cartItemId,
+      ref: product.id.toString(),
       name: currentVariant.name,
       price: currentVariant.price,
       quantity,
       imageUrl: currentVariant.imageUrl,
-      variant: {
-        type: currentVariant.type,
-        name: currentVariant.type === "pack" ? "Пачка" : "Блок",
-      },
-    });
+      // Всегда добавляем вариант, если есть multiple variants
+      ...(hasMultipleVariants && {
+        variant: {
+          type: currentVariant.type,
+          name: currentVariant.type === "pack" ? "Пачка" : "Блок",
+        },
+      }),
+    };
+
+    addItem(cartItem);
 
     addNotification({
       type: "success",
       title: "Товар добавлен в корзину",
-      message: `${currentVariant.name} (${
-        currentVariant.type === "pack" ? "Пачка" : "Блок"
-      })`,
+      message: currentVariant.name,
       duration: 2000,
     });
   };
@@ -119,15 +146,18 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
         duration: 2000,
       });
     } else {
+      // 🔥 ИСПРАВЛЕНИЕ: Всегда добавляем вариант, если есть multiple variants
       addToFavorites({
         id: itemId,
         name: currentVariant.name,
         price: currentVariant.price,
         imageUrl: currentVariant.imageUrl,
-        variant: {
-          type: currentVariant.type,
-          name: currentVariant.type === "pack" ? "Пачка" : "Блок",
-        },
+        variant: hasMultipleVariants
+          ? {
+              type: currentVariant.type,
+              name: currentVariant.type === "pack" ? "Пачка" : "Блок",
+            }
+          : undefined,
       });
       addNotification({
         type: "success",
@@ -138,6 +168,20 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
     }
   };
 
+  if (!product || !product.variants || product.variants.length === 0) {
+    console.error("❌ Invalid product data:", product);
+    return (
+      <div className="hero-container">
+        <div className={styles.error}>
+          <h1>Ошибка загрузки товара</h1>
+          <p>
+            Не удалось загрузить данные товара. Попробуйте обновить страницу.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="hero-container">
       <BreadCrumbs
@@ -145,7 +189,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
           { label: "Главная", href: "/" },
           { label: "Каталог", href: "/catalog" },
           { label: product.type, href: `/catalog/${product.type}` },
-          { label: product.name },
+          { label: productName },
         ]}
       />
 
@@ -164,7 +208,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
 
             <Image
               src={currentVariant.imageUrl}
-              alt={product.name}
+              alt={productName}
               width={1920}
               height={1080}
               className={styles.productImage__main}
@@ -174,9 +218,10 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
         </div>
 
         <div className={styles.productInfo}>
-          <h1 className={styles.productInfo__title}>{product.name}</h1>
+          <h1 className={styles.productInfo__title}>{productName}</h1>
 
-          {hasMultipleVariants && (
+          {/* 🔥 ИСПРАВЛЕНИЕ: Показываем варианты только для TEREA товаров */}
+          {isTereaProduct && hasMultipleVariants && (
             <div className={styles.productInfo__variants}>
               <h3 className={styles.productInfo__subtitle}>Вариант:</h3>
               <div className={styles.variants}>
@@ -263,7 +308,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
         </div>
       </div>
       <SimilarProducts
-        currentProductId={product.id}
+        currentProductId={product.id.toString()}
         category={getProductCategory()}
         limit={4}
       />

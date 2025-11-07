@@ -1,14 +1,25 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+const API_URL = process.env.API_URL || "http://5.129.246.215:8000";
+
+export async function POST(req: NextRequest) {
   try {
-    const order = await req.json();
+    const body = await req.json();
 
-    console.log("Новый заказ:", order);
+    const res = await fetch(`${API_URL}/orders`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
 
-    return NextResponse.json({ message: "Заказ получен" }, { status: 201 });
-  } catch (error) {
-    console.error("Ошибка при получении заказа:", error);
-    return NextResponse.json({ error: "Ошибка сервера" }, { status: 500 });
+    const data = await res.json();
+
+    return NextResponse.json(data, { status: res.status });
+  } catch (err) {
+    console.error("Proxy error:", err);
+    return NextResponse.json(
+      { error: "Ошибка при отправке запроса на сервер" },
+      { status: 500 }
+    );
   }
 }

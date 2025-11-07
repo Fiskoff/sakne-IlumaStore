@@ -2,9 +2,24 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect } from "react";
 import styles from "./order-success.module.scss";
 
 export default function OrderSuccessPage() {
+  // Добавляем noindex метатег
+  useEffect(() => {
+    // Создаем meta тег для noindex
+    const metaNoindex = document.createElement("meta");
+    metaNoindex.name = "robots";
+    metaNoindex.content = "noindex, nofollow";
+    document.head.appendChild(metaNoindex);
+
+    // Очистка при размонтировании компонента
+    return () => {
+      document.head.removeChild(metaNoindex);
+    };
+  }, []);
+
   return (
     <div className={styles.success}>
       <div className={styles.container}>

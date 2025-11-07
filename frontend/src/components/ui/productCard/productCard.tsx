@@ -3,17 +3,21 @@
 import { FC, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import Script from "next/script";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useNotification } from "@/context/NotificationContext";
 import ProductModal from "../productModal/productModal";
 import styles from "./productCard.module.scss";
+import { generateCartItemId, generateProductId } from "@/utils/productId";
+import { CartItem } from "@/types/cart/cart";
 
 export interface ProductVariant {
   type: "pack" | "block";
   imageUrl: string;
   price: number;
   name: string;
+  nalichie?: boolean; // 🔥 ДОБАВЛЕНО: для проверки наличия
 }
 
 export interface ProductCardProps {
@@ -35,6 +39,7 @@ const ProductCard: FC<ProductCardProps> = ({
   const [activeVariant, setActiveVariant] = useState<"pack" | "block">(
     variants[0]?.type || "pack"
   );
+
   const currentVariant =
     variants.find((v) => v.type === activeVariant) || variants[0];
   const hasMultipleVariants = variants.length > 1;
@@ -47,29 +52,34 @@ const ProductCard: FC<ProductCardProps> = ({
   } = useFavorites();
   const { addNotification } = useNotification();
 
-  if (!id) {
-    console.error("❌ ProductCard: id is undefined!", { variants, url });
-  }
+  // 🔥 ИСПРАВЛЕНИЕ: Безопасное формирование itemId
+  const baseId = id?.toString() || currentVariant.name;
+  const itemId = generateProductId(baseId, currentVariant.type);
+  const cartItemId = generateCartItemId(baseId, currentVariant.type);
 
-  const itemId = `${id}-${currentVariant.type}`;
   const isItemFavorite = isFavorite(itemId);
+
+  // 🔥 ДОБАВЛЕНО: Проверка наличия товара
+  const isInStock = currentVariant.nalichie !== false;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!id) {
+    if (!isInStock) {
       addNotification({
         type: "error",
-        title: "Ошибка",
-        message: "Не удалось добавить товар в корзину",
+        title: "Товар недоступен",
+        message: "К сожалению, этот товар закончился",
         duration: 3000,
       });
       return;
     }
 
-    addItem({
-      ref: id,
+    const cartItem: CartItem = {
+      // 🔥 Явно указываем тип CartItem
+      id: cartItemId,
+      ref: id || currentVariant.name,
       name: currentVariant.name,
       price: currentVariant.price,
       quantity: 1,
@@ -80,7 +90,9 @@ const ProductCard: FC<ProductCardProps> = ({
             name: currentVariant.type === "pack" ? "Пачка" : "Блок",
           }
         : undefined,
-    });
+    };
+
+    addItem(cartItem);
 
     addNotification({
       type: "success",
@@ -132,77 +144,114 @@ const ProductCard: FC<ProductCardProps> = ({
 
   return (
     <>
-      <Link
-        href={url || "#"}
-        className={`${styles.productCard} ${className}`.trim()}
-      >
-        <div className={styles.productCard__image}>
-          {hasMultipleVariants && (
-            <div className={styles.productCard__variants}>
-              {["pack", "block"].map((type) => (
-                <button
-                  key={type}
-                  className={`${styles.productCard__variant} ${
-                    activeVariant === type
-                      ? styles.productCard__variant_active
-                      : ""
-                  }`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setActiveVariant(type as "pack" | "block");
-                  }}
-                >
-                  {type === "pack" ? "Пачка" : "Блок"}
-                </button>
-              ))}
-            </div>
-          )}
+      <article className={`${styles.productCard} ${className}`.trim()}>
+        <Link
+          href={url || "#"}
+          aria-label={`Купить ${currentVariant.name} — доставка по Москве`}
+        >
+          <div className={styles.productCard__image}>
+            {/* 🔥 ДОБАВЛЕНО: Бейдж наличия */}
+            {!isInStock && (
+              <div className={styles.productCard__outOfStock}>
+                Нет в наличии
+              </div>
+            )}
 
-          <Image
-            src={currentVariant.imageUrl}
-            alt={currentVariant.name}
-            width={400}
-            height={400}
-            className={styles.productCard__img}
-          />
+            {hasMultipleVariants && (
+              <div className={styles.productCard__variants}>
+                {["pack", "block"].map((type) => (
+                  <button
+                    key={type}
+                    className={`${styles.productCard__variant} ${
+                      activeVariant === type
+                        ? styles.productCard__variant_active
+                        : ""
+                    }`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setActiveVariant(type as "pack" | "block");
+                    }}
+                  >
+                    {type === "pack" ? "Пачка" : "Блок"}
+                  </button>
+                ))}
+              </div>
+            )}
 
-          <div className={styles.productCard__action}>
             <Image
-              src={"/productCard/modal.svg"}
-              alt="Быстрый просмотр"
-              width={20}
-              height={20}
-              onClick={handleModalClick}
+              src={currentVariant.imageUrl}
+              alt={`${currentVariant.name} — купить в Москве с доставкой`}
+              width={400}
+              height={400}
+              className={styles.productCard__img}
             />
-            <span onClick={handleAddToCart}>В корзину</span>
-            <div
-              className={`${styles.productCard__favoriteBtn} ${
-                isItemFavorite ? styles.productCard__favoriteBtn_active : ""
-              }`}
-              onClick={handleFavoriteClick}
-            >
+
+            <div className={styles.productCard__action}>
               <Image
-                src={
-                  isItemFavorite
-                    ? "/productCard/fill-like.svg"
-                    : "/productCard/like.svg"
-                }
-                alt="В избранное"
+                src={"/productCard/modal.svg"}
+                alt="Быстрый просмотр"
                 width={20}
                 height={20}
+                onClick={handleModalClick}
               />
+              <span
+                onClick={handleAddToCart}
+                className={!isInStock ? styles.productCard__actionDisabled : ""}
+              >
+                {isInStock ? "В корзину" : "Нет в наличии"}
+              </span>
+              <div
+                className={`${styles.productCard__favoriteBtn} ${
+                  isItemFavorite ? styles.productCard__favoriteBtn_active : ""
+                }`}
+                onClick={handleFavoriteClick}
+              >
+                <Image
+                  src={
+                    isItemFavorite
+                      ? "/productCard/fill-like.svg"
+                      : "/productCard/like.svg"
+                  }
+                  alt="В избранное"
+                  width={20}
+                  height={20}
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className={styles.productCard__info}>
-          <h3 className={styles.productCard__name}>{currentVariant.name}</h3>
-          <span className={styles.productCard__price}>
-            {currentVariant.price.toLocaleString("ru-RU")} ₽
-          </span>
-        </div>
-      </Link>
+          <div className={styles.productCard__info}>
+            <h3 className={styles.productCard__name}>{currentVariant.name}</h3>
+            <span className={styles.productCard__price}>
+              {currentVariant.price.toLocaleString("ru-RU")} ₽
+            </span>
+          </div>
+        </Link>
+
+        {/* JSON-LD для SEO */}
+        {id && (
+          <Script id={`product-jsonld-${id}`} type="application/ld+json">
+            {JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Product",
+              name: currentVariant.name,
+              image: currentVariant.imageUrl,
+              description,
+              brand: { "@type": "Brand", name: "IQOS / TEREA" },
+              offers: {
+                "@type": "Offer",
+                price: currentVariant.price,
+                priceCurrency: "RUB",
+                availability: isInStock
+                  ? "https://schema.org/InStock"
+                  : "https://schema.org/OutOfStock",
+                url: url,
+              },
+            })}
+          </Script>
+        )}
+      </article>
 
       <ProductModal
         isOpen={isModalOpen}

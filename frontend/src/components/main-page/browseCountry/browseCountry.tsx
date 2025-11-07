@@ -21,10 +21,17 @@ const BrowseCountryItem: FC<BrowseCountryItemProps> = ({
   url,
 }) => {
   return (
-    <Link href={url} className={styles.category_item}>
-      <Image src={imageUrl} alt={title} width={150} height={150} />
-      <p>{title}</p>
-    </Link>
+    <article className={styles.category_item}>
+      <Link href={url} aria-label={`Купить ${title} в Москве`}>
+        <Image
+          src={imageUrl}
+          alt={`${title} — купить IQOS в Москве`}
+          width={200}
+          height={200}
+        />
+        <h3>{title}</h3>
+      </Link>
+    </article>
   );
 };
 

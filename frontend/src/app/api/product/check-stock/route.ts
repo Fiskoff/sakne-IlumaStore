@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     await Promise.all(
       uniqueRefs.map(async (ref) => {
         try {
-          const res = await fetch(`http://localhost:3000/api/products/${ref}`);
+          const res = await fetch(`http://localhost:3020/api/product/${ref}`);
 
           if (res.ok) {
             const productData = await res.json();

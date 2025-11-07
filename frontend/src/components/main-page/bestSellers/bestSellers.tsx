@@ -1,10 +1,8 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import styles from "./bestSellers.module.scss";
 import ProductCard from "@/components/ui/productCard/productCard";
+import styles from "./bestSellers.module.scss";
+import Script from "next/script";
 
-interface pageProps {
+interface PageProps {
   title?: string;
   limit?: number;
 }
@@ -30,75 +28,90 @@ interface Product {
   url?: string;
 }
 
-export default function BestSellers({ title, limit }: pageProps) {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isMobile, setIsMobile] = useState(false);
-  const [loading, setLoading] = useState(true);
+export default async function BestSellers({ title, limit }: PageProps) {
+  // Исключаем devices
+  const categories = ["terea", "iqos"];
+  let allData: Product[] = [];
 
-  // Определяем ширину экрана
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+  for (const category of categories) {
+    try {
+      const res = await fetch(`http://localhost:3020/api/product/${category}`, {
+        next: { revalidate: 60 },
+      });
+      if (!res.ok) continue;
 
-  // Загружаем хиты продаж
-  useEffect(() => {
-    async function fetchBestSellers() {
-      try {
-        setLoading(true);
-        const categories = ["terea", "iqos", "devices"];
-        const allData: Product[] = [];
+      const response = await res.json();
+      const data: Product[] = Array.isArray(response)
+        ? response
+        : response.products || [];
 
-        for (const category of categories) {
-          const res = await fetch(`/api/products/${category}`);
-          if (!res.ok) continue;
-          const data = await res.json();
+      if (!Array.isArray(data)) continue;
 
-          // фильтруем только hit = 1 и товары в наличии
-          const hitItems = data.filter(
-            (item: any) => item.hit === 1 && item.nalichie
-          );
-          allData.push(...hitItems);
-        }
+      // Берём только товары с hit=1 и nalichie=true
+      let hitItems = data.filter(
+        (item) => Number(item.hit) === 1 && item.nalichie
+      );
 
-        const formatted = allData.map((p) => ({
-          ...p,
-          url: `/product/${p.ref}`,
-        }));
-
-        setProducts(formatted);
-      } catch (error) {
-        console.error("Ошибка при загрузке хитов продаж:", error);
-      } finally {
-        setLoading(false);
+      // Если нет хитов, можно брать все доступные товары
+      if (hitItems.length === 0) {
+        hitItems = data.filter((item) => item.nalichie);
       }
+
+      allData.push(...hitItems);
+    } catch (error) {
+      console.error(`Ошибка при загрузке категории ${category}:`, error);
     }
+  }
 
-    fetchBestSellers();
-  }, []);
+  // Сортировка по названию
+  allData.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
 
-  const displayedProducts = limit ? products.slice(0, limit) : products;
+  const displayedProducts = limit ? allData.slice(0, limit) : allData;
 
   return (
-    <section className="container">
+    <section className="container" aria-label="Хиты продаж IQOS ILUMA и TEREA">
       <div className={styles.header}>
         <h2>{title}</h2>
       </div>
 
-      {loading ? (
-        <p className={styles.loading}>Загрузка...</p>
-      ) : displayedProducts.length > 0 ? (
+      {displayedProducts.length > 0 ? (
         <div className={styles.grid}>
           {displayedProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              id={String(product.id)}
-              variants={product.variants}
-              url={product.url}
-              description={product.description}
-            />
+            <article key={product.id} className={styles.product_wrapper}>
+              <ProductCard
+                key={product.id}
+                id={String(product.id)}
+                variants={product.variants}
+                url={`/product/${product.ref}`}
+                description={product.description}
+              />
+
+              <Script
+                id={`product-jsonld-${product.id}`}
+                type="application/ld+json"
+              >
+                {JSON.stringify({
+                  "@context": "https://schema.org",
+                  "@type": "Product",
+                  name: product.name,
+                  image: product.variants.map((v) => v.imageUrl),
+                  description: product.description,
+                  brand: {
+                    "@type": "Brand",
+                    name: product.type === "iqos" ? "IQOS" : "TEREA",
+                  },
+                  offers: product.variants.map((v) => ({
+                    "@type": "Offer",
+                    price: v.price,
+                    priceCurrency: "RUB",
+                    availability: v.nalichie
+                      ? "https://schema.org/InStock"
+                      : "https://schema.org/OutOfStock",
+                    url: `/product/${product.ref}`,
+                  })),
+                })}
+              </Script>
+            </article>
           ))}
         </div>
       ) : (

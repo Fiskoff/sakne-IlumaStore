@@ -1,82 +1,164 @@
+// components/catalog/catalogLayout.tsx
 "use client";
 
 import BreadCrumbs from "../common/breadcrums";
 import FiltersSidebar from "./filtersSideBar";
 import { useState, useCallback, useEffect, useRef } from "react";
 import Toolbar from "./toolbar";
-import ProductsGrid from "./productsGrid/productsGrid";
 import styles from "./catalogLayout.module.scss";
 import { useURLFilters } from "@/hooks/useURLFilters";
+import { useRouter } from "next/navigation";
 
 interface CatalogLayoutProps {
   category: "terea" | "iqos" | "devices";
   initialSub?: string;
+  searchParams?: { [key: string]: string | string[] | undefined };
+  children?: React.ReactNode;
 }
+
+// 🔹 Функция для форматирования заголовков
+const formatCategoryTitle = (category: string, sub?: string) => {
+  const decodedSub = sub ? decodeURIComponent(sub) : "";
+
+  const categoryNames = {
+    iqos: "IQOS Iluma",
+    terea: "TEREA",
+    devices: "Аксессуары",
+  };
+
+  const subNames: Record<string, Record<string, string>> = {
+    terea: {
+      япония: "Япония",
+      польша: "Польша",
+      швейцария: "Швейцария",
+      италия: "Италия",
+      казахстан: "Казахстан",
+      узбекистан: "Узбекистан",
+      армения: "Армения",
+      индонезия: "Индонезия",
+      европа: "Европа",
+    },
+    iqos: {
+      one: "I One",
+      standart: "I Standart",
+      prime: "I Prime",
+      onei: "I One",
+      standarti: "I Standart",
+      primei: "I Prime",
+      iluma: "Iluma",
+    },
+    devices: {
+      ringsiluma: "Кольца Iluma",
+      capsilumaprime: "Крышки Iluma Prime",
+      capsilumastandart: "Крышки Iluma Standart",
+      holderiqosiluma: "Держатели Iluma",
+    },
+  };
+
+  const baseTitle =
+    categoryNames[category as keyof typeof categoryNames] ||
+    category.toUpperCase();
+
+  if (decodedSub) {
+    const formattedSub =
+      subNames[category]?.[decodedSub.toLowerCase()] || decodedSub;
+    return `${baseTitle} ${formattedSub}`;
+  }
+
+  return baseTitle;
+};
 
 export default function CatalogLayout({
   category,
   initialSub,
+  searchParams,
+  children,
 }: CatalogLayoutProps) {
-  // 🔹 Создаем начальные фильтры на основе initialSub
-  const getInitialFilters = () => {
-    if (!initialSub) return {};
+  const router = useRouter();
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [scrollState, setScrollState] = useState({
+    canScrollLeft: false,
+    canScrollRight: false,
+  });
+  const isDraggingRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftRef = useRef(0);
+  const dragDistanceRef = useRef(0);
 
-    const normalized = decodeURIComponent(initialSub).toLowerCase();
-    const initialFilters: any = {};
+  // 🔹 Форматируем заголовок
+  const pageTitle = formatCategoryTitle(category, initialSub);
 
-    if (category === "iqos" || category === "devices") {
-      initialFilters.brand = [normalized];
-    } else if (category === "terea") {
-      initialFilters.country = [normalized];
-    }
+  const checkScroll = useCallback(() => {
+    if (!scrollContainerRef.current) return;
 
-    return initialFilters;
+    const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+
+    setScrollState({
+      canScrollLeft: scrollLeft > 0,
+      canScrollRight: scrollLeft < scrollWidth - clientWidth - 1,
+    });
+  }, []);
+
+  // 🔹 Функции для drag-scroll на десктопе
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollContainerRef.current) return;
+
+    isDraggingRef.current = true;
+    dragDistanceRef.current = 0; // сбрасываем дельту
+    startXRef.current = e.pageX - scrollContainerRef.current.offsetLeft;
+    scrollLeftRef.current = scrollContainerRef.current.scrollLeft;
+
+    scrollContainerRef.current.style.cursor = "grabbing";
   };
 
-  const {
-    filters,
-    updateFilters,
-    clearFilters,
-    updateSearch,
-    updateSort,
-    updatePage,
-  } = useURLFilters(getInitialFilters());
+  const handleMouseUpOrLeave = () => {
+    isDraggingRef.current = false;
+    if (scrollContainerRef.current)
+      scrollContainerRef.current.style.cursor = "grab";
+  };
 
-  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
-  const hasInitialized = useRef(false);
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDraggingRef.current || !scrollContainerRef.current) return;
 
-  // 🔹 Синхронизация initialSub с фильтрами (ТОЛЬКО при первом рендере)
+    e.preventDefault();
+    const x = e.pageX - scrollContainerRef.current.offsetLeft;
+    const walk = (x - startXRef.current) * 2; // скорость прокрутки
+    scrollContainerRef.current.scrollLeft = scrollLeftRef.current - walk;
+
+    dragDistanceRef.current = Math.abs(x - startXRef.current); // считаем пройденное расстояние
+  };
+
   useEffect(() => {
-    if (!initialSub || hasInitialized.current) return;
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
 
-    const normalized = decodeURIComponent(initialSub).toLowerCase();
+    checkScroll();
 
-    // Получаем текущий фильтр и приводим к нижнему регистру
-    const currentFilter =
-      category === "terea"
-        ? filters.country?.[0]?.toLowerCase()
-        : filters.brand?.[0]?.toLowerCase();
+    // Проверяем при изменении размера окна
+    window.addEventListener("resize", checkScroll);
+    scrollContainer.addEventListener("scroll", checkScroll);
 
-    // Применяем фильтр только если он еще не установлен
-    if (!currentFilter) {
-      if (category === "terea") {
-        updateFilters({ ...filters, country: [normalized] });
-      } else {
-        updateFilters({ ...filters, brand: [normalized] });
-      }
+    return () => {
+      window.removeEventListener("resize", checkScroll);
+      scrollContainer.removeEventListener("scroll", checkScroll);
+    };
+  }, [checkScroll]);
+
+  // 🔹 Инициализируем начальные фильтры для sub-страниц
+  const getInitialFilters = useCallback(() => {
+    const initialFilters: any = {};
+    if (initialSub) {
+      const filterKey = category === "terea" ? "country" : "brand";
+      initialFilters[filterKey] = decodeURIComponent(initialSub).toLowerCase();
     }
+    return initialFilters;
+  }, [initialSub, category]);
 
-    hasInitialized.current = true;
-  }, [initialSub, category]); // 🔹 Убрали filters и updateFilters из зависимостей
+  const { filters, updateFilters, clearFilters, updateSearch, updateSort } =
+    useURLFilters(getInitialFilters());
 
   // 🔹 Обработчики
-  const handlePageChange = useCallback(
-    (newPage: number) => {
-      updateFilters({ ...filters, page: newPage });
-    },
-    [filters, updateFilters]
-  );
-
   const handleFiltersChange = useCallback(
     (newFilters: any) => {
       updateFilters(newFilters);
@@ -85,24 +167,31 @@ export default function CatalogLayout({
   );
 
   const handleSearchChange = useCallback(
-    (query: string) => {
-      updateSearch(query);
-    },
+    (query: string) => updateSearch(query),
     [updateSearch]
   );
 
   const handleSortChange = useCallback(
-    (sort: string) => {
-      updateSort(sort);
-    },
+    (sort: string) => updateSort(sort),
     [updateSort]
   );
 
   const handleClearFilters = useCallback(() => {
-    clearFilters();
-    // Сбрасываем флаг при очистке фильтров
-    hasInitialized.current = false;
-  }, [clearFilters]);
+    ("🗑️ Clearing filters from layout");
+
+    if (initialSub) {
+      const filterKey = category === "terea" ? "country" : "brand";
+      const clearedFilters: any = {};
+      clearedFilters[filterKey] = decodeURIComponent(initialSub).toLowerCase();
+
+      if (filters.search) clearedFilters.search = filters.search;
+      if (filters.sort) clearedFilters.sort = filters.sort;
+
+      updateFilters(clearedFilters);
+    } else {
+      clearFilters();
+    }
+  }, [clearFilters, updateFilters, initialSub, category, filters]);
 
   // 🔹 Быстрые фильтры
   const getQuickFilterOptions = () => {
@@ -112,8 +201,7 @@ export default function CatalogLayout({
           { value: "казахстан", label: "Казахстан" },
           { value: "узбекистан", label: "Узбекистан" },
           { value: "армения", label: "Армения" },
-          { value: "индонезия", label: "Индонезия" },
-          { value: "польша", label: "Польша" },
+          { value: "индонезия", label: "Иноднезия" },
           { value: "япония", label: "Япония" },
           { value: "швейцария", label: "Швейцария" },
           { value: "европа", label: "Европа" },
@@ -142,52 +230,81 @@ export default function CatalogLayout({
   const quickFilterOptions = getQuickFilterOptions();
   const quickFilterKey = category === "terea" ? "country" : "brand";
 
+  const isQuickFilterActive = (value: string) => {
+    const normalizedValue = value.toLowerCase();
+    const currentFilter = filters[quickFilterKey];
+
+    if (!currentFilter) return false;
+
+    if (Array.isArray(currentFilter)) {
+      return currentFilter.some(
+        (v: string) => v.toLowerCase() === normalizedValue
+      );
+    }
+    return currentFilter.toLowerCase() === normalizedValue;
+  };
+
   const handleQuickFilter = useCallback(
     (value: string) => {
-      const currentFilters = { ...filters };
-      const currentValues: string[] = currentFilters[quickFilterKey] || [];
-      const isActive = currentValues.some(
-        (v) => v.toLowerCase() === value.toLowerCase()
-      );
+      const normalizedValue = value.toLowerCase();
 
-      let newValues: string[];
-      if (isActive) newValues = [];
-      else newValues = [value];
-
-      if (newValues.length === 0) delete currentFilters[quickFilterKey];
-      else currentFilters[quickFilterKey] = newValues;
-
-      updateFilters(currentFilters);
+      if (isQuickFilterActive(value)) {
+        if (initialSub) {
+          router.push(`/catalog/${category}`);
+        } else {
+          const newFilters = { ...filters };
+          delete newFilters[quickFilterKey];
+          delete newFilters.page;
+          updateFilters(newFilters);
+        }
+      } else {
+        if (initialSub) {
+          router.push(`/catalog/${category}/${encodeURIComponent(value)}`);
+        } else {
+          const newFilters = { ...filters };
+          newFilters[quickFilterKey] = normalizedValue;
+          delete newFilters.page;
+          updateFilters(newFilters);
+        }
+      }
     },
-    [filters, quickFilterKey, updateFilters]
+    [filters, updateFilters, quickFilterKey, initialSub, category, router]
   );
 
-  const isQuickFilterActive = (value: string) =>
-    filters[quickFilterKey]?.some(
-      (v: string) => v.toLowerCase() === value.toLowerCase()
-    ) || false;
+  useEffect(() => {
+    setTimeout(checkScroll, 100);
+  }, [filters, checkScroll]);
 
-  const activeFiltersCount = useCallback(() => {
-    const keys = Object.keys(filters).filter(
-      (k) => !["search", "sort", "page"].includes(k)
-    );
-    return keys.length;
-  }, [filters]);
+  const activeFiltersCount = Object.keys(filters).filter(
+    (k) =>
+      !["search", "sort", "page"].includes(k) &&
+      k !== quickFilterKey &&
+      (!initialSub || filters[k] !== getInitialFilters()[k])
+  ).length;
+
+  const handleQuickFilterClick = (value: string) => {
+    // отменяем клик если пройдено больше 5px
+    if (dragDistanceRef.current > 5) return;
+    handleQuickFilter(value);
+  };
 
   return (
     <section className="hero-container">
       <div className="second_page_header">
-        <h1>
-          Каталог
-          {category && ` ${category.toUpperCase()}`}
-          {initialSub && ` ${decodeURIComponent(initialSub)}`}
-        </h1>
+        <h1>{pageTitle}</h1>
         <BreadCrumbs
           items={[
             { label: "Главная", href: "/" },
             { label: "Каталог", href: "/catalog" },
             { label: category, href: `/catalog/${category}` },
-            ...(initialSub ? [{ label: decodeURIComponent(initialSub) }] : []),
+            ...(initialSub
+              ? [
+                  {
+                    label: decodeURIComponent(initialSub),
+                    href: `/catalog/${category}/${initialSub}`,
+                  },
+                ]
+              : []),
           ]}
         />
       </div>
@@ -221,7 +338,7 @@ export default function CatalogLayout({
                 setIsMobileFiltersOpen(!isMobileFiltersOpen)
               }
               onClearFilters={handleClearFilters}
-              activeFiltersCount={activeFiltersCount()}
+              activeFiltersCount={activeFiltersCount}
               searchQuery={filters.search || ""}
               onSearchChange={handleSearchChange}
               sortBy={filters.sort || "default"}
@@ -230,30 +347,34 @@ export default function CatalogLayout({
 
             {quickFilterOptions.length > 0 && (
               <div className={styles.quickFilters}>
-                <div className={styles.filterSlider}>
-                  {quickFilterOptions.map((item) => (
-                    <button
-                      key={item.value}
-                      className={`${styles.filterChip} ${
-                        isQuickFilterActive(item.value) ? styles.active : ""
-                      }`}
-                      onClick={() => handleQuickFilter(item.value)}
-                    >
-                      {item.label}
-                    </button>
-                  ))}
+                <div
+                  ref={scrollContainerRef}
+                  className={`${styles.quickFiltersScrollContainer} ${
+                    scrollState.canScrollLeft ? styles.canScrollLeft : ""
+                  } ${scrollState.canScrollRight ? styles.canScrollRight : ""}`}
+                  onMouseDown={handleMouseDown}
+                  onMouseUp={handleMouseUpOrLeave}
+                  onMouseLeave={handleMouseUpOrLeave}
+                  onMouseMove={handleMouseMove}
+                >
+                  <div className={styles.filterSlider}>
+                    {quickFilterOptions.map((item) => (
+                      <button
+                        key={item.value}
+                        className={`${styles.filterChip} ${
+                          isQuickFilterActive(item.value) ? styles.active : ""
+                        }`}
+                        onClick={() => handleQuickFilterClick(item.value)}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
 
-            <ProductsGrid
-              filters={filters}
-              category={category}
-              paginationMode="pages"
-              perPage={12}
-              onPageChange={handlePageChange}
-              onFiltersReset={handleClearFilters}
-            />
+            {children}
           </div>
         </div>
       </div>

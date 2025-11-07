@@ -40,7 +40,7 @@ export default function SimilarProducts({
         setError(null);
 
         const response = await fetch(
-          `/api/products/similar?productId=${currentProductId}&category=${category}&limit=${limit}`
+          `/api/product/similar?productId=${currentProductId}&category=${category}&limit=${limit}`
         );
 
         if (!response.ok) throw new Error("Failed to fetch similar products");

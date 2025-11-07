@@ -1,97 +1,61 @@
+// components/catalog/filters/CheckboxFilter/CheckboxFilter.tsx
+"use client";
+
 import { CheckboxFilter as CheckboxFilterType } from "@/types/catalog/types";
 import styles from "./CheckboxFilter.module.scss";
-import { useState } from "react";
-import Image from "next/image";
 
 interface CheckboxFilterProps {
   filter: CheckboxFilterType;
-  value: string[];
-  onChange: (value: string[]) => void;
-  isCollapsible?: boolean;
-  singleSelect?: boolean; // 👈 Добавляем флаг для режима одного выбора
+  value: string[] | undefined;
+  onChange: (value: string[] | null) => void;
+  singleSelect?: boolean;
 }
 
 export default function CheckboxFilter({
   filter,
-  value,
+  value = [],
   onChange,
-  isCollapsible = false,
-  singleSelect = false, // 👈 значение по умолчанию — множественный выбор
+  singleSelect = false,
 }: CheckboxFilterProps) {
-  const [isExpanded, setIsExpanded] = useState(!isCollapsible);
+  const handleOptionChange = (optionValue: string) => {
+    let newValue: string[];
 
-  const handleChange = (optionValue: string, checked: boolean) => {
     if (singleSelect) {
-      // 👇 Если режим одиночного выбора — выбираем только один пункт
-      if (checked) {
-        onChange([optionValue]);
+      // 🔹 РЕЖИМ SINGLE SELECT: выбираем только один вариант
+      if (value.includes(optionValue)) {
+        // Если уже выбран - снимаем выбор (убираем галочку)
+        newValue = [];
       } else {
-        onChange([]);
+        // Выбираем новый вариант (снимаем предыдущий)
+        newValue = [optionValue];
       }
     } else {
-      // 👇 Стандартное поведение (множественный выбор)
-      if (checked) {
-        onChange([...value, optionValue]);
+      // 🔹 РЕЖИМ MULTI SELECT: стандартное поведение
+      if (value.includes(optionValue)) {
+        newValue = value.filter((v) => v !== optionValue);
       } else {
-        onChange(value.filter((v) => v !== optionValue));
+        newValue = [...value, optionValue];
       }
     }
-  };
 
-  const toggleExpanded = () => {
-    if (isCollapsible) {
-      setIsExpanded(!isExpanded);
-    }
+    // 🔹 ВАЖНО: Всегда передаем новое значение, даже если пустой массив
+    onChange(newValue.length === 0 ? null : newValue);
   };
 
   return (
     <div className={styles.filter}>
-      <div className={styles.filterHeader} onClick={toggleExpanded}>
-        <div className={styles.headerContent}></div>
-        {isCollapsible && (
-          <svg
-            className={`${styles.filterIcon} ${
-              isExpanded ? styles.expanded : ""
-            }`}
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-          >
-            <path
-              d="M4 6L8 10L12 6"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        )}
-      </div>
-
-      <div
-        className={`${styles.filterOptions} ${
-          isCollapsible && !isExpanded ? styles.collapsed : ""
-        }`}
-      >
-        {filter.options.map((option) => (
-          <label key={option.value} className={styles.filterLabel}>
-            <input
-              type="checkbox"
-              className={styles.checkbox}
-              checked={value.includes(option.value)}
-              onChange={(e) => handleChange(option.value, e.target.checked)}
-              disabled={option.count === 0}
-            />
-            <span className={styles.optionContent}>
-              <span className={styles.optionLabel}>{option.label}</span>
-              {option.count !== undefined && (
-                <span className={styles.optionCount}>({option.count})</span>
-              )}
-            </span>
-          </label>
-        ))}
-      </div>
+      {filter.options.map((option) => (
+        <label key={option.value} className={styles.option}>
+          <input
+            type={singleSelect ? "radio" : "checkbox"}
+            checked={value.includes(option.value)}
+            onChange={() => handleOptionChange(option.value)}
+            className={styles.input}
+          />
+          <span className={styles.checkmark}></span>
+          <span className={styles.label}>{option.label}</span>
+        </label>
+      ))}
     </div>
   );
 }

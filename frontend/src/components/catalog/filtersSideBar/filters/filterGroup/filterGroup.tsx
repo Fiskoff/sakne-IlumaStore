@@ -1,13 +1,14 @@
+// components/catalog/filters/filterGroup/filterGroup.tsx
 "use client";
 
-import { Filter } from "@/types/catalog/types";
+import { Filter, RangeFilter as RangeFilterType } from "@/types/catalog/types";
 import CheckboxFilter from "../CheckboxFilter/CheckboxFilter";
 import RangeFilter from "../RangeFilter/RangeFilter";
 import MultiSelectFilter from "../MultiSelectFilter/MultiSelectFilter";
 import ColorFilter from "../ColorFilter/ColorFilter";
 import styles from "./filterGroup.module.scss";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 interface FilterGroupProps {
   filter: Filter;
@@ -22,10 +23,51 @@ export default function FilterGroup({
   onChange,
   isFirst = false,
 }: FilterGroupProps) {
-  const [isExpanded, setIsExpanded] = useState(isFirst); // Первый фильтр открыт по умолчанию
+  // 🔹 ИЗМЕНЕНИЕ: Всегда открываем фильтры по умолчанию
+  const [isExpanded, setIsExpanded] = useState(true);
 
-  const toggleExpanded = () => {
-    setIsExpanded(!isExpanded);
+  const toggleExpanded = () => setIsExpanded(!isExpanded);
+
+  // 🔹 Нормализуем значение для разных типов фильтров
+  const normalizedValue = useMemo(() => {
+    if (value == null) {
+      if (filter.type === "range") {
+        const rangeFilter = filter as RangeFilterType;
+        return { min: rangeFilter.min, max: rangeFilter.max };
+      }
+      if (
+        filter.type === "checkbox" ||
+        filter.type === "multiselect" ||
+        filter.type === "color"
+      ) {
+        return [];
+      }
+      return value;
+    }
+
+    if (
+      filter.type === "checkbox" ||
+      filter.type === "multiselect" ||
+      filter.type === "color"
+    ) {
+      return Array.isArray(value) ? value : [value];
+    }
+
+    return value;
+  }, [value, filter]);
+
+  // 🔹 Обработчик для price range
+  const handlePriceChange = (
+    priceValue: { min: number; max: number } | null
+  ) => {
+    console.log("🎯 Price range changed in FilterGroup:", priceValue);
+
+    if (priceValue) {
+      onChange(priceValue);
+    } else {
+      // Если null, передаем undefined чтобы удалить фильтр
+      onChange(undefined);
+    }
   };
 
   const renderFilter = () => {
@@ -34,9 +76,9 @@ export default function FilterGroup({
         return (
           <CheckboxFilter
             filter={filter}
-            value={value || []}
+            value={normalizedValue}
             onChange={onChange}
-            singleSelect={true}
+            singleSelect={true} // 🔹 ВКЛЮЧАЕМ SINGLE SELECT ДЛЯ CHECKBOX
           />
         );
 
@@ -44,8 +86,8 @@ export default function FilterGroup({
         return (
           <RangeFilter
             filter={filter}
-            value={value || { min: filter.min, max: filter.max }}
-            onChange={onChange}
+            value={normalizedValue}
+            onChange={handlePriceChange}
           />
         );
 
@@ -53,8 +95,9 @@ export default function FilterGroup({
         return (
           <MultiSelectFilter
             filter={filter}
-            value={value || []}
+            value={normalizedValue}
             onChange={onChange}
+            singleSelect={true} // 🔹 ВКЛЮЧАЕМ SINGLE SELECT ДЛЯ MULTISELECT
           />
         );
 
@@ -62,7 +105,7 @@ export default function FilterGroup({
         return (
           <ColorFilter
             filter={filter}
-            value={value || []}
+            value={normalizedValue}
             onChange={onChange}
           />
         );

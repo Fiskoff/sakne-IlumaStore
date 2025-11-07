@@ -4,6 +4,8 @@ import styles from "./productModal.module.scss";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useNotification } from "@/context/NotificationContext";
+import { generateCartItemId, generateProductId } from "@/utils/productId";
+import { CartItem } from "@/types/cart/cart";
 
 export interface ProductVariant {
   type: "pack" | "block";
@@ -29,23 +31,13 @@ const ProductModal: FC<ProductModalProps> = ({
   description = "Описание товара будет добавлено позже.",
   id,
 }) => {
+  // 🔥 ВАЖНО: Все хуки должны вызываться ДО любых условных операторов
   const [activeVariant, setActiveVariant] = useState<"pack" | "block">(
     variants[0]?.type || "pack"
   );
   const [quantity, setQuantity] = useState(1);
 
-  const currentVariant =
-    variants.find((v) => v.type === activeVariant) || variants[0];
-  const hasMultipleVariants = variants.length > 1;
-
-  if (!isOpen) return null;
-
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
+  // Контекстные хуки должны быть вызваны в одинаковом порядке при каждом рендере
   const { addItem } = useCart();
   const {
     addItem: addToFavorites,
@@ -54,7 +46,22 @@ const ProductModal: FC<ProductModalProps> = ({
   } = useFavorites();
   const { addNotification } = useNotification();
 
-  const itemId = `${id || productName}-${currentVariant.type}`;
+  // Теперь можно делать условный рендеринг
+  if (!isOpen) return null;
+
+  const currentVariant =
+    variants.find((v) => v.type === activeVariant) || variants[0];
+  const hasMultipleVariants = variants.length > 1;
+
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  const baseId = id?.toString() || productName;
+  const itemId = generateProductId(baseId, currentVariant.type);
+  const cartItemId = generateCartItemId(baseId, currentVariant.type);
   const isItemFavorite = isFavorite(itemId);
 
   const handleAddToFavorites = () => {
@@ -92,8 +99,9 @@ const ProductModal: FC<ProductModalProps> = ({
     e.preventDefault();
     e.stopPropagation();
 
-    addItem({
-      ref: id ?? productName,
+    const cartItem: CartItem = {
+      id: cartItemId,
+      ref: id || productName,
       name: currentVariant.name,
       price: currentVariant.price,
       quantity,
@@ -104,7 +112,9 @@ const ProductModal: FC<ProductModalProps> = ({
             name: currentVariant.type === "pack" ? "Пачка" : "Блок",
           }
         : undefined,
-    });
+    };
+
+    addItem(cartItem);
 
     addNotification({
       type: "success",

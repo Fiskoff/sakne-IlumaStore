@@ -9,72 +9,34 @@ import { useFavorites } from "@/context/FavoritesContext";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [cartItemsCount, setCartItemsCount] = useState(0);
-  const [likeItems, setLikeItems] = useState(0);
-  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+
   const { totalItems } = useCart();
   const { totalItems: favoriteItems } = useFavorites();
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 40);
-    };
 
-    const handleScrollCloseDropdown = () => {
-      setIsScrolled(window.scrollY > 40);
-      if (isCategoriesOpen) {
-        closeDropdown();
-      }
-    };
-
-    window.addEventListener("scroll", handleScrollCloseDropdown);
-    return () => {
-      window.removeEventListener("scroll", handleScrollCloseDropdown);
-    };
-  }, [isCategoriesOpen]);
+  const categories = [
+    { label: "Iqos", href: "iqos" },
+    { label: "Terea", href: "terea" },
+    { label: "Devices", href: "devices" },
+    { label: "Хит продаж", href: "bestsellers" },
+    { label: "Новинки", href: "new-products" },
+  ];
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (
-        !target.closest(`.${styles.categories_dropdown}`) &&
-        !target.closest(`.${styles.hero_top__left} span`)
-      ) {
-        if (isCategoriesOpen) {
-          closeDropdown();
-        }
-      }
-    };
-
-    if (isCategoriesOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isCategoriesOpen]);
-
-  const closeDropdown = () => {
-    setIsClosing(true);
-    setTimeout(() => {
-      setIsCategoriesOpen(false);
-      setIsClosing(false);
-    }, 200);
-  };
+    const handleScroll = () => setIsScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const toggleDropdown = () => {
-    if (isCategoriesOpen) {
-      closeDropdown();
-    } else {
-      setIsCategoriesOpen(true);
-      setIsClosing(false);
-    }
+    setIsCategoriesOpen((prev) => !prev);
   };
 
-  const categories = ["Iqos", "Terea", "Devices", "Хит продаж", "Новинки"];
-  const href = ["iqos", "terea", "devices", "bestsellers", "new-products"];
+  const closeMobileMenu = () => {
+    setIsMenuOpen(false);
+  };
 
   return (
     <>
@@ -95,6 +57,18 @@ export default function Header() {
                 />
                 <h2>Iluma-Store</h2>
               </Link>
+
+              {/* Бургер меню для мобилки */}
+              <button
+                className={`${styles.burger_button} ${
+                  isMenuOpen ? styles.burger_active : ""
+                }`}
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+              >
+                <span></span>
+              </button>
+
+              {/* Кнопка для десктопа */}
               <div className={styles.categories_dropdown}>
                 <span onClick={toggleDropdown}>
                   <Image
@@ -109,28 +83,20 @@ export default function Header() {
                     alt="arrow"
                     height={20}
                     width={20}
-                    className={
-                      isCategoriesOpen && !isClosing ? styles.rotated : ""
-                    }
+                    className={isCategoriesOpen ? styles.rotated : ""}
                   />
                 </span>
 
                 {isCategoriesOpen && (
-                  <div
-                    className={`${styles.dropdown_menu} ${
-                      isClosing ? styles.closing : ""
-                    }`}
-                  >
+                  <div className={styles.dropdown_menu}>
                     <div className={styles.dropdown_content}>
                       {categories.map((category, index) => (
                         <Link
                           key={index}
-                          href={`/catalog/${href[index]
-                            .toLowerCase()
-                            .replace(/\s+/g, "-")}`}
-                          onClick={() => closeDropdown()}
+                          href={`/catalog/${category.href}`}
+                          onClick={() => setIsCategoriesOpen(false)}
                         >
-                          {category}
+                          {category.label}
                         </Link>
                       ))}
                     </div>
@@ -138,6 +104,7 @@ export default function Header() {
                 )}
               </div>
             </div>
+
             <div className={styles.hero_top__right}>
               <div className={styles.cart_container}>
                 <Image
@@ -148,31 +115,33 @@ export default function Header() {
                   className={styles.backet}
                   onClick={() => setIsCartOpen(true)}
                 />
-                {totalItems >= 0 && (
+                {totalItems > 0 && (
                   <span className={styles.cart_badge}>{totalItems}</span>
                 )}
                 <Link href="/wishlist">
                   <Image
                     src={"/header/like.svg"}
-                    alt="backet"
+                    alt="like"
                     width={25}
                     height={25}
                     className={styles.backet}
                   />
-                  {favoriteItems >= 0 && (
+                  {favoriteItems > 0 && (
                     <span className={styles.like_badge}>{favoriteItems}</span>
                   )}
                 </Link>
               </div>
               <div className={styles.socials}>
                 <Image src="/header/wa.svg" alt="wa" width={30} height={30} />
-                <Image src="/header/tg.svg" alt="wa" width={30} height={30} />
+                <Image src="/header/tg.svg" alt="tg" width={30} height={30} />
                 <Link href="tel:+7 (995) 153-80-19" className={styles.phone}>
                   +7 (995) 153-80-19
                 </Link>
               </div>
             </div>
           </div>
+
+          {/* Навигация десктоп */}
           <div
             className={`${styles.hero_bottom} ${
               isScrolled ? styles.scrolled : ""
@@ -196,7 +165,45 @@ export default function Header() {
         </div>
       </section>
 
-      {/* Добавляем компонент Cart */}
+      {/* 📱 Мобильное меню */}
+      <div className={`${styles.mobile_menu} ${isMenuOpen ? styles.open : ""}`}>
+        <Link href={"/"} className={styles.logo_container}>
+          <Image
+            src={"/logo/ilumastorelogo.svg"}
+            alt="iluma"
+            height={45}
+            width={45}
+          />
+          <h2>Iluma-Store</h2>
+        </Link>
+
+        <nav>
+          <Link href="/catalog" onClick={closeMobileMenu}>
+            Каталог
+          </Link>
+          {categories.map((item, i) => (
+            <Link
+              key={i}
+              href={`/catalog/${item.href}`}
+              onClick={closeMobileMenu}
+            >
+              {item.label}
+            </Link>
+          ))}
+          <Link href="/blog" onClick={closeMobileMenu}>
+            Блог
+          </Link>
+          <Link href="/contacts" onClick={closeMobileMenu}>
+            Контакты
+          </Link>
+        </nav>
+      </div>
+
+      {/* Затемнение фона */}
+      {isMenuOpen && (
+        <div className={styles.overlay} onClick={closeMobileMenu}></div>
+      )}
+
       <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
   );

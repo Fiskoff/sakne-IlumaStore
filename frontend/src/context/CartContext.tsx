@@ -1,3 +1,4 @@
+// context/CartContext.tsx
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
@@ -7,7 +8,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const CART_STORAGE_KEY = "cart";
 const CART_EXPIRATION_KEY = "cart_expiration";
-const CART_TTL = 30 * 60 * 1000; // 30 минут в миллисекундах
+const CART_TTL = 30 * 60 * 1000;
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -29,12 +30,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
           localStorage.removeItem(CART_EXPIRATION_KEY);
         }
       }
-    } catch (err) {
-      console.error("Failed to load cart from localStorage", err);
-    }
+    } catch (err) {}
   }, []);
 
-  // Сохраняем корзину в localStorage с обновлённым TTL
+  // Сохраняем корзину в localStorage
   useEffect(() => {
     try {
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
@@ -42,24 +41,20 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         CART_EXPIRATION_KEY,
         (Date.now() + CART_TTL).toString()
       );
-    } catch (err) {
-      console.error("Failed to save cart to localStorage", err);
-    }
+    } catch (err) {}
   }, [items]);
 
-  const addItem = (itemData: Omit<CartItem, "id">) => {
-    const id = `${itemData.ref}-${itemData.variant?.type || "default"}`;
-
+  const addItem = (itemData: CartItem) => {
     setItems((prevItems) => {
-      const existingItem = prevItems.find((item) => item.id === id);
+      const existingItem = prevItems.find((item) => item.id === itemData.id);
       if (existingItem) {
         return prevItems.map((item) =>
-          item.id === id
+          item.id === itemData.id
             ? { ...item, quantity: item.quantity + itemData.quantity }
             : item
         );
       } else {
-        return [...prevItems, { ...itemData, id }];
+        return [...prevItems, itemData];
       }
     });
   };
