@@ -263,7 +263,7 @@ const ProductCard: FC<ProductCardProps> = ({
                   Загрузка...
                 </div>
               )}
-              <img
+              <Image
                 ref={imageRef}
                 src={safeImageUrl}
                 alt={`${currentVariant.name} — купить в Москве с доставкой`}
