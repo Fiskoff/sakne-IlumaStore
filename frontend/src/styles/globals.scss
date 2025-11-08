@@ -81,6 +81,12 @@ button:hover {
     @media (max-width: 480px) {
       font-size: 22px;
     }
+    @media (max-width: 430) {
+      font-size: 20px;
+    }
+    @media (max-width: 400) {
+      font-size: 18px;
+    }
   }
 
   @media (max-width: 1250px) {
