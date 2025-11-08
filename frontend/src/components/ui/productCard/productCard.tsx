@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState } from "react";
+import { FC, useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
@@ -29,9 +29,9 @@ export interface ProductCardProps {
   description?: string;
 }
 
-// 🔥 ДОБАВЛЕНО: Функция для кодирования URL с русскими символами
+// 🔥 УЛУЧШЕННАЯ Функция для кодирования URL с русскими символами
 function encodeImageUrl(url: string): string {
-  if (!url) return "/placeholder.jpg";
+  if (!url) return "https://placehold.net/600x600.png";
 
   try {
     // Если это абсолютный URL
@@ -42,7 +42,6 @@ function encodeImageUrl(url: string): string {
     }
 
     // Если это относительный путь
-    // Разбиваем путь на части и кодируем каждую часть отдельно
     const parts = url.split("/");
     const encodedParts = parts.map((part) =>
       part.includes("%") || part === "" ? part : encodeURIComponent(part)
@@ -50,7 +49,7 @@ function encodeImageUrl(url: string): string {
     return encodedParts.join("/");
   } catch (error) {
     console.warn("Error encoding image URL:", url, error);
-    return url;
+    return "https://placehold.net/600x600.png"; // 🔥 Всегда возвращаем fallback при ошибке
   }
 }
 
@@ -62,13 +61,17 @@ const ProductCard: FC<ProductCardProps> = ({
   description,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [imageError, setImageError] = useState(false); // 🔥 ДОБАВЛЕНО: состояние ошибки изображения
+  const [imageLoading, setImageLoading] = useState(true); // 🔥 ДОБАВЛЕНО: состояние загрузки
+  const imageRef = useRef<HTMLImageElement>(null);
+
   const safeVariants =
     Array.isArray(variants) && variants.length > 0
       ? variants
       : [
           {
             type: "pack",
-            imageUrl: "/placeholder.jpg",
+            imageUrl: "https://placehold.net/600x600.png",
             price: 0,
             name: "Без названия",
             nalichie: false,
@@ -82,8 +85,19 @@ const ProductCard: FC<ProductCardProps> = ({
     safeVariants.find((v) => v.type === activeVariant) || safeVariants[0];
   const hasMultipleVariants = safeVariants.length > 1;
 
-  // 🔥 ИСПРАВЛЕНИЕ: Кодируем URL изображения
-  const encodedImageUrl = encodeImageUrl(currentVariant.imageUrl);
+  // 🔥 УЛУЧШЕННАЯ логика получения URL изображения
+  const getSafeImageUrl = () => {
+    // Если уже была ошибка, возвращаем placeholder
+    if (imageError) return "https://placehold.net/600x600.png";
+
+    // Если нет URL у текущего варианта, возвращаем placeholder
+    if (!currentVariant.imageUrl) return "https://placehold.net/600x600.png";
+
+    // Кодируем URL для отображения
+    return encodeImageUrl(currentVariant.imageUrl);
+  };
+
+  const safeImageUrl = getSafeImageUrl();
 
   const { addItem } = useCart();
   const {
@@ -104,6 +118,25 @@ const ProductCard: FC<ProductCardProps> = ({
   // 🔥 ДОБАВЛЕНО: Проверка наличия товара
   const isInStock = currentVariant.nalichie !== false;
 
+  // 🔥 ДОБАВЛЕНО: Обработчик ошибки загрузки изображения
+  const handleImageError = (
+    e: React.SyntheticEvent<HTMLImageElement, Event>
+  ) => {
+    console.warn("Image failed to load:", safeImageUrl);
+    setImageError(true);
+    setImageLoading(false);
+
+    // Принудительно устанавливаем placeholder
+    const target = e.target as HTMLImageElement;
+    target.src = "https://placehold.net/600x600.png";
+  };
+
+  // 🔥 ДОБАВЛЕНО: Обработчик успешной загрузки изображения
+  const handleImageLoad = () => {
+    setImageLoading(false);
+    setImageError(false);
+  };
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -119,13 +152,12 @@ const ProductCard: FC<ProductCardProps> = ({
     }
 
     const cartItem: CartItem = {
-      // 🔥 Явно указываем тип CartItem
       id: cartItemId,
       ref: id || currentVariant.name,
       name: currentVariant.name,
       price: currentVariant.price,
       quantity: 1,
-      imageUrl: currentVariant.imageUrl, // Оригинальный URL для данных
+      imageUrl: currentVariant.imageUrl,
       variant: hasMultipleVariants
         ? {
             type: currentVariant.type as "pack" | "block",
@@ -161,7 +193,7 @@ const ProductCard: FC<ProductCardProps> = ({
         id: itemId,
         name: currentVariant.name,
         price: currentVariant.price,
-        imageUrl: currentVariant.imageUrl, // Оригинальный URL для данных
+        imageUrl: currentVariant.imageUrl,
         variant: hasMultipleVariants
           ? {
               type: currentVariant.type as "pack" | "block",
@@ -213,6 +245,9 @@ const ProductCard: FC<ProductCardProps> = ({
                       e.preventDefault();
                       e.stopPropagation();
                       setActiveVariant(type as "pack" | "block");
+                      // 🔥 СБРАСЫВАЕМ состояние ошибки при смене варианта
+                      setImageError(false);
+                      setImageLoading(true);
                     }}
                   >
                     {type === "pack" ? "Пачка" : "Блок"}
@@ -221,19 +256,27 @@ const ProductCard: FC<ProductCardProps> = ({
               </div>
             )}
 
-            {/* 🔥 ИСПРАВЛЕНИЕ: Используем закодированный URL для отображения */}
-            <Image
-              src={encodedImageUrl}
-              alt={`${currentVariant.name} — купить в Москве с доставкой`}
-              width={400}
-              height={400}
-              className={styles.productCard__img}
-              onError={(e) => {
-                // Fallback при ошибке загрузки
-                const target = e.target as HTMLImageElement;
-                target.src = "/placeholder.jpg";
-              }}
-            />
+            {/* 🔥 УЛУЧШЕННЫЙ компонент Image с обработкой ошибок */}
+            <div className={styles.productCard__imageWrapper}>
+              {imageLoading && (
+                <div className={styles.productCard__imageLoader}>
+                  Загрузка...
+                </div>
+              )}
+              <Image
+                ref={imageRef}
+                src={safeImageUrl}
+                alt={`${currentVariant.name} — купить в Москве с доставкой`}
+                width={400}
+                height={400}
+                className={`${styles.productCard__img} ${
+                  imageLoading ? styles.productCard__imgLoading : ""
+                } ${imageError ? styles.productCard__imgError : ""}`}
+                onError={handleImageError}
+                onLoad={handleImageLoad}
+                priority={false} // 🔥 Отключаем приоритетную загрузку для избежания блокировки
+              />
+            </div>
 
             <div className={styles.productCard__action}>
               <Image
@@ -284,7 +327,7 @@ const ProductCard: FC<ProductCardProps> = ({
               "@context": "https://schema.org",
               "@type": "Product",
               name: currentVariant.name,
-              image: currentVariant.imageUrl, // Оригинальный URL для SEO
+              image: currentVariant.imageUrl,
               description,
               brand: { "@type": "Brand", name: "IQOS / TEREA" },
               offers: {
