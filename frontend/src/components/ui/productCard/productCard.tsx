@@ -258,11 +258,6 @@ const ProductCard: FC<ProductCardProps> = ({
 
             {/* 🔥 УЛУЧШЕННЫЙ компонент Image с обработкой ошибок */}
             <div className={styles.productCard__imageWrapper}>
-              {imageLoading && (
-                <div className={styles.productCard__imageLoader}>
-                  Загрузка...
-                </div>
-              )}
               <Image
                 ref={imageRef}
                 src={safeImageUrl}
