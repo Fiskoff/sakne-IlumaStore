@@ -2,13 +2,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: [
-      "placehold.net",
-      "placehold.co",
-      "via.placeholder.com",
-      "217.198.9.128", // ваш IP для изображений
-      "localhost",
-    ],
     remotePatterns: [
       {
         protocol: "http",

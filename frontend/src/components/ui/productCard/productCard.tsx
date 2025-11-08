@@ -263,7 +263,7 @@ const ProductCard: FC<ProductCardProps> = ({
                   Загрузка...
                 </div>
               )}
-              <Image
+              <img
                 ref={imageRef}
                 src={safeImageUrl}
                 alt={`${currentVariant.name} — купить в Москве с доставкой`}
@@ -274,7 +274,6 @@ const ProductCard: FC<ProductCardProps> = ({
                 } ${imageError ? styles.productCard__imgError : ""}`}
                 onError={handleImageError}
                 onLoad={handleImageLoad}
-                priority={false} // 🔥 Отключаем приоритетную загрузку для избежания блокировки
               />
             </div>
 
