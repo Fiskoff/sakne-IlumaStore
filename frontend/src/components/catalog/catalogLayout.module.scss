@@ -238,10 +238,21 @@
 
     &:hover {
       transform: none;
+      border-color: #e2e8f0;
+      color: #475569;
+      box-shadow: none;
+
+      &::before {
+        opacity: 0;
+      }
     }
 
     &.active:hover {
       transform: none;
+      background: linear-gradient(135deg, #667eea 0%, #6a6bbdf6 100%);
+      border-color: #4f46e5;
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     }
   }
 
