@@ -18,6 +18,28 @@ const MIN_BLOCKS_FOR_DELIVERY = 1;
 const MIN_ORDER_AMOUNT = 3500; // 3.5 тысячи рублей
 
 export default function CheckoutPage() {
+  function encodeImageUrl(url: string): string {
+    if (!url) return "https://placehold.net/600x600.png";
+
+    try {
+      // Если это абсолютный URL
+      if (url.startsWith("http")) {
+        const urlObj = new URL(url);
+        urlObj.pathname = encodeURI(urlObj.pathname);
+        return urlObj.toString();
+      }
+
+      // Если это относительный путь
+      const parts = url.split("/");
+      const encodedParts = parts.map((part) =>
+        part.includes("%") || part === "" ? part : encodeURIComponent(part)
+      );
+      return encodedParts.join("/");
+    } catch (error) {
+      console.warn("Error encoding image URL:", url, error);
+      return "https://placehold.net/600x600.png"; // 🔥 Всегда возвращаем fallback при ошибке
+    }
+  }
   const { items, totalPrice, clearCart } = useCart();
   const router = useRouter();
 
@@ -533,7 +555,7 @@ ${orderData.ordered_items
                 <div key={item.id} className={styles.cartItem}>
                   <div className={styles.cartItemImage}>
                     <Image
-                      src={item.imageUrl}
+                      src={encodeImageUrl(item.imageUrl)}
                       alt={item.name}
                       width={80}
                       height={80}
