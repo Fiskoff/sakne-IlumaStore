@@ -60,6 +60,29 @@ const ProductModal: FC<ProductModalProps> = ({
     }
   };
 
+  function encodeImageUrl(url: string): string {
+    if (!url) return "https://placehold.net/600x600.png";
+
+    try {
+      // Если это абсолютный URL
+      if (url.startsWith("http")) {
+        const urlObj = new URL(url);
+        urlObj.pathname = encodeURI(urlObj.pathname);
+        return urlObj.toString();
+      }
+
+      // Если это относительный путь
+      const parts = url.split("/");
+      const encodedParts = parts.map((part) =>
+        part.includes("%") || part === "" ? part : encodeURIComponent(part)
+      );
+      return encodedParts.join("/");
+    } catch (error) {
+      console.warn("Error encoding image URL:", url, error);
+      return "https://placehold.net/600x600.png"; // 🔥 Всегда возвращаем fallback при ошибке
+    }
+  }
+
   const baseId = getStableProductBaseId(id, undefined, productName);
   const itemId = generateProductId(baseId, currentVariant.type);
   const cartItemId = generateCartItemId(baseId, currentVariant.type);
@@ -146,7 +169,7 @@ const ProductModal: FC<ProductModalProps> = ({
         <div className={styles.modal__content}>
           <div className={styles.modal__image}>
             <Image
-              src={currentVariant.imageUrl}
+              src={encodeImageUrl(currentVariant.imageUrl)}
               alt={currentVariant.name}
               width={400}
               height={400}
