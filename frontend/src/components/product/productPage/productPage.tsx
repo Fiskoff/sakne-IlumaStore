@@ -103,6 +103,28 @@ const normalizeProductOnClient = (product: any): Product => {
 };
 
 const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
+  function encodeImageUrl(url: string): string {
+    if (!url) return "https://placehold.net/600x600.png";
+
+    try {
+      // Если это абсолютный URL
+      if (url.startsWith("http")) {
+        const urlObj = new URL(url);
+        urlObj.pathname = encodeURI(urlObj.pathname);
+        return urlObj.toString();
+      }
+
+      // Если это относительный путь
+      const parts = url.split("/");
+      const encodedParts = parts.map((part) =>
+        part.includes("%") || part === "" ? part : encodeURIComponent(part)
+      );
+      return encodedParts.join("/");
+    } catch (error) {
+      console.warn("Error encoding image URL:", url, error);
+      return "https://placehold.net/600x600.png"; // 🔥 Всегда возвращаем fallback при ошибке
+    }
+  }
   // 🔥 Нормализуем продукт на клиенте
   const normalizedProduct = normalizeProductOnClient(product);
 
@@ -281,7 +303,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
             </div>
 
             <Image
-              src={currentVariant.imageUrl}
+              src={encodeImageUrl(currentVariant.imageUrl)}
               alt={productName}
               width={1920}
               height={1080}
