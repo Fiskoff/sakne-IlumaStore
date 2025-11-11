@@ -29,6 +29,13 @@ export function useURLFilters(initialFilters: Filters = {}) {
 
     searchParams.forEach((value, key) => {
       try {
+        if (key === "search") {
+          if (value.trim() !== "") {
+            params[key] = value;
+          }
+          return;
+        }
+
         if (key === "price") {
           // 🔹 Парсинг для price объекта
           try {

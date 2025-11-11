@@ -24,10 +24,11 @@ function getStockStatus(product: any): boolean {
 }
 
 // Функция форматирования продукта
+// 🔹 УЛУЧШЕННАЯ функция форматирования продукта
 function formatProduct(product: any) {
   const inStock = getStockStatus(product);
 
-  // 🔹 ЕДИНООБРАЗНОЕ ПРЕОБРАЗОВАНИЕ ВСЕХ ЦЕН
+  // 🔹 БЕЗОПАСНОЕ ПРЕОБРАЗОВАНИЕ ЦЕН
   const safePriceValue = product.price ? Number(product.price.toString()) : 0;
   const safePricePackValue = product.pricePack
     ? Number(product.pricePack.toString())
@@ -40,14 +41,14 @@ function formatProduct(product: any) {
       {
         type: "pack" as const,
         imageUrl: product.imagePack,
-        price: safePricePackValue || safePriceValue || 0, // 🔹 Используем безопасное значение
+        price: safePricePackValue || safePriceValue || 0,
         name: `${product.name} (пачка)`,
         nalichie: inStock,
       },
       {
         type: "block" as const,
         imageUrl: product.image,
-        price: safePriceValue || 0, // 🔹 Используем безопасное значение
+        price: safePriceValue || 0,
         name: `${product.name} (блок)`,
         nalichie: inStock,
       },
@@ -57,13 +58,14 @@ function formatProduct(product: any) {
       {
         type: "pack" as const,
         imageUrl: product.image,
-        price: safePriceValue || 0, // 🔹 Используем безопасное значение
+        price: safePriceValue || 0,
         name: product.name,
         nalichie: inStock,
       },
     ];
   }
 
+  // 🔹 УЛУЧШЕННАЯ НОРМАЛИЗАЦИЯ ДАННЫХ ДЛЯ ПОИСКА
   let flavorNormalized: string[] = [];
   if (product.flavor) {
     if (Array.isArray(product.flavor)) {
@@ -78,12 +80,20 @@ function formatProduct(product: any) {
     }
   }
 
+  // 🔹 ОБЕСПЕЧИВАЕМ ЕДИНООБРАЗНЫЕ ПОЛЯ ДЛЯ ПОИСКА
   return {
     ...product,
+    id: product.id || product.ref, // Убедимся что ID всегда есть
+    ref: product.ref || product.id?.toString(), // Убедимся что ref всегда есть
+    name: product.name || "Без названия",
+    description: product.description || "",
+    country: product.country || "",
+    brend: product.brend || product.category?.category_name || "",
+    flavor: product.flavor || "",
     variants,
-    priceValue: safePriceValue, // 🔹 Единообразно
+    priceValue: safePriceValue,
     nalichie: inStock,
-    pricePackValue: safePricePackValue, // 🔹 Единообразно
+    pricePackValue: safePricePackValue,
     flavorNormalized,
   };
 }
@@ -175,6 +185,13 @@ function filterProductsOnServer(
     priceOriginal: p.price,
     priceOriginalType: typeof p.price,
   }));
+
+  if (filters.search) {
+    console.log(`🔍 [${category}] Search term: "${filters.search}"`);
+    console.log(
+      `📊 [${category}] Total products before search: ${filtered.length}`
+    );
+  }
 
   Object.entries(filters).forEach(([key, value]) => {
     if (key === "sort" || key === "page" || value == null) return;
@@ -304,17 +321,55 @@ function filterProductsOnServer(
 
           case "search":
             if (!value) return true;
-            const searchTerm = String(value).toLowerCase();
-            return (
-              product.name?.toLowerCase().includes(searchTerm) ||
-              product.description?.toLowerCase().includes(searchTerm) ||
-              product.country?.toLowerCase().includes(searchTerm) ||
-              product.brend?.toLowerCase().includes(searchTerm) ||
-              product.category?.category_name
-                ?.toLowerCase()
-                .includes(searchTerm) ||
-              product.flavor?.toLowerCase().includes(searchTerm)
-            );
+            const searchTerm = String(value).toLowerCase().trim();
+            const searchFields = [
+              { field: product.name, name: "name" },
+              { field: product.description, name: "description" },
+              { field: product.country, name: "country" },
+              { field: product.brend, name: "brend" },
+              { field: product.model, name: "model" },
+              { field: product.color, name: "color" },
+              { field: product.category?.category_name, name: "category" },
+              { field: product.flavor, name: "flavor" },
+              { field: product.strength, name: "strength" },
+            ];
+            const foundInFields = searchFields.some(({ field, name }) => {
+              if (!field) return false;
+              const fieldStr = String(field).toLowerCase();
+              const found = fieldStr.includes(searchTerm);
+              if (found) {
+                console.log(`✅ [${category}] Found in ${name}: "${field}"`);
+              }
+              return found;
+            });
+
+            if (category === "terea" && !foundInFields) {
+              const variantSearch = product.variants?.some((variant: any) => {
+                const variantName = variant.name?.toLowerCase();
+                const foundInVariant = variantName?.includes(searchTerm);
+                if (foundInVariant) {
+                  console.log(
+                    `✅ [${category}] Found in variant: "${variant.name}"`
+                  );
+                }
+                return foundInVariant;
+              });
+              if (variantSearch) return true;
+            }
+
+            if (!foundInFields && filters.search) {
+              console.log(
+                `❌ [${category}] Not found in product: "${product.name}"`
+              );
+              console.log(`   Fields:`, {
+                name: product.name,
+                country: product.country,
+                flavor: product.flavor,
+                brend: product.brend,
+              });
+            }
+
+            return foundInFields;
 
           default:
             return true;
@@ -326,6 +381,22 @@ function filterProductsOnServer(
       }
     });
   });
+
+  if (filters.search) {
+    console.log(
+      `🎯 [${category}] Final result: ${filtered.length} products after search`
+    );
+
+    // Покажем первые несколько найденных продуктов для отладки
+    filtered.slice(0, 3).forEach((product, index) => {
+      console.log(
+        `   ${index + 1}. "${product.name}" - ${product.country} - ${
+          product.flavor
+        }`
+      );
+    });
+  }
+
   return filtered;
 }
 
