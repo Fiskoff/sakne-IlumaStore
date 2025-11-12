@@ -199,6 +199,7 @@ export default function CatalogLayout({
       case "terea":
         return [
           { value: "казахстан", label: "Казахстан" },
+          { value: "польша", label: "Польша" },
           { value: "узбекистан", label: "Узбекистан" },
           { value: "армения", label: "Армения" },
           { value: "индонезия", label: "Иноднезия" },

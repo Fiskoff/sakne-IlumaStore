@@ -43,6 +43,11 @@ export default function BrowseCountry() {
       url: "/catalog/terea/казахстан",
     },
     {
+      title: "Terea Польша",
+      imageUrl: "/images/terea/poland/Terea Turquoise PL.png.webp",
+      url: "/catalog/terea/польша",
+    },
+    {
       title: "Terea Узбекистан",
       imageUrl: "/terea/uzb.webp",
       url: "/catalog/terea/узбекистан",
